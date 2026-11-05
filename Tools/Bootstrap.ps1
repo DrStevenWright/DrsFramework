@@ -53,7 +53,12 @@ function Find-Engine([string]$Association) {
                 Where-Object { $_.AppName -eq "UE_$Association" } | Select-Object -First 1
             if ($install) { return $install.InstallLocation }
         }
-        throw "Launcher engine $Association is not installed. Pass -EngineDir."
+        # The launcher also writes the install folder to the registry; the manifest can be empty.
+        $key = Get-ItemProperty "HKLM:\SOFTWARE\EpicGames\Unreal Engine\$Association" -ErrorAction SilentlyContinue
+        if ($key -and $key.InstalledDirectory -and (Test-Path $key.InstalledDirectory)) { return $key.InstalledDirectory }
+        $default = Join-Path $env:ProgramFiles "Epic Games\UE_$Association"
+        if (Test-Path (Join-Path $default 'Engine\Build\Build.version')) { return $default }
+        throw "Launcher engine $Association was not found. Pass -EngineDir."
     }
     $builds = Get-ItemProperty 'HKCU:\Software\Epic Games\Unreal Engine\Builds' -ErrorAction SilentlyContinue
     if ($builds -and $builds.PSObject.Properties[$Association]) { return $builds.$Association }
