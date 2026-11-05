@@ -1,0 +1,25 @@
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+
+#include "DrsXrPlatformSubsystem.h"
+#include "DrsLog.h"
+#include "DrsXrPlatform.h"
+#include "Engine/Engine.h"
+#include "IXRTrackingSystem.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPlatformSubsystem)
+
+void UDrsXrPlatformSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+	DRS_LOG(LogDrsXrPlatform, Log, TEXT("XR system: %s"), *GetXrSystemName().ToString());
+}
+
+bool UDrsXrPlatformSubsystem::IsXrSystemActive() const
+{
+	return GEngine && GEngine->XRSystem.IsValid();
+}
+
+FName UDrsXrPlatformSubsystem::GetXrSystemName() const
+{
+	return IsXrSystemActive() ? GEngine->XRSystem->GetSystemName() : NAME_None;
+}

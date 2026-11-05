@@ -1,0 +1,54 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "Drs Core",
+	"Description": "Game layer and framework entry point: game classes, and communication between otherwise independent plugins. Enabling this plugin enables the whole framework.",
+	"Category": "DrsFramework",
+	"CreatedBy": "Steven Wright",
+	"CreatedByURL": "https://github.com/DrStevenWright/DrsFramework",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": true,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "DrsCore",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "DrsGlobals",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsXrPlatform",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsXrGameSupport",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsInteraction",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsLocomotion",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsSpawning",
+			"Enabled": true
+		}
+	]
+}
