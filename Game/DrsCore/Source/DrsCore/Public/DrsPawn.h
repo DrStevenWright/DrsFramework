@@ -7,10 +7,12 @@
 #include "DrsPawn.generated.h"
 
 class UCameraComponent;
+class UDrsHandPlaceholderComponent;
 class UDrsInteractorComponent;
 class UDrsLocomotionComponent;
+class UMotionControllerComponent;
 
-/** Framework XR pawn: a tracking origin with an HMD-driven camera. */
+/** Framework XR pawn: a floor-level tracking origin with an HMD-driven camera and two tracked hands. */
 UCLASS()
 class DRSCORE_API ADrsPawn : public APawn
 {
@@ -20,6 +22,8 @@ public:
 	ADrsPawn();
 
 protected:
+	virtual void BeginPlay() override;
+
 	/** Floor-level origin of the tracking space. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
 	TObjectPtr<USceneComponent> TrackingOrigin;
@@ -27,6 +31,19 @@ protected:
 	/** Camera driven by the HMD pose. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
 	TObjectPtr<UCameraComponent> Camera;
+
+	/** Left hand grip pose (controller or hand tracking, depending on the runtime). */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UMotionControllerComponent> LeftController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UMotionControllerComponent> RightController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UDrsHandPlaceholderComponent> LeftHand;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UDrsHandPlaceholderComponent> RightHand;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
 	TObjectPtr<UDrsInteractorComponent> Interactor;

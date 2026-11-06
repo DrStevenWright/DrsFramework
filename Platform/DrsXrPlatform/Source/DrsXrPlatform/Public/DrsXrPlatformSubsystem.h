@@ -25,4 +25,11 @@ public:
 	/** Name of the active XR tracking system, or None. */
 	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform")
 	FName GetXrSystemName() const;
+
+	/**
+	 * Puts the tracking-space origin on the floor, centred where the user started (OpenXR LOCAL_FLOOR;
+	 * the runtime falls back to LOCAL if unsupported). Returns false when no XR system is active.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform")
+	bool SetFloorTrackingOrigin();
 };
