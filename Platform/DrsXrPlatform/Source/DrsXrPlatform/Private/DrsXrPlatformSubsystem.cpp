@@ -23,3 +23,15 @@ FName UDrsXrPlatformSubsystem::GetXrSystemName() const
 {
 	return IsXrSystemActive() ? GEngine->XRSystem->GetSystemName() : NAME_None;
 }
+
+bool UDrsXrPlatformSubsystem::SetFloorTrackingOrigin()
+{
+	if (!IsXrSystemActive())
+	{
+		return false;
+	}
+	GEngine->XRSystem->SetTrackingOrigin(EHMDTrackingOrigin::LocalFloor);
+	DRS_LOG(LogDrsXrPlatform, Log, TEXT("Requested LocalFloor tracking origin; active origin is %d."),
+		static_cast<int32>(GEngine->XRSystem->GetTrackingOrigin()));
+	return true;
+}
