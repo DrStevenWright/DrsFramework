@@ -16,6 +16,12 @@
 	"Installed": false,
 	"Modules": [
 		{
+			"Name": "DrsXrRuntime",
+			"Type": "ClientOnly",
+			"LoadingPhase": "EarliestPossible",
+			"PlatformAllowList": [ "Win64" ]
+		},
+		{
 			"Name": "DrsXrPlatform",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
