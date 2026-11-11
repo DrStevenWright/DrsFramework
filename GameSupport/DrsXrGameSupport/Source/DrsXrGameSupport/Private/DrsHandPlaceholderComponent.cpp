@@ -23,15 +23,15 @@ UDrsHandPlaceholderComponent::UDrsHandPlaceholderComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ShapeMaterial(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
-	if (CubeMesh.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> cubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> shapeMaterial(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+	if (cubeMesh.Succeeded())
 	{
-		SetStaticMesh(CubeMesh.Object);
+		SetStaticMesh(cubeMesh.Object);
 	}
-	if (ShapeMaterial.Succeeded())
+	if (shapeMaterial.Succeeded())
 	{
-		SetMaterial(0, ShapeMaterial.Object);
+		SetMaterial(0, shapeMaterial.Object);
 	}
 
 	SetRelativeScale3D(PlaceholderScale);
@@ -42,18 +42,18 @@ UDrsHandPlaceholderComponent::UDrsHandPlaceholderComponent()
 	CastShadow = true;
 }
 
-void UDrsHandPlaceholderComponent::SetHand(EDrsHand InHand)
+void UDrsHandPlaceholderComponent::SetHand(EDrsHand hand)
 {
-	Hand = InHand;
+	Hand = hand;
 	if (HasBegunPlay())
 	{
 		ApplyColor();
 	}
 }
 
-FLinearColor UDrsHandPlaceholderComponent::GetDefaultHandColor(EDrsHand InHand)
+FLinearColor UDrsHandPlaceholderComponent::GetDefaultHandColor(EDrsHand hand)
 {
-	return InHand == EDrsHand::Left ? FLinearColor(0.1f, 0.35f, 1.0f) : FLinearColor(1.0f, 0.25f, 0.1f);
+	return hand == EDrsHand::Left ? FLinearColor(0.1f, 0.35f, 1.0f) : FLinearColor(1.0f, 0.25f, 0.1f);
 }
 
 void UDrsHandPlaceholderComponent::BeginPlay()
@@ -62,25 +62,25 @@ void UDrsHandPlaceholderComponent::BeginPlay()
 	ApplyColor();
 }
 
-void UDrsHandPlaceholderComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UDrsHandPlaceholderComponent::TickComponent(float deltaTime, ELevelTick tickType, FActorComponentTickFunction* thisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::TickComponent(deltaTime, tickType, thisTickFunction);
 
 	if (bHideWhenUntracked)
 	{
-		const UMotionControllerComponent* Controller = Cast<UMotionControllerComponent>(GetAttachParent());
-		const bool bTracked = Controller && Controller->IsTracked();
-		if (IsVisible() != bTracked)
+		const UMotionControllerComponent* controller = Cast<UMotionControllerComponent>(GetAttachParent());
+		const bool isTracked = controller && controller->IsTracked();
+		if (IsVisible() != isTracked)
 		{
-			SetVisibility(bTracked);
+			SetVisibility(isTracked);
 		}
 	}
 }
 
 void UDrsHandPlaceholderComponent::ApplyColor()
 {
-	if (UMaterialInstanceDynamic* Material = CreateDynamicMaterialInstance(0))
+	if (UMaterialInstanceDynamic* material = CreateDynamicMaterialInstance(0))
 	{
-		Material->SetVectorParameterValue(ColorParameterName, GetDefaultHandColor(Hand));
+		material->SetVectorParameterValue(ColorParameterName, GetDefaultHandColor(Hand));
 	}
 }

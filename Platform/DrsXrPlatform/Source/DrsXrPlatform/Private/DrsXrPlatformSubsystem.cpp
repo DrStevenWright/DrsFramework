@@ -8,9 +8,9 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPlatformSubsystem)
 
-void UDrsXrPlatformSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UDrsXrPlatformSubsystem::Initialize(FSubsystemCollectionBase& collection)
 {
-	Super::Initialize(Collection);
+	Super::Initialize(collection);
 	DRS_LOG(LogDrsXrPlatform, Log, TEXT("XR system: %s"), *GetXrSystemName().ToString());
 }
 

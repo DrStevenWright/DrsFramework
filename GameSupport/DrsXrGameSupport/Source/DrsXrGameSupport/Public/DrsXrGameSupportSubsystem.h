@@ -18,5 +18,5 @@ public:
 	bool IsXrActive() const;
 
 protected:
-	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
+	virtual bool DoesSupportWorldType(const EWorldType::Type worldType) const override;
 };

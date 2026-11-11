@@ -21,24 +21,24 @@ namespace Drs::XrRuntime
 		/** Runtime manifests registered with the OpenXR loader. Each value name is a manifest path. */
 		TArray<FString> GetRegisteredRuntimeJsons()
 		{
-			TArray<FString> Result;
-			HKEY Key;
-			if (::RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Khronos\\OpenXR\\1\\AvailableRuntimes", 0, KEY_READ, &Key) != ERROR_SUCCESS)
+			TArray<FString> result;
+			HKEY key;
+			if (::RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Khronos\\OpenXR\\1\\AvailableRuntimes", 0, KEY_READ, &key) != ERROR_SUCCESS)
 			{
-				return Result;
+				return result;
 			}
-			for (DWORD Index = 0;; ++Index)
+			for (DWORD index = 0;; ++index)
 			{
-				WCHAR Name[MAX_PATH * 2];
-				DWORD NameLength = UE_ARRAY_COUNT(Name);
-				if (::RegEnumValueW(Key, Index, Name, &NameLength, nullptr, nullptr, nullptr, nullptr) != ERROR_SUCCESS)
+				WCHAR name[MAX_PATH * 2];
+				DWORD nameLength = UE_ARRAY_COUNT(name);
+				if (::RegEnumValueW(key, index, name, &nameLength, nullptr, nullptr, nullptr, nullptr) != ERROR_SUCCESS)
 				{
 					break;
 				}
-				Result.Emplace(Name);
+				result.Emplace(name);
 			}
-			::RegCloseKey(Key);
-			return Result;
+			::RegCloseKey(key);
+			return result;
 		}
 #endif
 	}
@@ -47,31 +47,31 @@ namespace Drs::XrRuntime
 	{
 #if PLATFORM_WINDOWS
 		// The Meta Horizon Link installer sets OculusBase, e.g. "C:\Program Files\Meta Horizon\".
-		const FString OculusBase = FPlatformMisc::GetEnvironmentVariable(TEXT("OculusBase"));
-		if (!OculusBase.IsEmpty())
+		const FString oculusBase = FPlatformMisc::GetEnvironmentVariable(TEXT("OculusBase"));
+		if (!oculusBase.IsEmpty())
 		{
-			FString Candidate = FPaths::ConvertRelativePathToFull(FPaths::Combine(OculusBase, TEXT("Support/oculus-runtime"), OculusManifestName));
-			UE_LOG(LogDrsXrRuntime, Verbose, TEXT("Looking for the Oculus runtime at '%s'."), *Candidate);
-			if (FPaths::FileExists(Candidate))
+			FString candidate = FPaths::ConvertRelativePathToFull(FPaths::Combine(oculusBase, TEXT("Support/oculus-runtime"), OculusManifestName));
+			UE_LOG(LogDrsXrRuntime, Verbose, TEXT("Looking for the Oculus runtime at '%s'."), *candidate);
+			if (FPaths::FileExists(candidate))
 			{
-				FPaths::MakePlatformFilename(Candidate);
-				return Candidate;
+				FPaths::MakePlatformFilename(candidate);
+				return candidate;
 			}
 		}
 
-		for (const FString& Registered : GetRegisteredRuntimeJsons())
+		for (const FString& registered : GetRegisteredRuntimeJsons())
 		{
-			if (FPaths::GetCleanFilename(Registered).Equals(OculusManifestName, ESearchCase::IgnoreCase) && FPaths::FileExists(Registered))
+			if (FPaths::GetCleanFilename(registered).Equals(OculusManifestName, ESearchCase::IgnoreCase) && FPaths::FileExists(registered))
 			{
-				return Registered;
+				return registered;
 			}
 		}
 #endif
 		return FString();
 	}
 
-	void SetRuntimeJson(const FString& RuntimeJson)
+	void SetRuntimeJson(const FString& runtimeJson)
 	{
-		FPlatformMisc::SetEnvironmentVar(RuntimeJsonVariable, *RuntimeJson);
+		FPlatformMisc::SetEnvironmentVar(RuntimeJsonVariable, *runtimeJson);
 	}
 }

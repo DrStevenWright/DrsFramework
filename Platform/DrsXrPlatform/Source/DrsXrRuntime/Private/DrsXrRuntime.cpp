@@ -19,20 +19,20 @@ void FDrsXrRuntimeModule::StartupModule()
 		return;
 	}
 
-	const FString RuntimeJson = Drs::XrRuntime::FindOculusRuntimeJson();
-	if (RuntimeJson.IsEmpty())
+	const FString runtimeJson = Drs::XrRuntime::FindOculusRuntimeJson();
+	if (runtimeJson.IsEmpty())
 	{
 		UE_LOG(LogDrsXrRuntime, Log, TEXT("Oculus OpenXR runtime not installed; using the system's active OpenXR runtime."));
 		return;
 	}
 
-	const FString Previous = FPlatformMisc::GetEnvironmentVariable(Drs::XrRuntime::RuntimeJsonVariable);
-	if (!Previous.IsEmpty() && Previous != RuntimeJson)
+	const FString previousRuntimeJson = FPlatformMisc::GetEnvironmentVariable(Drs::XrRuntime::RuntimeJsonVariable);
+	if (!previousRuntimeJson.IsEmpty() && previousRuntimeJson != runtimeJson)
 	{
-		UE_LOG(LogDrsXrRuntime, Log, TEXT("Overriding %s, which was '%s'."), Drs::XrRuntime::RuntimeJsonVariable, *Previous);
+		UE_LOG(LogDrsXrRuntime, Log, TEXT("Overriding %s, which was '%s'."), Drs::XrRuntime::RuntimeJsonVariable, *previousRuntimeJson);
 	}
 
-	Drs::XrRuntime::SetRuntimeJson(RuntimeJson);
-	SelectedRuntimeJson = RuntimeJson;
-	UE_LOG(LogDrsXrRuntime, Log, TEXT("Selected the Oculus OpenXR runtime: %s"), *RuntimeJson);
+	Drs::XrRuntime::SetRuntimeJson(runtimeJson);
+	SelectedRuntimeJson = runtimeJson;
+	UE_LOG(LogDrsXrRuntime, Log, TEXT("Selected the Oculus OpenXR runtime: %s"), *runtimeJson);
 }

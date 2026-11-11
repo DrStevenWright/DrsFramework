@@ -9,7 +9,7 @@ DRSGLOBALS_API DECLARE_LOG_CATEGORY_EXTERN(LogDrs, Log, All);
 
 /**
  * UE_LOG with the calling function's name prepended.
- * Usage: DRS_LOG(LogDrsXrPlatform, Warning, TEXT("No HMD found (%d)"), Value);
+ * Usage: DRS_LOG(LogDrsXrPlatform, Warning, TEXT("No HMD found (%d)"), value);
  */
 #define DRS_LOG(CategoryName, Verbosity, Format, ...) \
 	UE_LOG(CategoryName, Verbosity, TEXT("%hs: ") Format, __FUNCTION__, ##__VA_ARGS__)

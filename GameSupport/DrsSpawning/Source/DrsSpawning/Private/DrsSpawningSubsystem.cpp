@@ -4,7 +4,7 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsSpawningSubsystem)
 
-bool UDrsSpawningSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
+bool UDrsSpawningSubsystem::DoesSupportWorldType(const EWorldType::Type worldType) const
 {
-	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+	return worldType == EWorldType::Game || worldType == EWorldType::PIE;
 }
