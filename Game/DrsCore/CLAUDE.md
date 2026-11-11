@@ -11,7 +11,7 @@ The framework's entry point. A project enables only this plugin.
 - `ADrsGameMode` sets the framework's default classes (pawn, controller, states). The state classes, the player controller and `UDrsGameInstance` are empty for now. The game instance isn't set by the game mode; a project selects it with `GameInstanceClass` in its config.
 - `ADrsPawn` is the XR pawn and the place where features are put together. It has:
   - a floor-level `TrackingOrigin` with an HMD-driven `Camera`;
-  - left and right `UMotionControllerComponent`s, each with a `UDrsHandPlaceholderComponent` attached.
+  - left and right `UMotionControllerComponent`s, each with a `UDrsHandMeshComponent` attached.
 
   New features are normally added to the pawn as components here, not by making features depend on each other.
 - **Tracking origin:** in `BeginPlay`, `ADrsPawn` calls `UDrsXrPlatformSubsystem::SetFloorTrackingOrigin()`. The tracking origin is engine-wide, so only the locally viewed pawn may set it. The pawn isn't possessed yet at `BeginPlay`, so the code checks `GetNetMode() != NM_DedicatedServer` rather than the controller. Keep this in mind when you add other engine-wide XR setup.

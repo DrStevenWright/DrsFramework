@@ -3,7 +3,7 @@
 #include "DrsPawn.h"
 #include "Camera/CameraComponent.h"
 #include "DrsCore.h"
-#include "DrsHandPlaceholderComponent.h"
+#include "DrsHandMeshComponent.h"
 #include "DrsLog.h"
 #include "DrsXrPlatformSubsystem.h"
 #include "Engine/Engine.h"
@@ -38,11 +38,11 @@ ADrsPawn::ADrsPawn()
 	RightController->SetupAttachment(TrackingOrigin);
 	RightController->SetTrackingMotionSource(RightGripSource);
 
-	LeftHand = CreateDefaultSubobject<UDrsHandPlaceholderComponent>(TEXT("LeftHand"));
+	LeftHand = CreateDefaultSubobject<UDrsHandMeshComponent>(TEXT("LeftHand"));
 	LeftHand->SetupAttachment(LeftController);
 	LeftHand->SetHand(EDrsHand::Left);
 
-	RightHand = CreateDefaultSubobject<UDrsHandPlaceholderComponent>(TEXT("RightHand"));
+	RightHand = CreateDefaultSubobject<UDrsHandMeshComponent>(TEXT("RightHand"));
 	RightHand->SetupAttachment(RightController);
 	RightHand->SetHand(EDrsHand::Right);
 }
