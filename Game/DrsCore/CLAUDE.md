@@ -4,7 +4,8 @@ The framework's entry point. A project enables only this plugin.
 
 - **`DrsCore.uplugin` lists every other framework plugin** so that enabling `DrsCore` enables the whole framework. When you add a framework plugin, add it here too, or projects won't load it.
 - **`DrsCore.Build.cs` lists feature modules as private dependencies** (currently `DrsXrPlatform` and `DrsXrGame`; add a feature module when DrsCore starts using it). Its public headers only forward-declare their types, so projects that include `DrsCore` headers don't pull in every feature's headers. Keep it that way: forward-declare in headers and include in `.cpp` files.
-- **Host projects' config refers to these classes by path.** For example, DrsTestProject's `DefaultEngine.ini` has `GlobalDefaultGameMode=/Script/DrsCore.DrsGameMode`. Renaming or moving a game class breaks host projects: mark it as a breaking change, or add a `CoreRedirects` entry.
+- **Each game class has a Blueprint in the plugin's `Content/` folder:** `BP_DrsGameMode`, `BP_DrsGameState`, `BP_DrsPlayerController`, `BP_DrsPlayerState`, `BP_DrsPawn` and `BP_DrsGameInstance` (`/DrsCore/BP_Drs...`). They hold asset defaults that C++ shouldn't hard-code. `BP_DrsGameMode`'s defaults point at the other Blueprints (pawn, controller, game state, player state); the C++ `ADrsGameMode` keeps the C++ classes as its defaults. When you add a game class, add its Blueprint and wire it in.
+- **The Blueprints are a project-facing contract.** Host projects' config refers to them by path. For example, DrsTestProject's `DefaultEngine.ini` has `GlobalDefaultGameMode=/DrsCore/BP_DrsGameMode.BP_DrsGameMode_C` and `GameInstanceClass=/DrsCore/BP_DrsGameInstance.BP_DrsGameInstance_C`. Renaming or moving a Blueprint or a game class breaks host projects: mark it as a breaking change, or add a redirector (assets) or `CoreRedirects` entry (classes).
 
 ## Game classes
 
