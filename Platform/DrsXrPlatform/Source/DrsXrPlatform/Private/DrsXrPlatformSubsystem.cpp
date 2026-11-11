@@ -11,7 +11,7 @@
 void UDrsXrPlatformSubsystem::Initialize(FSubsystemCollectionBase& collection)
 {
 	Super::Initialize(collection);
-	DRS_LOG(LogDrsXrPlatform, Log, TEXT("XR system: %s"), *GetXrSystemName().ToString());
+	DRS_LOG(LogDrsXrPlatform, Log, "XR system: %s", *GetXrSystemName().ToString());
 }
 
 bool UDrsXrPlatformSubsystem::IsXrSystemActive() const
@@ -31,7 +31,7 @@ bool UDrsXrPlatformSubsystem::SetFloorTrackingOrigin()
 		return false;
 	}
 	GEngine->XRSystem->SetTrackingOrigin(EHMDTrackingOrigin::LocalFloor);
-	DRS_LOG(LogDrsXrPlatform, Log, TEXT("Requested LocalFloor tracking origin; active origin is %d."),
+	DRS_LOG(LogDrsXrPlatform, Log, "Requested LocalFloor tracking origin; active origin is %d.",
 		static_cast<int32>(GEngine->XRSystem->GetTrackingOrigin()));
 	return true;
 }

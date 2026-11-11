@@ -59,7 +59,7 @@ void ADrsPawn::BeginPlay()
 		{
 			if (!xrPlatform->SetFloorTrackingOrigin())
 			{
-				DRS_LOG(LogDrsCore, Log, TEXT("No XR system active; running without HMD tracking."));
+				DRS_LOG(LogDrsCore, Log, "No XR system active; running without HMD tracking.");
 			}
 		}
 	}

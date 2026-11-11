@@ -84,8 +84,11 @@ Exceptions:
 
 - Each module declares its own `LogDrs<Module>` category in its public module header (`DECLARE_LOG_CATEGORY_EXTERN`) and defines it in the module's `.cpp`.
 - That `.cpp` also holds `IMPLEMENT_MODULE`. Use `FDefaultModuleImpl` unless the module has real startup or shutdown logic (as `DrsXrRuntime` does); don't add a module class just to log that the module started or shut down.
-- Log with `DRS_LOG(Category, Verbosity, TEXT("..."), ...)`. It is `UE_LOG` with the calling function's name prepended.
-- Use `DRS_LOG_GLOBAL(Verbosity, TEXT("..."), ...)` for messages that belong to no single module. It logs to `LogDrs`.
+- Log with `DRS_LOG(Category, Verbosity, "...", ...)`. It is `UE_LOG` that applies `TEXT()` to the format itself, so pass a plain string literal: `DRS_LOG(LogDrsCore, Log, "No HMD (%d)", value);`. It adds no prefix, so write messages that make sense on their own.
+- `DRS_CLOG(Condition, Category, Verbosity, "...", ...)` is the same for `UE_CLOG`.
+- `DRS_LOG_ONCE` and `DRS_CLOG_ONCE` take the same arguments and log only the first time that call site is reached (for `DRS_CLOG_ONCE`, the first time its condition is true). They are thread-safe. Use them for messages in per-frame or per-call code that would otherwise flood the log.
+- Use `DRS_LOG_GLOBAL(Verbosity, "...", ...)` for messages that belong to no single module. It logs to `LogDrs`.
+- All `DRS_` log macros are single statements, so they work in an unbraced `if`/`else`.
 - `UE_LOG` is fine where `DrsGlobals` isn't available, e.g. in `DrsXrRuntime`, which loads at `EarliestPossible`.
 
 ## Open items

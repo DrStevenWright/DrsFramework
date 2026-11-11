@@ -21,7 +21,7 @@ acyclic and listed in [`Tools/LayerRules.json`](Tools/LayerRules.json).
 ## Naming
 
 - Plugins, modules, types, repos and projects use the `Drs` prefix: `DrsCore`, `ADrsPawn`, `LogDrsXrPlatform`.
-- `DRS_` is used only for macros, e.g. `DRS_LOG(LogDrsCore, Log, TEXT("..."))`.
+- `DRS_` is used only for macros, e.g. `DRS_LOG(LogDrsCore, Log, "...")`.
 
 ## Using it in a project
 
