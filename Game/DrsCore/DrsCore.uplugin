@@ -10,7 +10,7 @@
 	"DocsURL": "",
 	"MarketplaceURL": "",
 	"SupportURL": "",
-	"CanContainContent": false,
+	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": true,
 	"Installed": false,
@@ -35,7 +35,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "DrsXrGameSupport",
+			"Name": "DrsXrGame",
 			"Enabled": true
 		},
 		{

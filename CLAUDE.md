@@ -46,8 +46,8 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 | Base | `Base/` | `DrsGlobals`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), `DrsBaseUtilities`, `DrsGlobalsTests` |
 | Common | `Common/` | `DrsUtilities`: independent modules (`DrsMathUtilities`, `DrsGraphicsUtilities`) |
 | Platform | `Platform/` | `DrsXrPlatform`: XR platform subsystem over OpenXR. Its `DrsXrRuntime` module (Win64, `EarliestPossible`) sets `XR_RUNTIME_JSON` to pick the Meta OpenXR runtime before OpenXR starts; `-DrsKeepXrRuntime` disables this. |
-| GameSupport | `GameSupport/` | `DrsXrGameSupport` (tracked placeholder hands), and `DrsInteraction`, `DrsLocomotion`, `DrsSpawning`, which build on it |
-| Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn) and the place where otherwise independent GameSupport plugins talk to each other |
+| GameSupport | `GameSupport/` | `DrsXrGame` (tracked hand meshes), and `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` (empty for now), which may build on it |
+| Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn, GameInstance) and the place where otherwise independent GameSupport plugins talk to each other |
 
 The checker also enforces these rules:
 - A same-layer dependency must be listed in `AllowedSameLayer` (format `"A -> B"`), and the module graph must have no cycles.
