@@ -68,5 +68,4 @@ The guidance is split by folder. This file covers the whole framework. Each laye
 ## Conventions
 
 - **Code style:** follow [`Docs/CodingConventions.md`](Docs/CodingConventions.md), which covers naming, the file header, and logging. In short: Epic's standard with the `Drs` prefix, except that arguments and locals are camelCase with no `b`, and every code file starts with the MIT copyright line.
-- **Git:** use Conventional Commits for branch names (`feat/…`, `fix/…`, `chore/…`, `docs/…`, `refactor/…`, `test/…`, `ci/…`), commit subjects and PR titles (`feat(scope): summary`). Mark breaking API changes with `!` or a `BREAKING CHANGE:` footer, because host projects must be updated for them.
-- **Working from a host project:** the submodule is often on a detached HEAD, so check out a branch before committing. PR against this repo's `main`, then update the submodule pointer in the host project on its own branch.
+- **Git:** follow [`Docs/GitWorkflow.md`](Docs/GitWorkflow.md) for branch names, commit subjects, scopes, PR titles and descriptions, squash merging, and updating host projects. In short: Conventional Commits everywhere (`feat(core): summary`); no breaking-change markers while the major version is 0; and a host's submodule pointer moves only after the framework PR merges, to the squash commit on `main`.
