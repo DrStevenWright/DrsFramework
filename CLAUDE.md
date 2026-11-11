@@ -59,8 +59,6 @@ Dependencies on engine modules are not checked.
 
 ## Conventions
 
-- **Naming:** use the `Drs` prefix for plugins, modules, types and log categories (`DrsCore`, `ADrsPawn`, `LogDrsXrPlatform`). Use `DRS_` only for macros.
-- **Logging:** each module declares its own `LogDrs<Module>` category. Log with `DRS_LOG(Category, Verbosity, TEXT("..."), ...)`, which prepends the function name, or `DRS_LOG_GLOBAL(...)` for messages that belong to no single module.
-- Every source file starts with `// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.` Vendor plugins in `Platform/External/` keep their own licences.
+- **Code style:** follow [`Docs/CodingConventions.md`](Docs/CodingConventions.md), which covers naming, the file header, and logging. In short: Epic's standard with the `Drs` prefix, except that arguments and locals are camelCase with no `b`, and every code file starts with the MIT copyright line.
 - **Git:** use Conventional Commits for branch names (`feat/…`, `fix/…`, `chore/…`, `docs/…`, `refactor/…`, `test/…`, `ci/…`), commit subjects and PR titles (`feat(scope): summary`). Mark breaking API changes with `!` or a `BREAKING CHANGE:` footer, because host projects must be updated for them.
 - **Working from a host project:** the submodule is often on a detached HEAD, so check out a branch before committing. PR against this repo's `main`, then update the submodule pointer in the host project on its own branch.
