@@ -16,7 +16,7 @@ class DRSXRPLATFORM_API UDrsXrPlatformSubsystem : public UEngineSubsystem
 	GENERATED_BODY()
 
 public:
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Initialize(FSubsystemCollectionBase& collection) override;
 
 	/** True when the engine has an active XR tracking system (e.g. OpenXR). */
 	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform")

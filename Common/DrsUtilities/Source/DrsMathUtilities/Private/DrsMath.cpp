@@ -2,7 +2,7 @@
 
 #include "DrsMath.h"
 
-FQuat Drs::Math::ToYawOnly(const FQuat& Rotation)
+FQuat Drs::Math::ToYawOnly(const FQuat& rotation)
 {
-	return FRotator(0.0, Rotation.Rotator().Yaw, 0.0).Quaternion();
+	return FRotator(0.0, rotation.Rotator().Yaw, 0.0).Quaternion();
 }

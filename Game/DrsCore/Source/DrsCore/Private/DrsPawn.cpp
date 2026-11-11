@@ -60,9 +60,9 @@ void ADrsPawn::BeginPlay()
 	// The pawn is not possessed yet at BeginPlay, so check the net mode rather than the controller.
 	if (GetNetMode() != NM_DedicatedServer && GEngine)
 	{
-		if (UDrsXrPlatformSubsystem* XrPlatform = GEngine->GetEngineSubsystem<UDrsXrPlatformSubsystem>())
+		if (UDrsXrPlatformSubsystem* xrPlatform = GEngine->GetEngineSubsystem<UDrsXrPlatformSubsystem>())
 		{
-			if (!XrPlatform->SetFloorTrackingOrigin())
+			if (!xrPlatform->SetFloorTrackingOrigin())
 			{
 				DRS_LOG(LogDrsCore, Log, TEXT("No XR system active; running without HMD tracking."));
 			}

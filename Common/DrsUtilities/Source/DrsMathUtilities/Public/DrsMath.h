@@ -7,5 +7,5 @@
 namespace Drs::Math
 {
 	/** Keeps only the yaw of a rotation, e.g. to get a level heading from an HMD orientation. */
-	DRSMATHUTILITIES_API FQuat ToYawOnly(const FQuat& Rotation);
+	DRSMATHUTILITIES_API FQuat ToYawOnly(const FQuat& rotation);
 }

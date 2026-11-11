@@ -29,16 +29,16 @@ public:
 
 	/** Sets the hand and updates the tint. */
 	UFUNCTION(BlueprintCallable, Category = "Drs|Hand")
-	void SetHand(EDrsHand InHand);
+	void SetHand(EDrsHand hand);
 
 	UFUNCTION(BlueprintPure, Category = "Drs|Hand")
 	EDrsHand GetHand() const { return Hand; }
 
 	/** Default tint for a hand. */
-	static FLinearColor GetDefaultHandColor(EDrsHand InHand);
+	static FLinearColor GetDefaultHandColor(EDrsHand hand);
 
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float deltaTime, ELevelTick tickType, FActorComponentTickFunction* thisTickFunction) override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Drs|Hand")

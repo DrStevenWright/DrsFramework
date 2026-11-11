@@ -3,11 +3,11 @@
 #include "DrsObjectUtils.h"
 #include "UObject/Object.h"
 
-FString Drs::GetDebugName(const UObject* Object)
+FString Drs::GetDebugName(const UObject* object)
 {
-	if (!Object)
+	if (!object)
 	{
 		return TEXT("None");
 	}
-	return FString::Printf(TEXT("%s:%s"), *GetNameSafe(Object->GetClass()), *Object->GetName());
+	return FString::Printf(TEXT("%s:%s"), *GetNameSafe(object->GetClass()), *object->GetName());
 }

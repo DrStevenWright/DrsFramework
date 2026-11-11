@@ -7,5 +7,5 @@
 namespace Drs
 {
 	/** Returns "ClassName:ObjectName" for log output, or "None" for a null object. */
-	DRSBASEUTILITIES_API FString GetDebugName(const UObject* Object);
+	DRSBASEUTILITIES_API FString GetDebugName(const UObject* object);
 }

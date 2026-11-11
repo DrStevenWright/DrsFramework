@@ -13,5 +13,5 @@ class DRSSPAWNING_API UDrsSpawningSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 
 protected:
-	virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
+	virtual bool DoesSupportWorldType(const EWorldType::Type worldType) const override;
 };

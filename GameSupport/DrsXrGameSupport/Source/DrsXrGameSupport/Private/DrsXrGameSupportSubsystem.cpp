@@ -8,11 +8,11 @@
 
 bool UDrsXrGameSupportSubsystem::IsXrActive() const
 {
-	const UDrsXrPlatformSubsystem* Platform = GEngine ? GEngine->GetEngineSubsystem<UDrsXrPlatformSubsystem>() : nullptr;
-	return Platform && Platform->IsXrSystemActive();
+	const UDrsXrPlatformSubsystem* platform = GEngine ? GEngine->GetEngineSubsystem<UDrsXrPlatformSubsystem>() : nullptr;
+	return platform && platform->IsXrSystemActive();
 }
 
-bool UDrsXrGameSupportSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
+bool UDrsXrGameSupportSubsystem::DoesSupportWorldType(const EWorldType::Type worldType) const
 {
-	return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
+	return worldType == EWorldType::Game || worldType == EWorldType::PIE;
 }

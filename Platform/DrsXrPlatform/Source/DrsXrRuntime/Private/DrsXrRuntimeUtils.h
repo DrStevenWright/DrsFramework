@@ -16,5 +16,5 @@ namespace Drs::XrRuntime
 	FString FindOculusRuntimeJson();
 
 	/** Sets XR_RUNTIME_JSON for this process. */
-	void SetRuntimeJson(const FString& RuntimeJson);
+	void SetRuntimeJson(const FString& runtimeJson);
 }

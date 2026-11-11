@@ -2,10 +2,10 @@
 
 #include "DrsDebugColors.h"
 
-FLinearColor Drs::Graphics::GetDebugColor(int32 Index)
+FLinearColor Drs::Graphics::GetDebugColor(int32 index)
 {
 	// Golden-ratio hue stepping keeps consecutive indices visually far apart.
-	constexpr float GoldenRatioConjugate = 0.618033988749895f;
-	const float Hue = FMath::Fractional(Index * GoldenRatioConjugate);
-	return FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue * 255.0f), 200, 255);
+	constexpr float goldenRatioConjugate = 0.618033988749895f;
+	const float hue = FMath::Fractional(index * goldenRatioConjugate);
+	return FLinearColor::MakeFromHSV8(static_cast<uint8>(hue * 255.0f), 200, 255);
 }
