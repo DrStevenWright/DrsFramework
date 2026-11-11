@@ -12,8 +12,8 @@
 	"TestModuleComment": "Modules whose names end with TestModuleSuffix may also depend on any module in their own plugin.",
 	"AllowedSameLayer": [
 		"DrsBaseUtilities -> DrsGlobals",
-		"DrsInteraction -> DrsXrGameSupport",
-		"DrsLocomotion -> DrsXrGameSupport",
-		"DrsSpawning -> DrsXrGameSupport"
+		"DrsInteraction -> DrsXrGame",
+		"DrsLocomotion -> DrsXrGame",
+		"DrsSpawning -> DrsXrGame"
 	]
 }

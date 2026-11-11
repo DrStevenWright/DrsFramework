@@ -46,8 +46,8 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 | Base | `Base/` | `DrsGlobals`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), `DrsBaseUtilities`, `DrsGlobalsTests` |
 | Common | `Common/` | `DrsUtilities`: independent modules (`DrsMathUtilities`, `DrsGraphicsUtilities`) |
 | Platform | `Platform/` | `DrsXrPlatform`: XR platform subsystem over OpenXR. Its `DrsXrRuntime` module (Win64, `EarliestPossible`) sets `XR_RUNTIME_JSON` to pick the Meta OpenXR runtime before OpenXR starts; `-DrsKeepXrRuntime` disables this. |
-| GameSupport | `GameSupport/` | `DrsXrGameSupport` (tracked placeholder hands), and `DrsInteraction`, `DrsLocomotion`, `DrsSpawning`, which build on it |
-| Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn) and the place where otherwise independent GameSupport plugins talk to each other |
+| GameSupport | `GameSupport/` | `DrsXrGame` (tracked hand meshes), and `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` (empty for now), which may build on it |
+| Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn, GameInstance) and the place where otherwise independent GameSupport plugins talk to each other |
 
 The checker also enforces these rules:
 - A same-layer dependency must be listed in `AllowedSameLayer` (format `"A -> B"`), and the module graph must have no cycles.
@@ -68,5 +68,5 @@ The guidance is split by folder. This file covers the whole framework. Each laye
 ## Conventions
 
 - **Code style:** follow [`Docs/CodingConventions.md`](Docs/CodingConventions.md), which covers naming, the file header, and logging. In short: Epic's standard with the `Drs` prefix, except that arguments and locals are camelCase with no `b`, and every code file starts with the MIT copyright line.
-- **Git:** use Conventional Commits for branch names (`feat/…`, `fix/…`, `chore/…`, `docs/…`, `refactor/…`, `test/…`, `ci/…`), commit subjects and PR titles (`feat(scope): summary`). Mark breaking API changes with `!` or a `BREAKING CHANGE:` footer, because host projects must be updated for them.
+- **Git:** use Conventional Commits for branch names (`feat/…`, `fix/…`, `chore/…`, `docs/…`, `refactor/…`, `test/…`, `ci/…`), commit subjects and PR titles (`feat(scope): summary`). While the framework's major version is 0 (`FrameworkVersionMajor` in `DrsVersion.h`), don't mark commits or PR titles as breaking (no `!`, no `BREAKING CHANGE:` footer): any 0.x change may break host projects. Instead, list what host projects must update in the PR description. Start marking breaking changes once the major version reaches 1.
 - **Working from a host project:** the submodule is often on a detached HEAD, so check out a branch before committing. PR against this repo's `main`, then update the submodule pointer in the host project on its own branch.

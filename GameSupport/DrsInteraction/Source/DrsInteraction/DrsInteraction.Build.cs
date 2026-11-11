@@ -8,8 +8,8 @@ public class DrsInteraction : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DrsGlobals" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "DrsXrGameSupport" });
+		PrivateDependencyModuleNames.AddRange(new string[] {  });
 	}
 }

@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "0.1.0",
-	"FriendlyName": "Drs XR Game Support",
+	"FriendlyName": "Drs XR Game",
 	"Description": "GameSupport layer: runtime XR features built on the platform layer.",
 	"Category": "DrsFramework",
 	"CreatedBy": "Steven Wright",
@@ -10,25 +10,15 @@
 	"DocsURL": "",
 	"MarketplaceURL": "",
 	"SupportURL": "",
-	"CanContainContent": false,
+	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": true,
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "DrsXrGameSupport",
+			"Name": "DrsXrGame",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "DrsGlobals",
-			"Enabled": true
-		},
-		{
-			"Name": "DrsXrPlatform",
-			"Enabled": true
 		}
 	]
 }

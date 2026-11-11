@@ -25,11 +25,5 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
-	],
-	"Plugins": [
-		{
-			"Name": "DrsGlobals",
-			"Enabled": true
-		}
 	]
 }

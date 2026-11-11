@@ -3,29 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/StaticMeshComponent.h"
-#include "DrsHandPlaceholderComponent.generated.h"
-
-/** Which of the local user's hands a component represents. */
-UENUM(BlueprintType)
-enum class EDrsHand : uint8
-{
-	Left,
-	Right
-};
+#include "Components/SkeletalMeshComponent.h"
+#include "DrsHand.h"
+#include "DrsHandMeshComponent.generated.h"
 
 /**
- * Placeholder visual for a tracked hand: a palm-sized box, tinted per hand.
+ * Visual for a tracked hand, tinted per hand through the material's "Color" vector parameter.
+ * By default it shows a palm-sized box (the engine's SkeletalCube, scaled) with M_DrsHandPlaceholder; set another
+ * skeletal mesh and material for real hands. The material needs a "Color" parameter for the tint.
  * Attach it to a UMotionControllerComponent. It hides itself while its parent controller is not tracked.
  * Local-only: holds no replicated state.
  */
-UCLASS(ClassGroup = "Drs", meta = (BlueprintSpawnableComponent))
-class DRSXRGAMESUPPORT_API UDrsHandPlaceholderComponent : public UStaticMeshComponent
+UCLASS(ClassGroup = (Drs), meta = (BlueprintSpawnableComponent))
+class DRSXRGAME_API UDrsHandMeshComponent : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
 
 public:
-	UDrsHandPlaceholderComponent();
+	UDrsHandMeshComponent();
 
 	/** Sets the hand and updates the tint. */
 	UFUNCTION(BlueprintCallable, Category = "Drs|Hand")
@@ -44,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Drs|Hand")
 	EDrsHand Hand = EDrsHand::Left;
 
-	/** Hide the placeholder while the parent motion controller has no tracking. */
+	/** Hide the mesh while the parent motion controller has no tracking. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Drs|Hand")
 	bool bHideWhenUntracked = true;
 

@@ -3,9 +3,7 @@
 #include "DrsPawn.h"
 #include "Camera/CameraComponent.h"
 #include "DrsCore.h"
-#include "DrsHandPlaceholderComponent.h"
-#include "DrsInteractorComponent.h"
-#include "DrsLocomotionComponent.h"
+#include "DrsHandMeshComponent.h"
 #include "DrsLog.h"
 #include "DrsXrPlatformSubsystem.h"
 #include "Engine/Engine.h"
@@ -40,16 +38,13 @@ ADrsPawn::ADrsPawn()
 	RightController->SetupAttachment(TrackingOrigin);
 	RightController->SetTrackingMotionSource(RightGripSource);
 
-	LeftHand = CreateDefaultSubobject<UDrsHandPlaceholderComponent>(TEXT("LeftHand"));
+	LeftHand = CreateDefaultSubobject<UDrsHandMeshComponent>(TEXT("LeftHand"));
 	LeftHand->SetupAttachment(LeftController);
 	LeftHand->SetHand(EDrsHand::Left);
 
-	RightHand = CreateDefaultSubobject<UDrsHandPlaceholderComponent>(TEXT("RightHand"));
+	RightHand = CreateDefaultSubobject<UDrsHandMeshComponent>(TEXT("RightHand"));
 	RightHand->SetupAttachment(RightController);
 	RightHand->SetHand(EDrsHand::Right);
-
-	Interactor = CreateDefaultSubobject<UDrsInteractorComponent>(TEXT("Interactor"));
-	Locomotion = CreateDefaultSubobject<UDrsLocomotionComponent>(TEXT("Locomotion"));
 }
 
 void ADrsPawn::BeginPlay()
@@ -64,7 +59,7 @@ void ADrsPawn::BeginPlay()
 		{
 			if (!xrPlatform->SetFloorTrackingOrigin())
 			{
-				DRS_LOG(LogDrsCore, Log, TEXT("No XR system active; running without HMD tracking."));
+				DRS_LOG(LogDrsCore, Log, "No XR system active; running without HMD tracking.");
 			}
 		}
 	}
