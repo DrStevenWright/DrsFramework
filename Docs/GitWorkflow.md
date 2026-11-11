@@ -43,7 +43,21 @@ Leave the scope out for changes that span layers. When you add a plugin, add its
 
 ## Branches
 
-- Name branches `<type>/<short-kebab-description>`: `feat/hand-tracking-gestures`, `chore/update-drsframework`.
+- Name branches `<type>/<short-kebab-description>`, using the same types as commits (see [Types](#types)):
+
+  | Prefix | Example |
+  |---|---|
+  | `feat/` | `feat/hand-tracking-gestures` |
+  | `fix/` | `fix/openxr-runtime-fallback` |
+  | `refactor/` | `refactor/core-classes-and-logging` |
+  | `docs/` | `docs/git-workflow` |
+  | `test/` | `test/log-macros` |
+  | `chore/` | `chore/update-drsframework` |
+  | `ci/` | `ci/build-on-pr` |
+  | `perf/` | `perf/hand-mesh-tick` |
+  | `build/` | `build/android-arm64-config` |
+
+  Use the type of the PR's main change. If a branch mixes several, pick the one the PR title will use.
 - Don't use the Git Flow prefixes `feature/`, `bugfix/` or `hotfix/`.
 - Start a new branch from `main` for each piece of work. Don't reuse a branch after its PR has merged.
 - GitHub deletes the branch when its PR merges. Delete your local copy too.
