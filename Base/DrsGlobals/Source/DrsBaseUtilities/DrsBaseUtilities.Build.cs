@@ -8,7 +8,7 @@ public class DrsBaseUtilities : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DrsGlobals" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 	}

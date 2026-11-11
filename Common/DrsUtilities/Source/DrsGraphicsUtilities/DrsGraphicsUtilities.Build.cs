@@ -8,7 +8,7 @@ public class DrsGraphicsUtilities : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "DrsGlobals" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 	}
