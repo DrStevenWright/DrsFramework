@@ -4,8 +4,6 @@
 #include "Camera/CameraComponent.h"
 #include "DrsCore.h"
 #include "DrsHandPlaceholderComponent.h"
-#include "DrsInteractorComponent.h"
-#include "DrsLocomotionComponent.h"
 #include "DrsLog.h"
 #include "DrsXrPlatformSubsystem.h"
 #include "Engine/Engine.h"
@@ -47,9 +45,6 @@ ADrsPawn::ADrsPawn()
 	RightHand = CreateDefaultSubobject<UDrsHandPlaceholderComponent>(TEXT("RightHand"));
 	RightHand->SetupAttachment(RightController);
 	RightHand->SetHand(EDrsHand::Right);
-
-	Interactor = CreateDefaultSubobject<UDrsInteractorComponent>(TEXT("Interactor"));
-	Locomotion = CreateDefaultSubobject<UDrsLocomotionComponent>(TEXT("Locomotion"));
 }
 
 void ADrsPawn::BeginPlay()

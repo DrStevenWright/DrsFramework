@@ -4,8 +4,8 @@ Reusable gameplay building blocks: components and world subsystems that a game a
 
 **Belongs here:** one feature per plugin, usable on its own. Today:
 - `DrsXrGameSupport`: shared XR gameplay pieces. It contains `UDrsXrGameSupportSubsystem` (per world: is XR active for this game?) and `UDrsHandPlaceholderComponent` with `EDrsHand`.
-- `DrsInteraction`: `UDrsInteractorComponent` (placeholder).
-- `DrsLocomotion`: `UDrsLocomotionComponent` (placeholder).
+- `DrsInteraction`: interaction (grabbing, pointing, using). Empty module for now.
+- `DrsLocomotion`: movement and teleporting. Empty module for now.
 - `DrsSpawning`: `UDrsSpawningSubsystem` (placeholder).
 
 **Doesn't belong here:** code that wires several features together, or game classes such as pawns and game modes. That goes in `Game/DrsCore`.
