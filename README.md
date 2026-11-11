@@ -13,7 +13,7 @@ acyclic and listed in [`Tools/LayerRules.json`](Tools/LayerRules.json).
 | Layer | Folder | Plugins |
 |---|---|---|
 | Game | `Game/` | `DrsCore`: game classes (GameMode, GameState, PlayerState, PlayerController, Pawn, GameInstance) and communication between otherwise independent plugins |
-| GameSupport | `GameSupport/` | `DrsXrGameSupport`, `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` |
+| GameSupport | `GameSupport/` | `DrsXrGame`, `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` |
 | Platform | `Platform/` | `DrsXrPlatform`; vendor plugin forks in `Platform/External/` |
 | Common | `Common/` | `DrsUtilities` (independent modules such as `DrsMathUtilities`, `DrsGraphicsUtilities`) |
 | Base | `Base/` | `DrsGlobals` (`DrsGlobals`, `DrsBaseUtilities`, `DrsGlobalsTests`) |

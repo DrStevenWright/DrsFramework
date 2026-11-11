@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "DrsXrGameSupportSubsystem.generated.h"
+#include "DrsXrGameSubsystem.generated.h"
 
 /** Per-world access point for runtime XR features. */
 UCLASS()
-class DRSXRGAMESUPPORT_API UDrsXrGameSupportSubsystem : public UWorldSubsystem
+class DRSXRGAME_API UDrsXrGameSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	/** True when XR is active for this game. */
-	UFUNCTION(BlueprintPure, Category = "Drs|XR Game Support")
+	UFUNCTION(BlueprintPure, Category = "Drs|XR Game")
 	bool IsXrActive() const;
 
 protected:

@@ -3,7 +3,7 @@
 The framework's entry point. A project enables only this plugin.
 
 - **`DrsCore.uplugin` lists every other framework plugin** so that enabling `DrsCore` enables the whole framework. When you add a framework plugin, add it here too, or projects won't load it.
-- **`DrsCore.Build.cs` lists feature modules as private dependencies** (currently `DrsXrPlatform` and `DrsXrGameSupport`; add a feature module when DrsCore starts using it). Its public headers only forward-declare their types, so projects that include `DrsCore` headers don't pull in every feature's headers. Keep it that way: forward-declare in headers and include in `.cpp` files.
+- **`DrsCore.Build.cs` lists feature modules as private dependencies** (currently `DrsXrPlatform` and `DrsXrGame`; add a feature module when DrsCore starts using it). Its public headers only forward-declare their types, so projects that include `DrsCore` headers don't pull in every feature's headers. Keep it that way: forward-declare in headers and include in `.cpp` files.
 - **Host projects' config refers to these classes by path.** For example, DrsTestProject's `DefaultEngine.ini` has `GlobalDefaultGameMode=/Script/DrsCore.DrsGameMode`. Renaming or moving a game class breaks host projects: mark it as a breaking change, or add a `CoreRedirects` entry.
 
 ## Game classes

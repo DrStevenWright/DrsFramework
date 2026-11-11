@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class DrsXrGameSupport : ModuleRules
+public class DrsXrGame : ModuleRules
 {
-	public DrsXrGameSupport(ReadOnlyTargetRules Target) : base(Target)
+	public DrsXrGame(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 

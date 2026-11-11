@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleInterface.h"
 
-DRSXRGAMESUPPORT_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrGameSupport, Log, All);
+DRSXRGAME_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrGame, Log, All);
 
-class FDrsXrGameSupportModule : public IModuleInterface
+class FDrsXrGameModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;

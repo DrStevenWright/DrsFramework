@@ -20,7 +20,7 @@ enum class EDrsHand : uint8
  * Local-only: holds no replicated state.
  */
 UCLASS(ClassGroup = "Drs", meta = (BlueprintSpawnableComponent))
-class DRSXRGAMESUPPORT_API UDrsHandPlaceholderComponent : public UStaticMeshComponent
+class DRSXRGAME_API UDrsHandPlaceholderComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 

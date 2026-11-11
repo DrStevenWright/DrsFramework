@@ -10,6 +10,6 @@ public class DrsSpawning : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DrsGlobals" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "DrsXrGameSupport" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "DrsXrGame" });
 	}
 }

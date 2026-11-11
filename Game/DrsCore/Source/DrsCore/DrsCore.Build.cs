@@ -10,6 +10,6 @@ public class DrsCore : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DrsGlobals" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "HeadMountedDisplay", "DrsXrPlatform", "DrsXrGameSupport" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "HeadMountedDisplay", "DrsXrPlatform", "DrsXrGame" });
 	}
 }
