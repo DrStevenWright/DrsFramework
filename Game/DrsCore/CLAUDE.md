@@ -8,7 +8,7 @@ The framework's entry point. A project enables only this plugin.
 
 ## Game classes
 
-- `ADrsGameMode` sets the framework's default classes (pawn, controller, states). The state classes and the player controller are empty for now.
+- `ADrsGameMode` sets the framework's default classes (pawn, controller, states). The state classes, the player controller and `UDrsGameInstance` are empty for now. The game instance isn't set by the game mode; a project selects it with `GameInstanceClass` in its config.
 - `ADrsPawn` is the XR pawn and the place where features are put together. It has:
   - a floor-level `TrackingOrigin` with an HMD-driven `Camera`;
   - left and right `UMotionControllerComponent`s, each with a `UDrsHandPlaceholderComponent` attached;
