@@ -83,6 +83,7 @@ Exceptions:
 ## Logging
 
 - Each module declares its own `LogDrs<Module>` category in its public module header (`DECLARE_LOG_CATEGORY_EXTERN`) and defines it in the module's `.cpp`.
+- That `.cpp` also holds `IMPLEMENT_MODULE`. Use `FDefaultModuleImpl` unless the module has real startup or shutdown logic (as `DrsXrRuntime` does); don't add a module class just to log that the module started or shut down.
 - Log with `DRS_LOG(Category, Verbosity, TEXT("..."), ...)`. It is `UE_LOG` with the calling function's name prepended.
 - Use `DRS_LOG_GLOBAL(Verbosity, TEXT("..."), ...)` for messages that belong to no single module. It logs to `LogDrs`.
 - `UE_LOG` is fine where `DrsGlobals` isn't available, e.g. in `DrsXrRuntime`, which loads at `EarliestPossible`.

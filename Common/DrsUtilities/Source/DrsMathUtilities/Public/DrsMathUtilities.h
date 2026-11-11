@@ -3,13 +3,5 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleInterface.h"
 
 DRSMATHUTILITIES_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsMathUtilities, Log, All);
-
-class FDrsMathUtilitiesModule : public IModuleInterface
-{
-public:
-	virtual void StartupModule() override;
-	virtual void ShutdownModule() override;
-};
