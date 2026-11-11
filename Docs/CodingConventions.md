@@ -40,6 +40,7 @@ Rules that go with the table:
 - **Members always use Epic style, including the `b`,** whether or not they are reflected. That way a name doesn't change when someone later adds `UPROPERTY()`, and our members match the engine members they sit beside in derived classes.
 - **There is no Blueprint exception for arguments.** `BlueprintCallable` functions and dynamic delegates also use camelCase arguments without `b`. The editor builds pin labels with `FName::NameToDisplayString`, which turns `isActive` into "Is Active", the same result the `b`-stripping gives for `bIsActive`. (See the open items below.)
 - Functions that return bool to report success, rather than answer a question, may keep a verb name: `bool SetFloorTrackingOrigin()`. Document what the return value means.
+- **IDE warnings:** Rider's built-in Unreal naming rules flag camelCase arguments and locals. The repos don't ship naming settings, so turn those warnings off in your own Rider settings.
 
 ### Why
 
@@ -94,4 +95,3 @@ Exceptions:
 ## Open items
 
 - [ ] **Check Blueprint pin labels in UE 5.8.** Add one `BlueprintCallable` function and one dynamic multicast delegate with camelCase arguments (e.g. `isActive`, `hitActor`), and confirm the pins show "Is Active" and "Hit Actor". If they don't, revisit the no-Blueprint-exception rule.
-- [ ] **Set up IDE naming rules.** Rider/ReSharper ship with Epic's rules and will warn on camelCase arguments and locals. Add custom naming rules for parameters and locals, and commit the shared settings (`.DotSettings`) to each repo.
