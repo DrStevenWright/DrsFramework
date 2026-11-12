@@ -50,7 +50,7 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 | Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn, GameInstance) and the place where otherwise independent GameSupport plugins talk to each other |
 
 The checker also enforces these rules:
-- A same-layer dependency must be listed in `AllowedSameLayer` (format `"A -> B"`), and the module graph must have no cycles.
+- A same-layer dependency must be listed in `AllowedSameLayer` (format `"A -> B"`), and the module graph must have no cycles. The External layer is exempt from the same-layer rule (`"AllowSameLayer": true`), since vendor plugins keep their own module structure.
 - A module that uses another framework plugin's module must list that plugin in its own `.uplugin`.
 - A `.uplugin` must not list a plugin from a higher layer.
 - A `*Tests` module may depend on any module in its own plugin.

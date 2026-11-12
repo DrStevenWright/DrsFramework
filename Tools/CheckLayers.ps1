@@ -6,7 +6,7 @@
 .DESCRIPTION
     Reads Tools/LayerRules.json, every .uplugin and every *.Build.cs under the framework root, and fails on:
       - a dependency on a module in a higher layer
-      - a same-layer dependency that is not listed in AllowedSameLayer
+      - a same-layer dependency that is not listed in AllowedSameLayer (skipped for layers with AllowSameLayer, such as External)
       - a dependency cycle between framework modules
       - a module that depends on a module in another framework plugin that its .uplugin does not list
       - a .uplugin that lists a framework plugin in a higher layer
@@ -42,7 +42,7 @@ function Get-Layer([string]$RelativePath) {
         $p = $layers[$i].Path.TrimEnd('/') + '/'
         if (($RelativePath + '/').StartsWith($p, [StringComparison]::OrdinalIgnoreCase)) {
             if ($null -eq $best -or $p.Length -gt $best.PathLength) {
-                $best = [pscustomobject]@{ Index = $i; Name = $layers[$i].Name; PathLength = $p.Length }
+                $best = [pscustomobject]@{ Index = $i; Name = $layers[$i].Name; PathLength = $p.Length; AllowSameLayer = [bool]$layers[$i].AllowSameLayer }
             }
         }
     }
@@ -104,7 +104,7 @@ foreach ($mod in $modules.Values) {
         if ($to.Index -gt $from.Index) {
             $errors.Add("Upward dependency: $($mod.Name) ($($from.Name)) -> $depName ($($to.Name)).")
         }
-        elseif ($to.Index -eq $from.Index) {
+        elseif ($to.Index -eq $from.Index -and -not $from.AllowSameLayer) {
             $isTestInOwnPlugin = $testSuffix -and $mod.Name.EndsWith($testSuffix) -and ($dep.Plugin.Name -eq $mod.Plugin.Name)
             if (-not $isTestInOwnPlugin -and -not $allowed.Contains("$($mod.Name)->$depName")) {
                 $errors.Add("Unlisted same-layer dependency: $($mod.Name) -> $depName ($($from.Name)). Add it to AllowedSameLayer if intended.")
