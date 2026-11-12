@@ -1,7 +1,7 @@
 {
-	"Comment": "Layer order from lowest to highest. A module may depend only on modules in lower layers, plus same-layer modules listed in AllowedSameLayer. Paths are relative to the DrsFramework root; the longest matching path wins.",
+	"Comment": "Layer order from lowest to highest. A module may depend only on modules in lower layers, plus same-layer modules listed in AllowedSameLayer. Paths are relative to the DrsFramework root; the longest matching path wins. A layer with AllowSameLayer set skips the same-layer rule (used for External, whose vendor plugins keep their own module structure); its other rules still apply.",
 	"Layers": [
-		{ "Name": "External", "Path": "Platform/External" },
+		{ "Name": "External", "Path": "Platform/External", "AllowSameLayer": true },
 		{ "Name": "Base", "Path": "Base" },
 		{ "Name": "Common", "Path": "Common" },
 		{ "Name": "Platform", "Path": "Platform" },
