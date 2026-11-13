@@ -9,11 +9,16 @@ DerivedDataCache/
 .vscode/
 .idea/
 *.sln
+*.slnx
 *.suo
 *.opensdf
 *.sdf
 *.VC.db
 *.VC.opendb
+*.user
+
+# Claude Code per-user settings
+.claude/settings.local.json
 
 # OS files
 .DS_Store
