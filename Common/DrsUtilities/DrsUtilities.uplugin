@@ -16,14 +16,20 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "DrsMathUtilities",
+			"Name": "DrsMathUtils",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "DrsGraphicsUtilities",
+			"Name": "DrsGraphicsUtils",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "DrsBase",
+			"Enabled": true
 		}
 	]
 }

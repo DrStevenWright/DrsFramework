@@ -1,0 +1,32 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "Drs Base",
+	"Description": "Base layer: logging helpers, basic types and global functions shared by the whole framework.",
+	"Category": "DrsFramework",
+	"CreatedBy": "Steven Wright",
+	"CreatedByURL": "https://github.com/DrStevenWright/DrsFramework",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": true,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "DrsBase",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DrsBaseTests",
+			"Type": "DeveloperTool",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+
+	]
+}

@@ -7,16 +7,17 @@ Targets: Meta Quest (Link and standalone Android), with Pico as a cross-platform
 
 ## Layers
 
-Each layer may depend only on the layers below it. Dependencies within a layer must be
-acyclic and listed in [`Tools/LayerRules.json`](Tools/LayerRules.json).
+Each layer may depend only on the layers below it. Dependencies within a plugin are allowed
+unless the layer forbids them; other same-layer dependencies must be listed in
+[`Tools/LayerRules.json`](Tools/LayerRules.json). The module graph must be acyclic.
 
 | Layer | Folder | Plugins |
 |---|---|---|
 | Game | `Game/` | `DrsCore`: game classes (GameMode, GameState, PlayerState, PlayerController, Pawn, GameInstance) and communication between otherwise independent plugins |
 | GameSupport | `GameSupport/` | `DrsXrGame`, `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` |
 | Platform | `Platform/` | `DrsXrPlatform`; vendor plugin forks in `Platform/External/` |
-| Common | `Common/` | `DrsUtilities` (independent modules such as `DrsMathUtilities`, `DrsGraphicsUtilities`) |
-| Base | `Base/` | `DrsGlobals` (`DrsGlobals`, `DrsBaseUtilities`, `DrsGlobalsTests`) |
+| Common | `Common/` | `DrsUtilities` (independent modules such as `DrsMathUtils`, `DrsGraphicsUtils`) |
+| Base | `Base/` | `DrsBase` (`DrsBase`, `DrsBaseTests`) |
 
 ## Naming
 

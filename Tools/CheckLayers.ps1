@@ -6,7 +6,10 @@
 .DESCRIPTION
     Reads Tools/LayerRules.json, every .uplugin and every *.Build.cs under the framework root, and fails on:
       - a dependency on a module in a higher layer
-      - a same-layer dependency that is not listed in AllowedSameLayer (skipped for layers with AllowSameLayer, such as External)
+      - a same-layer dependency that the layer's SameLayer policy does not allow and AllowedSameLayer does not list.
+        SameLayer is 'Plugin' (the default: dependencies within a plugin are allowed), 'Any' or 'None'.
+        *Tests modules may always depend on modules in their own plugin.
+      - an AllowedSameLayer entry for a dependency that the layer's policy already allows
       - a dependency cycle between framework modules
       - a module that depends on a module in another framework plugin that its .uplugin does not list
       - a .uplugin that lists a framework plugin in a higher layer
@@ -36,13 +39,20 @@ function Get-RelativePath([string]$Path) {
 
 # Layer lookup: the longest rule path that prefixes the plugin's path.
 $layers = @($rules.Layers)
+$validPolicies = @('Plugin', 'Any', 'None')
+$sameLayerPolicies = @(foreach ($l in $layers) { if ($l.SameLayer) { [string]$l.SameLayer } else { 'Plugin' } })
+for ($i = 0; $i -lt $layers.Count; $i++) {
+    if ($validPolicies -notcontains $sameLayerPolicies[$i]) {
+        $errors.Add("Layer '$($layers[$i].Name)' has SameLayer '$($sameLayerPolicies[$i])'; expected one of: $($validPolicies -join ', ').")
+    }
+}
 function Get-Layer([string]$RelativePath) {
     $best = $null
     for ($i = 0; $i -lt $layers.Count; $i++) {
         $p = $layers[$i].Path.TrimEnd('/') + '/'
         if (($RelativePath + '/').StartsWith($p, [StringComparison]::OrdinalIgnoreCase)) {
             if ($null -eq $best -or $p.Length -gt $best.PathLength) {
-                $best = [pscustomobject]@{ Index = $i; Name = $layers[$i].Name; PathLength = $p.Length; AllowSameLayer = [bool]$layers[$i].AllowSameLayer }
+                $best = [pscustomobject]@{ Index = $i; Name = $layers[$i].Name; PathLength = $p.Length; SameLayer = $sameLayerPolicies[$i] }
             }
         }
     }
@@ -95,6 +105,29 @@ foreach ($entry in @($rules.AllowedSameLayer)) {
 }
 $testSuffix = [string]$rules.TestModuleSuffix
 
+# Whether the layer's SameLayer policy (or the test module rule) allows a same-layer dependency, without exceptions.
+function Test-PolicyAllows($Mod, $Dep) {
+    $samePlugin = $Dep.Plugin.Name -eq $Mod.Plugin.Name
+    if ($samePlugin -and $testSuffix -and $Mod.Name.EndsWith($testSuffix)) { return $true }
+    switch ($Mod.Plugin.Layer.SameLayer) {
+        'Any' { return $true }
+        'Plugin' { return $samePlugin }
+        default { return $false }
+    }
+}
+
+foreach ($entry in $allowed) {
+    $from, $to = $entry -split '->'
+    if (-not ($modules.ContainsKey($from) -and $modules.ContainsKey($to))) { continue }
+    $fromMod = $modules[$from]; $toMod = $modules[$to]
+    if ($fromMod.Plugin.Layer.Index -ne $toMod.Plugin.Layer.Index) {
+        $errors.Add("AllowedSameLayer entry '$from -> $to' names modules in different layers.")
+    }
+    elseif (Test-PolicyAllows $fromMod $toMod) {
+        $errors.Add("AllowedSameLayer entry '$from -> $to' is already allowed by the $($fromMod.Plugin.Layer.Name) layer's SameLayer policy; remove it.")
+    }
+}
+
 # --- Module dependency rules --------------------------------------------------
 foreach ($mod in $modules.Values) {
     foreach ($depName in $mod.Deps) {
@@ -104,10 +137,9 @@ foreach ($mod in $modules.Values) {
         if ($to.Index -gt $from.Index) {
             $errors.Add("Upward dependency: $($mod.Name) ($($from.Name)) -> $depName ($($to.Name)).")
         }
-        elseif ($to.Index -eq $from.Index -and -not $from.AllowSameLayer) {
-            $isTestInOwnPlugin = $testSuffix -and $mod.Name.EndsWith($testSuffix) -and ($dep.Plugin.Name -eq $mod.Plugin.Name)
-            if (-not $isTestInOwnPlugin -and -not $allowed.Contains("$($mod.Name)->$depName")) {
-                $errors.Add("Unlisted same-layer dependency: $($mod.Name) -> $depName ($($from.Name)). Add it to AllowedSameLayer if intended.")
+        elseif ($to.Index -eq $from.Index) {
+            if (-not (Test-PolicyAllows $mod $dep) -and -not $allowed.Contains("$($mod.Name)->$depName")) {
+                $errors.Add("Same-layer dependency not allowed: $($mod.Name) -> $depName ($($from.Name), SameLayer '$($from.SameLayer)'). Add it to AllowedSameLayer if intended.")
             }
         }
         if ($dep.Plugin.Name -ne $mod.Plugin.Name -and ($mod.Plugin.PluginDeps -notcontains $dep.Plugin.Name)) {

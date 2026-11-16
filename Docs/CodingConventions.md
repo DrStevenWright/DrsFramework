@@ -90,7 +90,7 @@ Exceptions:
 - `DRS_LOG_ONCE` and `DRS_CLOG_ONCE` take the same arguments and log only the first time that call site is reached (for `DRS_CLOG_ONCE`, the first time its condition is true). They are thread-safe. Use them for messages in per-frame or per-call code that would otherwise flood the log.
 - Use `DRS_LOG_GLOBAL(Verbosity, "...", ...)` for messages that belong to no single module. It logs to `LogDrs`.
 - All `DRS_` log macros are single statements, so they work in an unbraced `if`/`else`.
-- `UE_LOG` is fine where `DrsGlobals` isn't available, e.g. in `DrsXrRuntime`, which loads at `EarliestPossible`.
+- Use the `DRS_` macros everywhere, including modules that load at `EarliestPossible` (see `Base/CLAUDE.md`).
 
 ## Open items
 

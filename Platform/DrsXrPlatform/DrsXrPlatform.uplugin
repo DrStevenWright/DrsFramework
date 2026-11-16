@@ -16,6 +16,12 @@
 	"Installed": false,
 	"Modules": [
 		{
+			"Name": "DrsXrArbiter",
+			"Type": "Runtime",
+			"LoadingPhase": "EarliestPossible",
+			"PlatformAllowList": [ "Win64", "Android" ]
+		},
+		{
 			"Name": "DrsXrRuntime",
 			"Type": "ClientOnly",
 			"LoadingPhase": "EarliestPossible",
@@ -24,12 +30,39 @@
 		{
 			"Name": "DrsXrPlatform",
 			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [ "Win64", "Android" ]
+		},
+		{
+			"Name": "DrsXrHandTrackingMeta",
+			"Type": "ClientOnly",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [ "Win64", "Android" ]
+		},
+		{
+			"Name": "DrsXrMixedReality",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [ "Win64", "Android" ]
+		},
+		{
+			"Name": "DrsXrPlatformEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "DrsXrPlatformTests",
+			"Type": "DeveloperTool",
 			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
 		{
-			"Name": "DrsGlobals",
+			"Name": "DrsBase",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsUtilities",
 			"Enabled": true
 		},
 		{
@@ -38,6 +71,18 @@
 		},
 		{
 			"Name": "OpenXR",
+			"Enabled": true
+		},
+		{
+			"Name": "OpenXRHandTracking",
+			"Enabled": true
+		},
+		{
+			"Name": "AndroidDeviceProfileSelector",
+			"Enabled": true
+		},
+		{
+			"Name": "OculusXR",
 			"Enabled": true
 		}
 	]
