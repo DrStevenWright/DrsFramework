@@ -15,4 +15,4 @@ The framework's entry point. A project enables only this plugin.
   - left and right `UMotionControllerComponent`s, each with a `UDrsHandMeshComponent` attached.
 
   New features are normally added to the pawn as components here, not by making features depend on each other.
-- **Tracking origin:** in `BeginPlay`, `ADrsPawn` calls `UDrsXrPlatformSubsystem::SetFloorTrackingOrigin()`. The tracking origin is engine-wide, so only the locally viewed pawn may set it. The pawn isn't possessed yet at `BeginPlay`, so the code checks `GetNetMode() != NM_DedicatedServer` rather than the controller. Keep this in mind when you add other engine-wide XR setup.
+- **Tracking origin:** in `BeginPlay`, `ADrsPawn` calls `UDrsXrPlatformLibrary::SetFloorTrackingOrigin()`. The tracking origin is engine-wide, so only the locally viewed pawn may set it. The pawn isn't possessed yet at `BeginPlay`, so the code checks `GetNetMode() != NM_DedicatedServer` rather than the controller. Keep this in mind when you add other engine-wide XR setup.

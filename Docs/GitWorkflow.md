@@ -26,7 +26,7 @@ A scope is optional. Use one when the change sits in one area.
 
 | Scope | Area |
 |---|---|
-| `globals` | `Base/DrsGlobals` (logging, version, `DrsBaseUtilities`) |
+| `base` | `Base/DrsBase` (logging, version, generic helpers) |
 | `utilities` | `Common/DrsUtilities` |
 | `xrplatform` | `Platform/DrsXrPlatform`, including `DrsXrRuntime` |
 | `xrgame` | `GameSupport/DrsXrGame` |
@@ -71,7 +71,7 @@ Leave the scope out for changes that span layers. When you add a plugin, add its
 
 ### Breaking changes
 
-While the framework's major version is 0 (`FrameworkVersionMajor` in `Base/DrsGlobals/Source/DrsGlobals/Public/DrsVersion.h`), don't mark anything as breaking: no `!` after the type and no `BREAKING CHANGE:` footer. Any 0.x change may break host projects. Instead, list what host projects must change in the PR description.
+While the framework's major version is 0 (`FrameworkVersionMajor` in `Base/DrsBase/Source/DrsBase/Public/DrsVersion.h`), don't mark anything as breaking: no `!` after the type and no `BREAKING CHANGE:` footer. Any 0.x change may break host projects. Instead, list what host projects must change in the PR description.
 
 This also applies in host projects, which follow the framework's version. Start marking breaking changes once the framework reaches 1.0.
 

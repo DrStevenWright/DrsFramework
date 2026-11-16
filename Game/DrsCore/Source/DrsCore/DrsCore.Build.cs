@@ -8,7 +8,7 @@ public class DrsCore : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DrsGlobals" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DrsBase" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "HeadMountedDisplay", "DrsXrPlatform", "DrsXrGame" });
 	}

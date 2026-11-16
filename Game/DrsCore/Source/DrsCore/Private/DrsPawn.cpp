@@ -5,7 +5,7 @@
 #include "DrsCore.h"
 #include "DrsHandMeshComponent.h"
 #include "DrsLog.h"
-#include "DrsXrPlatformSubsystem.h"
+#include "DrsXrPlatformLibrary.h"
 #include "Engine/Engine.h"
 #include "MotionControllerComponent.h"
 
@@ -53,14 +53,8 @@ void ADrsPawn::BeginPlay()
 
 	// The tracking origin is engine-global, so only the locally viewed pawn should set it.
 	// The pawn is not possessed yet at BeginPlay, so check the net mode rather than the controller.
-	if (GetNetMode() != NM_DedicatedServer && GEngine)
+	if (GetNetMode() != NM_DedicatedServer && !UDrsXrPlatformLibrary::SetFloorTrackingOrigin())
 	{
-		if (UDrsXrPlatformSubsystem* xrPlatform = GEngine->GetEngineSubsystem<UDrsXrPlatformSubsystem>())
-		{
-			if (!xrPlatform->SetFloorTrackingOrigin())
-			{
-				DRS_LOG(LogDrsCore, Log, "No XR system active; running without HMD tracking.");
-			}
-		}
+		DRS_LOG(LogDrsCore, Log, "No XR system active; running without HMD tracking.");
 	}
 }

@@ -26,7 +26,7 @@ powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/Bootstrap.ps
 
 Options: `-EngineDir <path>`, `-SkipSubmodules`, `-ProjectFile <path>`.
 
-Run the tests through the host project. They are UE Automation tests named `Drs.*`. `RunTests` takes a name prefix, so pass a full test name to run a single test (e.g. `Drs.Globals.Version`):
+Run the tests through the host project. They are UE Automation tests named `Drs.*`. `RunTests` takes a name prefix, so pass a full test name to run a single test (e.g. `Drs.Base.Version`):
 
 ```
 UnrealEditor-Cmd.exe <host>.uproject -ExecCmds="Automation RunTests Drs; Quit" -unattended -nullrhi -nosplash
@@ -34,7 +34,7 @@ UnrealEditor-Cmd.exe <host>.uproject -ExecCmds="Automation RunTests Drs; Quit" -
 
 ## Tests
 
-Tests use `IMPLEMENT_SIMPLE_AUTOMATION_TEST` with `EditorContext | ProductFilter`, inside `#if WITH_DEV_AUTOMATION_TESTS`, and are named `Drs.<Plugin>.<Area>`. They live in a `DeveloperTool` module whose name ends in `Tests`, inside the plugin they test; `Base/DrsGlobals/Source/DrsGlobalsTests` is the example to follow.
+Tests use `IMPLEMENT_SIMPLE_AUTOMATION_TEST` with `EditorContext | ProductFilter`, inside `#if WITH_DEV_AUTOMATION_TESTS`, and are named `Drs.<Plugin>.<Area>`. Automation Specs (`BEGIN_DEFINE_SPEC`, same flags and naming) are also fine, for many small cases with shared setup; `DrsXrPlatformTests` has one. They live in a `DeveloperTool` module whose name ends in `Tests`, inside the plugin they test; `Base/DrsBase/Source/DrsBaseTests` is the example to follow.
 
 ## Layers
 
@@ -43,17 +43,17 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 | Layer | Folder | Contents |
 |---|---|---|
 | External | `Platform/External/` | Private vendor plugin forks (MetaXR, Pico) as submodules. Only Platform code may use them, and they must not depend on any Drs module. Clones without access won't fetch them. |
-| Base | `Base/` | `DrsGlobals`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), `DrsBaseUtilities`, `DrsGlobalsTests` |
-| Common | `Common/` | `DrsUtilities`: independent modules (`DrsMathUtilities`, `DrsGraphicsUtilities`) |
-| Platform | `Platform/` | `DrsXrPlatform`: XR platform subsystem over OpenXR. Its `DrsXrRuntime` module (Win64, `EarliestPossible`) sets `XR_RUNTIME_JSON` to pick the Meta OpenXR runtime before OpenXR starts; `-DrsKeepXrRuntime` disables this. |
+| Base | `Base/` | `DrsBase`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), object, enum, votable state and delegate helpers; `DrsBaseTests` |
+| Common | `Common/` | `DrsUtilities`: independent modules (`DrsMathUtils`, `DrsGraphicsUtils` with the view fade) |
+| Platform | `Platform/` | `DrsXrPlatform`: XR platform API over OpenXR (`UDrsXrPlatformLibrary`), the vendor plugin arbiter (`DrsXrArbiter`), desktop runtime selection (`DrsXrRuntime`), Meta hand tracking and passthrough. |
 | GameSupport | `GameSupport/` | `DrsXrGame` (tracked hand meshes), and `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` (empty for now), which may build on it |
 | Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn, GameInstance) and the place where otherwise independent GameSupport plugins talk to each other |
 
 The checker also enforces these rules:
-- A same-layer dependency must be listed in `AllowedSameLayer` (format `"A -> B"`), and the module graph must have no cycles. The External layer is exempt from the same-layer rule (`"AllowSameLayer": true`), since vendor plugins keep their own module structure.
+- Same-layer dependencies follow the layer's `SameLayer` policy: `Plugin` (the default) allows them between modules of the same plugin, `Any` allows any (External, since vendor plugins keep their own module structure), and `None` allows none (Common). Anything else must be listed in `AllowedSameLayer` (format `"A -> B"`); an entry the policy already allows is an error. The module graph must have no cycles.
 - A module that uses another framework plugin's module must list that plugin in its own `.uplugin`.
 - A `.uplugin` must not list a plugin from a higher layer.
-- A `*Tests` module may depend on any module in its own plugin.
+- A `*Tests` module may depend on any module in its own plugin, whatever the policy.
 
 Dependencies on engine modules are not checked.
 

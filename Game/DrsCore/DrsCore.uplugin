@@ -23,7 +23,7 @@
 	],
 	"Plugins": [
 		{
-			"Name": "DrsGlobals",
+			"Name": "DrsBase",
 			"Enabled": true
 		},
 		{

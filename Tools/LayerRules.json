@@ -1,17 +1,17 @@
 {
-	"Comment": "Layer order from lowest to highest. A module may depend only on modules in lower layers, plus same-layer modules listed in AllowedSameLayer. Paths are relative to the DrsFramework root; the longest matching path wins. A layer with AllowSameLayer set skips the same-layer rule (used for External, whose vendor plugins keep their own module structure); its other rules still apply.",
+	"Comment": "Layer order from lowest to highest. A module may depend on modules in lower layers, and on same-layer modules as the layer's SameLayer policy allows. Paths are relative to the DrsFramework root; the longest matching path wins. The module graph must have no cycles.",
+	"SameLayerComment": "SameLayer is 'Plugin' (the default: modules may depend on modules in their own plugin), 'Any' (any same-layer module; used for External, whose vendor plugins keep their own module structure) or 'None' (no same-layer dependencies). AllowedSameLayer lists the exceptions, as 'A -> B'.",
 	"Layers": [
-		{ "Name": "External", "Path": "Platform/External", "AllowSameLayer": true },
+		{ "Name": "External", "Path": "Platform/External", "SameLayer": "Any" },
 		{ "Name": "Base", "Path": "Base" },
-		{ "Name": "Common", "Path": "Common" },
+		{ "Name": "Common", "Path": "Common", "SameLayer": "None" },
 		{ "Name": "Platform", "Path": "Platform" },
 		{ "Name": "GameSupport", "Path": "GameSupport" },
 		{ "Name": "Game", "Path": "Game" }
 	],
 	"TestModuleSuffix": "Tests",
-	"TestModuleComment": "Modules whose names end with TestModuleSuffix may also depend on any module in their own plugin.",
+	"TestModuleComment": "Modules whose names end with TestModuleSuffix may also depend on any module in their own plugin, whatever the layer's SameLayer policy.",
 	"AllowedSameLayer": [
-		"DrsBaseUtilities -> DrsGlobals",
 		"DrsInteraction -> DrsXrGame",
 		"DrsLocomotion -> DrsXrGame",
 		"DrsSpawning -> DrsXrGame"

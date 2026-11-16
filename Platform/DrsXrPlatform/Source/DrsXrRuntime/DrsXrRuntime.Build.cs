@@ -8,7 +8,10 @@ public class DrsXrRuntime : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		// Loads at EarliestPossible, before the engine: depend on Core only.
+		// Loads at EarliestPossible, before the engine: Core, DrsBase for DRS_LOG (safe this early, see Base/CLAUDE.md),
+		// and DrsXrArbiter for the plugin override and the shared runtime state. No UObjects are used here.
 		PublicDependencyModuleNames.AddRange(new string[] { "Core" });
+
+		PrivateDependencyModuleNames.AddRange(new string[] { "DrsBase", "DrsXrArbiter" });
 	}
 }
