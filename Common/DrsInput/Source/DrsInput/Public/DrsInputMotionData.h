@@ -12,7 +12,7 @@
 // SWTODO - Decouple this.
 namespace DrsInputMotionData
 {
-	DRSINPUTSYSTEM_API void SetThumbstickInputDirection(EControllerHand hand, const FVector2D& vector);
-	DRSINPUTSYSTEM_API TOptional<FVector2D> GetThumbstickInitialDeflectionDirection(EControllerHand hand);
-	DRSINPUTSYSTEM_API TOptional<FVector2D> GetThumbstickCurrentDeflectionDirection(EControllerHand hand);
+	DRSINPUT_API void SetThumbstickInputDirection(EControllerHand hand, const FVector2D& vector);
+	DRSINPUT_API TOptional<FVector2D> GetThumbstickInitialDeflectionDirection(EControllerHand hand);
+	DRSINPUT_API TOptional<FVector2D> GetThumbstickCurrentDeflectionDirection(EControllerHand hand);
 }

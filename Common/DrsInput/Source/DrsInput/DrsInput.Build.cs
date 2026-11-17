@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class DrsInputSystem : ModuleRules
+public class DrsInput : ModuleRules
 {
-	public DrsInputSystem(ReadOnlyTargetRules Target) : base(Target)
+	public DrsInput(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		

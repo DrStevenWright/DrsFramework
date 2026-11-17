@@ -6,6 +6,7 @@ The lowest framework layer. Everything else may depend on it, and it depends on 
 
 **Doesn't belong here:** anything that only some modules need. Maths, graphics and similar helpers go in `Common/`; XR or engine-subsystem code goes in `Platform/` or higher.
 
+- **`DrsBase` is the only plugin in this layer** (`"MaxPlugins": 1` in `Tools/LayerRules.json`; the checker enforces it). Don't use it as a dumping ground, and never move code here to break a dependency cycle higher up. Fix the cycle in the layers above.
 - Keep it small and stable. A change here rebuilds the whole framework, and an API change affects every module.
 - Add new helpers to the `DrsBase` module rather than a new module: a module here costs every consumer a dependency, and the helpers are small.
 - **`DrsBase` has no startup code** (`FDefaultModuleImpl`, static data only). That is what lets the `EarliestPossible` modules in `DrsXrPlatform` (`DrsXrArbiter`, `DrsXrRuntime`) use it: the OS loads `DrsBase`'s DLL as an import of theirs, before the module manager loads `DrsBase` at its own phase. Keep it that way; anything that needs startup work belongs in another module.

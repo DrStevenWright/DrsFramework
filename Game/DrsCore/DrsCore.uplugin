@@ -27,7 +27,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "DrsInputSystem",
+			"Name": "DrsInput",
 			"Enabled": true
 		},
 		{

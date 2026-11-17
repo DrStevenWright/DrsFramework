@@ -8,7 +8,7 @@
 
 /** Custom class for input mapping contexts used by Drs. */
 UCLASS(BlueprintType)
-class DRSINPUTSYSTEM_API UDrsInputMappingContext : public UInputMappingContext
+class DRSINPUT_API UDrsInputMappingContext : public UInputMappingContext
 {
 	GENERATED_BODY()
 
@@ -38,22 +38,22 @@ private:
 
 /** Definition structure for grouping input contexts alongside their priority. */
 USTRUCT(BlueprintType)
-struct DRSINPUTSYSTEM_API FInputContextDefinition
+struct DRSINPUT_API FInputContextDefinition
 {
 	GENERATED_BODY()
 
 	bool IsValid() const { return Context != nullptr; }
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
 	const UDrsInputMappingContext* Context = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
 	int32 Priority = 0;
 };
 
 /** Definition structure for grouping input contexts alongside their priority. */
 USTRUCT(BlueprintType)
-struct DRSINPUTSYSTEM_API FInputContextDefinitionTwoHands
+struct DRSINPUT_API FInputContextDefinitionTwoHands
 {
 	GENERATED_BODY()
 
@@ -101,12 +101,12 @@ struct DRSINPUTSYSTEM_API FInputContextDefinitionTwoHands
 		return RightHandContext ? RightHandContext->FindActionByName(actionID) : nullptr;
 	}
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
 	const UDrsInputMappingContext* LeftHandContext = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
 	const UDrsInputMappingContext* RightHandContext = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
 	int32 Priority = 0;
 };

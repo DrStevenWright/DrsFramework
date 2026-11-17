@@ -11,7 +11,7 @@
  * Version of the 'Pressed' trigger that only succeeds if some minimal time has elapsed since the last time this trigger succeeded.
  */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Pressed (Filtered)", NotInputConfigurable = "true"))
-class DRSINPUTSYSTEM_API UInputTriggerFilteredPress : public UInputTrigger
+class DRSINPUT_API UInputTriggerFilteredPress : public UInputTrigger
 {
 	GENERATED_BODY()
 

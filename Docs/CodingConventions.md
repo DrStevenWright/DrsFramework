@@ -81,6 +81,19 @@ Exceptions:
 - **Macro parameters** follow Epic's PascalCase style (`DRS_LOG(CategoryName, Verbosity, Format, ...)`).
 - **C# build files** (`.Build.cs`, `.Target.cs`) follow Epic's templates, e.g. the `ReadOnlyTargetRules Target` constructor argument.
 
+## Reflection categories
+
+`Category` on `UPROPERTY` and `UFUNCTION` decides where an item appears in the Details panel and the Blueprint palette.
+
+- **Format: `Drs|<Feature>[|<Area>]`**, for example `Drs|Input`, `Drs|Input|Triggers`, `Drs|XR Platform|HMD`. The root is always `Drs` (never `DRS`). The editor compares categories without regard to case but shows the first spelling it sees, so mixed spellings make the same group look different from run to run.
+- **The second level is the feature in plain words**, written as it should display (spaces allowed, as in the engine's own `Hand Tracking`). Don't use a module or class name, and don't use the word "System". Use a third level only when a feature has distinct areas, and never go deeper than three levels.
+- **Don't put the layer in the category.** `Drs|GameSupport|...` and `Drs|Common|...` describe our structure, not something users look for.
+- **Use the same category for a feature's properties and functions**, so the Details panel and the palette agree.
+- **Use a sub-category such as `Drs|Input|Advanced` or `Drs|Input|Debug`** for items most users don't need, together with `AdvancedDisplay` for properties.
+- **`UDeveloperSettings` classes** also use `Drs|<Feature>`, so each feature's Project Settings page is grouped under Drs.
+- **`ClassGroup = (Drs)` on components is separate** (it controls the Add Component menu). Set both.
+- Vendor plugins in `Platform/External/` keep their own categories.
+
 ## Logging
 
 - Each module declares its own `LogDrs<Module>` category in its public module header (`DECLARE_LOG_CATEGORY_EXTERN`) and defines it in the module's `.cpp`.

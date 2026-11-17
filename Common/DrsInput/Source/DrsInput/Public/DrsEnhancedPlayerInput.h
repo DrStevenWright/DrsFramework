@@ -11,7 +11,7 @@ class UInputMappingContext;
  * Custom version of UEnhancedPlayerInput required to access protected members.
  */
 UCLASS(config = Input, transient)
-class DRSINPUTSYSTEM_API UDrsEnhancedPlayerInput : public UEnhancedPlayerInput
+class DRSINPUT_API UDrsEnhancedPlayerInput : public UEnhancedPlayerInput
 {
 	GENERATED_BODY()
 

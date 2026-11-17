@@ -7,6 +7,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DrsInputBlueprintFunctionLibrary.generated.h"
 
+class UInputMappingContext;
+
 /** 
  * Optional scope for a custom input key, allows us to associate an input with a specific hand so that active inputs can
  * be automatically cleaned up when that hand changes control mode, for example. Globally-scoped custom inputs will not be
@@ -22,15 +24,15 @@ enum class ECustomInputKeyScope : uint8
 };
 
 UCLASS()
-class DRSINPUTSYSTEM_API UDrsInputBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
+class DRSINPUT_API UDrsInputBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
 	/**
-	* Returns a handle to the DrsInputSystem's developer settings object.
+	* Returns a handle to DrsInput's developer settings object.
 	*/
-	UFUNCTION(BlueprintPure, Category = "DRS|Input")
+	UFUNCTION(BlueprintPure, Category = "Drs|Input")
 	static const class UDrsInputSettings* GetDrsInputSettings();
 	
 	/**
@@ -42,7 +44,7 @@ public:
 	 *                  in this way will only be removed once all specified reasons are withdrawn. Specify 'None' for
 	 *                  default binary add/remove behaviour.
 	*/
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void AddInputContext(const UObject* worldContext, const UInputMappingContext* context, int32 priority, FName reason);
 	
 	/**
@@ -52,7 +54,7 @@ public:
 	 *                  the reason the context was added in the first place). Specify 'None' for default binary add/remove
 	 *                  behaviour.
 	*/
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void RemoveInputContext(const UObject* worldContext, const UInputMappingContext* context, FName reason);
 	
 	/**
@@ -62,7 +64,7 @@ public:
 	 *                  in this way will only be removed once all specified reasons are withdrawn. Specify 'None' for
 	 *                  default binary add/remove behaviour.
 	*/
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void AddInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason);
 
 	/**
@@ -72,7 +74,7 @@ public:
 	 *                  the reason the context was added in the first place). Specify 'None' for default binary add/remove
 	 *                  behaviour.
 	*/
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void RemoveInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason);
 
 	/**
@@ -83,7 +85,7 @@ public:
 	 *                  in this way will only be removed once all specified reasons are withdrawn. Specify 'None' for
 	 *                  default binary add/remove behaviour.
 	*/
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void AddInputContextDefinitionForHand(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason);
 
 	/**
@@ -94,13 +96,13 @@ public:
 	 *                  the reason the context was added in the first place). Specify 'None' for default binary add/remove
 	 *                  behaviour.
 	*/
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void RemoveInputContextDefinitionForHand(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason);
 
 	/**
 	 * Flushes all currently pressed keys in the input system.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
 	static void FlushPressedKeys(const UObject* worldContext);
 
 	//--------------------------------------------------------------------------------------------------------
@@ -110,22 +112,22 @@ public:
 	// Sets input value on a custom input key. (Pressed/released states are determined automatically based on supplied value.)
 	// (The input can be optionally scoped to a specific hand, so that it will be automatically released when that hand
 	// changes control mode.)
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input")
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
 	static void SetCustomInputKey(APlayerController* controller, FName customKeyID, float value = 1.0f, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
 
 	// Sets pressed state on a custom input key.
 	// (The input can be optionally scoped to a specific hand, so that it will be automatically released when that hand
 	// changes control mode.)
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input")
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
 	static void PressCustomInputKey(APlayerController* controller, FName customKeyID, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
 
 	// Removes pressed state on a custom input key.
 	// (The input can be optionally scoped to a specific hand, so that it will be automatically released when that hand
 	// changes control mode.)
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input")
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
 	static void ReleaseCustomInputKey(APlayerController* controller, FName customKeyID, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
 
 	// Clears pressed state on all custom input keys within a specific scope.
-	UFUNCTION(BlueprintCallable, Category = "DRS|Input")
+	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
 	static void ResetCustomInputKeys(APlayerController* controller, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
 };

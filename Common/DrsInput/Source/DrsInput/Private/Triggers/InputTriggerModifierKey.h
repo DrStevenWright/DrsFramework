@@ -31,7 +31,7 @@ enum class EModifierKeyType : uint8
  * Trigger that only succeeds when a specified modifier key is pressed or not pressed.
 */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Modifier Key", NotInputConfigurable = "true"))
-class DRSINPUTSYSTEM_API UInputTriggerModifierKey : public UInputTrigger
+class DRSINPUT_API UInputTriggerModifierKey : public UInputTrigger
 {
 	GENERATED_BODY()
 

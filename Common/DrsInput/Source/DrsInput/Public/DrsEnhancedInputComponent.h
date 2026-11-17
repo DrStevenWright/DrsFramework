@@ -10,7 +10,7 @@
 
 /** Custom version of EnhancedInputComponent to support Drs APIs. */
 UCLASS(transient, config=Input, hidecategories=(Activation, "Components|Activation"))
-class DRSINPUTSYSTEM_API UDrsEnhancedInputComponent : public UEnhancedInputComponent
+class DRSINPUT_API UDrsEnhancedInputComponent : public UEnhancedInputComponent
 {
 	GENERATED_BODY()
 

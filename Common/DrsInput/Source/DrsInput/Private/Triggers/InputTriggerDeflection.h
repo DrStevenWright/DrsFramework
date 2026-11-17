@@ -55,7 +55,7 @@ protected:
 	EControllerHand Hand = EControllerHand::Left;
 	
 	// Allowed direction(s) for the thumbstick deflection.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/DrsInputSystem.EDeflectionDirections", DisplayThumbnail = "false"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/DrsInput.EDeflectionDirections", DisplayThumbnail = "false"))
 	int32 AllowedDeflectionDirections = static_cast<int32>(EDeflectionDirections::Default);
 
 	// Specifies whether the initial deflection direction (i.e. the direction when the thumbstick first crossed the

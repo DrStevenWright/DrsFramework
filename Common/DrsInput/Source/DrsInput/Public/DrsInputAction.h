@@ -8,7 +8,7 @@
 
 /** Custom class for input actions used by Drs. */
 UCLASS(BlueprintType)
-class DRSINPUTSYSTEM_API UDrsInputAction : public UInputAction
+class DRSINPUT_API UDrsInputAction : public UInputAction
 {
 	GENERATED_BODY()
 
@@ -27,10 +27,10 @@ protected:
 
 	// Custom ID to allow Drs code to reference input action assets without needing to expose them as properties and
 	// without being coupled to a specific asset name.
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Drs|Input")
 	FName ActionID = NAME_None;
 
 	// Optionally tag that this action is associated with a specific hand.
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "DRS|Input")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Drs|Input")
 	EControllerHand Hand = EControllerHand::AnyHand;
 };
