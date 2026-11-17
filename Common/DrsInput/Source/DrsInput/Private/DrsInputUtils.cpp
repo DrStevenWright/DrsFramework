@@ -30,47 +30,41 @@ void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const FInput
 	RemoveInputContext(worldContext, contextDefinition.Context, reason);
 }
 
-void DrsInputUtils::AddInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason)
+void DrsInputUtils::AddInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
-	if (hand == EControllerHand::Left)
+	if (hands == EDrsHandMask::None)
 	{
-		AddInputContext(worldContext, contextDefinition.LeftHandContext, contextDefinition.Priority, reason);
-	}
-	else if (hand == EControllerHand::Right)
-	{
-		AddInputContext(worldContext, contextDefinition.RightHandContext, contextDefinition.Priority, reason);
-	}
-	else if (hand == EControllerHand::AnyHand)
-	{
-		AddInputContext(worldContext, contextDefinition.LeftHandContext, contextDefinition.Priority, reason);
-		AddInputContext(worldContext, contextDefinition.RightHandContext, contextDefinition.Priority, reason);
-	}
-	else
-	{
-		DRS_LOG(LogDrsInput, Warning, "Cannot add input context definition - invalid hand.");
+		DRS_LOG(LogDrsInput, Warning, "Cannot add input context definition - no hand specified.");
 		ensure(false); // Help to debug which context is failing.
+		return;
+	}
+
+	if (Drs::Contains(hands, EDrsHand::Left))
+	{
+		AddInputContext(worldContext, contextDefinition.LeftHandContext, contextDefinition.Priority, reason);
+	}
+	if (Drs::Contains(hands, EDrsHand::Right))
+	{
+		AddInputContext(worldContext, contextDefinition.RightHandContext, contextDefinition.Priority, reason);
 	}
 }
 
-void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason)
+void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
-	if (hand == EControllerHand::Left)
+	if (hands == EDrsHandMask::None)
 	{
-		RemoveInputContext(worldContext, contextDefinition.LeftHandContext, reason);
-	}
-	else if (hand == EControllerHand::Right)
-	{
-		RemoveInputContext(worldContext, contextDefinition.RightHandContext, reason);
-	}
-	else if (hand == EControllerHand::AnyHand)
-	{
-		RemoveInputContext(worldContext, contextDefinition.LeftHandContext, reason);
-		RemoveInputContext(worldContext, contextDefinition.RightHandContext, reason);
-	}
-	else
-	{
-		DRS_LOG(LogDrsInput, Warning, "Cannot remove input context definition - invalid hand.");
+		DRS_LOG(LogDrsInput, Warning, "Cannot remove input context definition - no hand specified.");
 		ensure(false); // Help to debug which context is failing.
+		return;
+	}
+
+	if (Drs::Contains(hands, EDrsHand::Left))
+	{
+		RemoveInputContext(worldContext, contextDefinition.LeftHandContext, reason);
+	}
+	if (Drs::Contains(hands, EDrsHand::Right))
+	{
+		RemoveInputContext(worldContext, contextDefinition.RightHandContext, reason);
 	}
 }
 
@@ -173,52 +167,45 @@ bool DrsInputUtils::HasMappingForAction(const UInputMappingContext* context, con
 	return false;
 }
 
-bool DrsInputUtils::TryGetHandForInputAction(const UInputAction* action, EControllerHand& outHand)
+TOptional<EDrsHand> DrsInputUtils::GetHandForInputAction(const UInputAction* action)
 {
 	// For actions that *might* be bound to a specific hand, this method attempts to determine which hand triggered the
 	// action. For example, some actions might have an additional "non-VR" variant which would not be bound to a specific
 	// hand.
-	if (const UDrsInputAction* coreAction = Cast<UDrsInputAction>(action))
+	if (const UDrsInputAction* drsAction = Cast<UDrsInputAction>(action))
 	{
-		if (coreAction->GetHand() != EControllerHand::AnyHand)
-		{
-			outHand = coreAction->GetHand();
-			return true;
-		}
+		return Drs::ToHand(drsAction->GetHands());
 	}
 
-	return false;
+	return TOptional<EDrsHand>();
 }
 
-EControllerHand DrsInputUtils::GetHandForInputAction(const UInputAction* action, const UInputMappingContext* leftHandContext, const UInputMappingContext* rightHandContext)
+TOptional<EDrsHand> DrsInputUtils::GetHandForInputAction(const UInputAction* action, const UInputMappingContext* leftHandContext, const UInputMappingContext* rightHandContext)
 {
 	// For actions that are *expected* to be bound to a specific hand, this method attempts to determine which hand
 	// triggered the action. In such cases, actions would typically be mapped in separate left- and right-hand input
 	// contexts. So we can use that as a fallback criteria if no hand type is specified on the action itself.
-	if (const UDrsInputAction* coreAction = Cast<UDrsInputAction>(action))
+	if (const TOptional<EDrsHand> taggedHand = GetHandForInputAction(action))
 	{
-		if (coreAction->GetHand() != EControllerHand::AnyHand)
-		{
-			return coreAction->GetHand();
-		}
+		return taggedHand;
 	}
-	
+
 	const bool isMappedToLeftHand = HasMappingForAction(leftHandContext, action);
 	const bool isMappedToRightHand = HasMappingForAction(rightHandContext, action);
-	
+
 	if (isMappedToLeftHand && !isMappedToRightHand)
 	{
-		return EControllerHand::Left;
+		return EDrsHand::Left;
 	}
 
 	if (isMappedToRightHand && !isMappedToLeftHand)
 	{
-		return EControllerHand::Right;
+		return EDrsHand::Right;
 	}
 
 	DRS_LOG(LogDrsInput, Warning, "Could not determine hand type for input action '%s'", action ? *action->GetName() : TEXT("None"));
-	
-	return EControllerHand::AnyHand;
+
+	return TOptional<EDrsHand>();
 }
 
 void DrsInputUtils::ClearBindingsForContext(UEnhancedInputComponent* inputComponent, const UObject* owner, const UInputMappingContext* context)
@@ -238,25 +225,25 @@ void DrsInputUtils::ClearBindingsForContext(UEnhancedInputComponent* inputCompon
 	}
 }
 
-void DrsInputUtils::ClearBindingsForHand(UEnhancedInputComponent* inputComponent, UObject* owner, EControllerHand hand)
+void DrsInputUtils::ClearBindingsForHands(UEnhancedInputComponent* inputComponent, UObject* owner, EDrsHandMask hands)
 {
-	if (inputComponent == nullptr || owner == nullptr)
+	if (inputComponent == nullptr || owner == nullptr || hands == EDrsHandMask::None)
 	{
 		return;
 	}
 
-	if (hand == EControllerHand::AnyHand)
+	if (hands == EDrsHandMask::Both)
 	{
 		inputComponent->ClearBindingsForObject(owner);
 		return;
 	}
-	
+
 	const auto& bindings = inputComponent->GetActionEventBindings();
 	for (int32 index = bindings.Num() - 1; index >= 0; --index)
 	{
 		if (const UDrsInputAction* action = Cast<UDrsInputAction>(bindings[index]->GetAction()))
 		{
-			if (action->GetHand() == hand && bindings[index]->IsBoundToObject(owner))
+			if (action->GetHands() == hands && bindings[index]->IsBoundToObject(owner))
 			{
 				inputComponent->RemoveActionEventBinding(index);
 			}

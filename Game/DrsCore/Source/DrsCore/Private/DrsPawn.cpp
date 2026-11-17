@@ -48,10 +48,10 @@ ADrsPawn::ADrsPawn()
 	RightHand->SetHand(EDrsHand::Right);
 
 	LeftMotionInput = CreateDefaultSubobject<UDrsMotionControllerInputComponent>(TEXT("LeftMotionInput"));
-	LeftMotionInput->SetHand(EControllerHand::Left);
+	LeftMotionInput->SetHand(EDrsHand::Left);
 
 	RightMotionInput = CreateDefaultSubobject<UDrsMotionControllerInputComponent>(TEXT("RightMotionInput"));
-	RightMotionInput->SetHand(EControllerHand::Right);
+	RightMotionInput->SetHand(EDrsHand::Right);
 }
 
 void ADrsPawn::BeginPlay()

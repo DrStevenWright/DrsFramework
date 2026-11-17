@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DrsHand.h"
 #include "InputAction.h"
 #include "DrsInputAction.generated.h"
 
@@ -21,7 +22,7 @@ public:
 	
 	FName GetActionID() const { return ActionID; }
 
-	EControllerHand GetHand() const { return Hand; }
+	EDrsHandMask GetHands() const { return Hands; }
 
 protected:
 
@@ -30,7 +31,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Drs|Input")
 	FName ActionID = NAME_None;
 
-	// Optionally tag that this action is associated with a specific hand.
+	// Optionally tag the hand(s) that this action is associated with. None means that the action is not hand-specific.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Drs|Input")
-	EControllerHand Hand = EControllerHand::AnyHand;
+	EDrsHandMask Hands = EDrsHandMask::None;
 };

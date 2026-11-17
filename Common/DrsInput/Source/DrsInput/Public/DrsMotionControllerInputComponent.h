@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "DrsHand.h"
 #include "DrsMotionControllerKeys.h"
 #include "DrsMotionControllerInputComponent.generated.h"
 
@@ -33,10 +34,10 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type endPlayReason) override;
 
 	/** Sets the hand that this component forwards input for. Call before adding input bindings. */
-	void SetHand(EControllerHand hand);
+	void SetHand(EDrsHand hand);
 
 	UFUNCTION(BlueprintPure, Category = "DRS|Input")
-	EControllerHand GetHand() const { return Hand; }
+	EDrsHand GetHand() const { return Hand; }
 
 	/**
 	 * Binds to the motion controller actions (found by action ID) in the given context.
@@ -80,7 +81,7 @@ private:
 
 	// Hand this component forwards input for.
 	UPROPERTY(EditAnywhere, BlueprintGetter = GetHand, Category = "DRS|Input")
-	EControllerHand Hand = EControllerHand::Left;
+	EDrsHand Hand = EDrsHand::Left;
 
 	// Keys that are currently being forwarded as pressed.
 	TSet<FKey> ForwardedKeys;

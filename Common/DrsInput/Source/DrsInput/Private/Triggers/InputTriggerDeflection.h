@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 #pragma once
 #include "CoreMinimal.h"
+#include "DrsHand.h"
 #include "DrsInputSettings.h"
 #include "DrsMotionControllerKeys.h"
 #include "EnhancedPlayerInput.h"
@@ -53,7 +54,7 @@ protected:
 	
 	// Specifies which thumbstick needs to be deflected to satisfy this trigger.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (DisplayThumbnail = "false"))
-	EControllerHand Hand = EControllerHand::Left;
+	EDrsHand Hand = EDrsHand::Left;
 	
 	// Allowed direction(s) for the thumbstick deflection.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/DrsInput.EDeflectionDirections", DisplayThumbnail = "false"))
@@ -105,11 +106,6 @@ protected:
 	{
 		EDataValidationResult result = Super::IsDataValid(context);
 
-		if (Hand != EControllerHand::Left && Hand != EControllerHand::Right)
-		{
-			context.AddError(INVTEXT("Deflection trigger: Invalid hand type."));
-			result = EDataValidationResult::Invalid;
-		}
 		if (AllowedDeflectionDirections == static_cast<int32>(EDeflectionDirections::None))
 		{
 			context.AddError(INVTEXT("Deflection trigger: No allowed directions specified."));

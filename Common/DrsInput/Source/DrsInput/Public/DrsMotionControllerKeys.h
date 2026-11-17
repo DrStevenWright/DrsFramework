@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DrsHand.h"
 #include "InputCoreTypes.h"
 
 /**
@@ -34,7 +35,7 @@ struct DRSINPUT_API FDrsMotionInputKey
 /** The full set of device-agnostic input keys for one hand. */
 struct DRSINPUT_API FDrsMotionControllerHandKeys
 {
-	explicit FDrsMotionControllerHandKeys(EControllerHand hand);
+	explicit FDrsMotionControllerHandKeys(EDrsHand hand);
 
 	FDrsMotionInputKey Menu;
 	FDrsMotionInputKey Grip;
@@ -55,8 +56,8 @@ struct DRSINPUT_API FDrsMotionControllerHandKeys
 
 namespace Drs::MotionControllerKeys
 {
-	/** Gets the keys for the left or right hand. Any other hand value is treated as the right hand. */
-	DRSINPUT_API const FDrsMotionControllerHandKeys& Get(EControllerHand hand);
+	/** Gets the keys for a hand. */
+	DRSINPUT_API const FDrsMotionControllerHandKeys& Get(EDrsHand hand);
 
 	/** Registers all of the keys with the engine's key table. Called by the DrsInput module at startup. */
 	void Register();

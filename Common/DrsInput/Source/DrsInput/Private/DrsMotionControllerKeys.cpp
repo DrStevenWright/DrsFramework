@@ -8,9 +8,9 @@ namespace
 
 	// NOTE: These key names are serialised into input mapping context assets (and matched against input action IDs), so
 	// don't change them lightly.
-	FDrsMotionInputKey MakeKey(EControllerHand hand, const char* keyName, const char* displayName)
+	FDrsMotionInputKey MakeKey(EDrsHand hand, const char* keyName, const char* displayName)
 	{
-		const bool isLeft = (hand == EControllerHand::Left);
+		const bool isLeft = (hand == EDrsHand::Left);
 		const FString sideName = FString::Printf(TEXT("%hs_%hs"), isLeft ? "Left" : "Right", keyName);
 		const FString display = FString::Printf(TEXT("Motion Controller (%s) %hs"), isLeft ? TEXT("Left") : TEXT("Right"), displayName);
 		return FDrsMotionInputKey(FName(*sideName), display);
@@ -50,7 +50,7 @@ namespace
 	}
 }
 
-FDrsMotionControllerHandKeys::FDrsMotionControllerHandKeys(EControllerHand hand)
+FDrsMotionControllerHandKeys::FDrsMotionControllerHandKeys(EDrsHand hand)
 	: Menu(MakeKey(hand, "Menu_Press", "Menu Button"))
 	, Grip(MakeKey(hand, "Grip_Press", "Grip Button"))
 	, GripAxis(MakeKey(hand, "Grip_Axis", "Grip Axis"))
@@ -69,16 +69,16 @@ FDrsMotionControllerHandKeys::FDrsMotionControllerHandKeys(EControllerHand hand)
 {
 }
 
-const FDrsMotionControllerHandKeys& Drs::MotionControllerKeys::Get(EControllerHand hand)
+const FDrsMotionControllerHandKeys& Drs::MotionControllerKeys::Get(EDrsHand hand)
 {
-	static const FDrsMotionControllerHandKeys leftKeys(EControllerHand::Left);
-	static const FDrsMotionControllerHandKeys rightKeys(EControllerHand::Right);
-	return (hand == EControllerHand::Left) ? leftKeys : rightKeys;
+	static const FDrsMotionControllerHandKeys leftKeys(EDrsHand::Left);
+	static const FDrsMotionControllerHandKeys rightKeys(EDrsHand::Right);
+	return (hand == EDrsHand::Left) ? leftKeys : rightKeys;
 }
 
 void Drs::MotionControllerKeys::Register()
 {
 	EKeys::AddMenuCategoryDisplayInfo(MenuCategory, INVTEXT("DRS Motion Controller"), TEXT("GraphEditor.PadEvent_16x"));
-	RegisterHand(Get(EControllerHand::Left));
-	RegisterHand(Get(EControllerHand::Right));
+	RegisterHand(Get(EDrsHand::Left));
+	RegisterHand(Get(EDrsHand::Right));
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DrsHand.h"
 
 class UEnhancedInputComponent;
 class UEnhancedInputLocalPlayerSubsystem;
@@ -20,8 +21,8 @@ namespace DrsInputUtils
 	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason = DefaultInputReason);
 	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason = DefaultInputReason);
 
-	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason = DefaultInputReason);
-	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason = DefaultInputReason);
+	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason = DefaultInputReason);
+	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason = DefaultInputReason);
 	
 	DRSINPUT_API void AddInputContext(const UObject* worldContext, const UInputMappingContext* context, int32 priority, FName reason = DefaultInputReason);
 	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const UInputMappingContext* context, FName reason = DefaultInputReason);
@@ -30,11 +31,20 @@ namespace DrsInputUtils
 	DRSINPUT_API void RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, FName reason = DefaultInputReason);
 
 	DRSINPUT_API bool HasMappingForAction(const UInputMappingContext* context, const UInputAction* action);
-	DRSINPUT_API bool TryGetHandForInputAction(const UInputAction* action, EControllerHand& outHand);
-	DRSINPUT_API EControllerHand GetHandForInputAction(const UInputAction* action, const UInputMappingContext* leftHandContext, const UInputMappingContext* rightHandContext);
+	
+	/** Gets the hand that an action is tagged with. Unset if the action is not tagged with exactly one hand. */
+	DRSINPUT_API TOptional<EDrsHand> GetHandForInputAction(const UInputAction* action);
+
+	/** Gets the hand that an action is tagged with or, failing that, the hand whose context maps it. Unset if neither identifies one hand. */
+	DRSINPUT_API TOptional<EDrsHand> GetHandForInputAction(const UInputAction* action, const UInputMappingContext* leftHandContext, const UInputMappingContext* rightHandContext);
 
 	DRSINPUT_API void ClearBindingsForContext(UEnhancedInputComponent* inputComponent, const UObject* owner, const UInputMappingContext* context);
-	DRSINPUT_API void ClearBindingsForHand(UEnhancedInputComponent* inputComponent, UObject* owner, EControllerHand hand);
+	
+	/**
+	 * Clears the owner's bindings for actions tagged with exactly the given hand. Specifying Both clears every binding the
+	 * owner has on the component, including those for actions that are not hand-specific. None clears nothing.
+	 */
+	DRSINPUT_API void ClearBindingsForHands(UEnhancedInputComponent* inputComponent, UObject* owner, EDrsHandMask hands);
 
 	DRSINPUT_API void ReleaseDanglingInputs(const UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context);
 	DRSINPUT_API void ReleaseOverriddenInputs(const UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, int32 priority);

@@ -14,9 +14,8 @@ void UDrsMotionControllerInputComponent::EndPlay(const EEndPlayReason::Type endP
 	Super::EndPlay(endPlayReason);
 }
 
-void UDrsMotionControllerInputComponent::SetHand(EControllerHand hand)
+void UDrsMotionControllerInputComponent::SetHand(EDrsHand hand)
 {
-	check(hand == EControllerHand::Left || hand == EControllerHand::Right);
 	Hand = hand;
 }
 

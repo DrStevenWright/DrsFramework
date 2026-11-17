@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DrsHand.h"
 #include "InputCoreTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DrsInputBlueprintFunctionLibrary.generated.h"
@@ -78,26 +79,26 @@ public:
 	static void RemoveInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason);
 
 	/**
-	 * Adds a hand-specific InputMappingContext to the enhanced input system at a pre-defined priority.
+	 * Adds hand-specific InputMappingContext(s) to the enhanced input system at a pre-defined priority.
 	 * @param contextDefinition	(Two-handed) InputMappingContext to add.
-	 * @param hand		Specifies whether to add the left- or right-hand input context.
+	 * @param hands	Specifies whether to add the left-hand context, the right-hand context or both.
 	 * @param reason	Allows us to specify the reason why this context needs to be being added. An input context added
 	 *                  in this way will only be removed once all specified reasons are withdrawn. Specify 'None' for
 	 *                  default binary add/remove behaviour.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
-	static void AddInputContextDefinitionForHand(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason);
+	static void AddInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason);
 
 	/**
-	 * Removes a hand-specific InputMappingContext to the enhanced input system at a pre-defined priority.
+	 * Removes hand-specific InputMappingContext(s) from the enhanced input system.
 	 * @param contextDefinition	(Two-handed) InputMappingContext to remove.
-	 * @param hand		Specifies whether to remove the left- or right-hand input context.
+	 * @param hands	Specifies whether to remove the left-hand context, the right-hand context or both.
 	* @param reason		Allows us to specify the reason why this context needs to be removed (in other words, withdraw
 	 *                  the reason the context was added in the first place). Specify 'None' for default binary add/remove
 	 *                  behaviour.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
-	static void RemoveInputContextDefinitionForHand(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason);
+	static void RemoveInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason);
 
 	/**
 	 * Flushes all currently pressed keys in the input system.

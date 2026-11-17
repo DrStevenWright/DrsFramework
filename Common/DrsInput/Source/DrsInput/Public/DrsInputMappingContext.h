@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DrsHand.h"
 #include "InputMappingContext.h"
 #include "DrsInputMappingContext.generated.h"
 
@@ -57,30 +58,14 @@ struct DRSINPUT_API FInputContextDefinitionTwoHands
 {
 	GENERATED_BODY()
 
-	bool IsValid(const EControllerHand hand) const
+	bool IsValid(const EDrsHand hand) const
 	{
-		if (hand == EControllerHand::Left)
-		{
-			return (LeftHandContext != nullptr);
-		}
-		else if (hand == EControllerHand::Right)
-		{
-			return (RightHandContext != nullptr);
-		}
-		return false;
+		return GetContextForHand(hand) != nullptr;
 	}
 
-	const UDrsInputMappingContext* GetContextForHand(const EControllerHand hand) const
+	const UDrsInputMappingContext* GetContextForHand(const EDrsHand hand) const
 	{
-		if (hand == EControllerHand::Left)
-		{
-			return LeftHandContext;
-		}
-		else if (hand == EControllerHand::Right)
-		{
-			return RightHandContext;
-		}
-		return nullptr;
+		return (hand == EDrsHand::Left) ? LeftHandContext : RightHandContext;
 	}
 
 	const UInputAction* FindActionByName(const FName actionName) const

@@ -41,14 +41,14 @@ void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinition(const UObje
 	DrsInputUtils::RemoveInputContext(worldContext, contextDefinition, reason);
 }
 
-void UDrsInputBlueprintFunctionLibrary::AddInputContextDefinitionForHand(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason)
+void UDrsInputBlueprintFunctionLibrary::AddInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
-	DrsInputUtils::AddInputContext(worldContext, contextDefinition, hand, reason);
+	DrsInputUtils::AddInputContext(worldContext, contextDefinition, hands, reason);
 }
 
-void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinitionForHand(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EControllerHand hand, FName reason)
+void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
-	DrsInputUtils::RemoveInputContext(worldContext, contextDefinition, hand, reason);
+	DrsInputUtils::RemoveInputContext(worldContext, contextDefinition, hands, reason);
 }
 
 void UDrsInputBlueprintFunctionLibrary::FlushPressedKeys(const UObject* worldContext)
