@@ -13,7 +13,9 @@ The framework's entry point. A project enables only this plugin.
 - `ADrsPawn` is the XR pawn and the place where features are put together. It has:
   - a floor-level `TrackingOrigin` with an HMD-driven `Camera`;
   - left and right `UMotionControllerComponent`s, each with a `UDrsHandMeshComponent` attached;
-  - left and right `UDrsMotionControllerInputComponent`s, which forward each hand's motion controller input as device-agnostic keys once their bindings are added (not yet wired up).
+  - left and right `UDrsMotionControllerInputComponent`s, which forward each hand's motion controller input as device-agnostic keys. The pawn adds its `MotionControllerContext` (`IMC_MotionController`, an asset default on `BP_DrsPawn`) to the controlling local player at the highest priority, and binds the components, in `SetupPlayerInputComponent` (the engine calls it only for a locally controlled pawn, once the controller is known). It undoes both in `UnPossessed` and `EndPlay`.
+  - **A project must also list `IMC_MotionController` in `DefaultMappingContexts`** (`EnhancedInputDeveloperSettings`, with `bAddImmediately=False`). OpenXR builds its actions and interaction profile suggestions from those contexts, so without the entry the runtime never sees the motion controller bindings.
+  - **The pawn's input component is created from the project's `DefaultInputComponentClass`,** so a project must set it to `/Script/DrsInput.DrsEnhancedInputComponent` (and `DefaultPlayerInputClass` to `/Script/DrsInput.DrsEnhancedPlayerInput`) in `DefaultInput.ini`. Otherwise the bindings are skipped and an error is logged.
 
   New features are normally added to the pawn as components here, not by making features depend on each other.
 - **Tracking origin:** in `BeginPlay`, `ADrsPawn` calls `UDrsXrPlatformLibrary::SetFloorTrackingOrigin()`. The tracking origin is engine-wide, so only the locally viewed pawn may set it. The pawn isn't possessed yet at `BeginPlay`, so the code checks `GetNetMode() != NM_DedicatedServer` rather than the controller. Keep this in mind when you add other engine-wide XR setup.
