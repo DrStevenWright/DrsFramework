@@ -30,7 +30,7 @@ public:
 	EDrsHand GetHand() const { return Hand; }
 
 	/** Default tint for a hand. */
-	static FLinearColor GetDefaultHandColor(EDrsHand hand);
+	static FLinearColor GetDefaultHandColour(EDrsHand hand);
 
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float deltaTime, ELevelTick tickType, FActorComponentTickFunction* thisTickFunction) override;
@@ -44,5 +44,5 @@ protected:
 	bool bHideWhenUntracked = true;
 
 private:
-	void ApplyColor();
+	void ApplyColour();
 };

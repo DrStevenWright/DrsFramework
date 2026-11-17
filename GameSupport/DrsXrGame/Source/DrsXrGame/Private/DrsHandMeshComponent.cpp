@@ -18,7 +18,7 @@ namespace
 	const FVector DefaultHandSize(16.0, 3.0, 9.0);
 	const FVector DefaultHandScale = DefaultHandSize / SkeletalCubeSize;
 	const FVector DefaultHandOffset(4.0, 0.0, -0.5 * DefaultHandSize.Z);
-	const FName ColorParameterName(TEXT("Color"));
+	const FName ColourParameterName(TEXT("Color"));
 }
 
 UDrsHandMeshComponent::UDrsHandMeshComponent()
@@ -51,11 +51,11 @@ void UDrsHandMeshComponent::SetHand(EDrsHand hand)
 	Hand = hand;
 	if (HasBegunPlay())
 	{
-		ApplyColor();
+		ApplyColour();
 	}
 }
 
-FLinearColor UDrsHandMeshComponent::GetDefaultHandColor(EDrsHand hand)
+FLinearColor UDrsHandMeshComponent::GetDefaultHandColour(EDrsHand hand)
 {
 	return hand == EDrsHand::Left ? FLinearColor(0.1f, 0.35f, 1.0f) : FLinearColor(1.0f, 0.25f, 0.1f);
 }
@@ -63,7 +63,7 @@ FLinearColor UDrsHandMeshComponent::GetDefaultHandColor(EDrsHand hand)
 void UDrsHandMeshComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	ApplyColor();
+	ApplyColour();
 }
 
 void UDrsHandMeshComponent::TickComponent(float deltaTime, ELevelTick tickType, FActorComponentTickFunction* thisTickFunction)
@@ -81,10 +81,10 @@ void UDrsHandMeshComponent::TickComponent(float deltaTime, ELevelTick tickType, 
 	}
 }
 
-void UDrsHandMeshComponent::ApplyColor()
+void UDrsHandMeshComponent::ApplyColour()
 {
 	if (UMaterialInstanceDynamic* material = CreateDynamicMaterialInstance(0))
 	{
-		material->SetVectorParameterValue(ColorParameterName, GetDefaultHandColor(Hand));
+		material->SetVectorParameterValue(ColourParameterName, GetDefaultHandColour(Hand));
 	}
 }

@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class UDrsHandMeshComponent;
+class UDrsMotionControllerInputComponent;
 class UMotionControllerComponent;
 
 /** Framework XR pawn: a floor-level tracking origin with an HMD-driven camera and two tracked hands. */
@@ -42,4 +43,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
 	TObjectPtr<UDrsHandMeshComponent> RightHand;
+
+	/** Forwards each hand's motion controller input as device-agnostic input keys. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UDrsMotionControllerInputComponent> LeftMotionInput;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UDrsMotionControllerInputComponent> RightMotionInput;
 };

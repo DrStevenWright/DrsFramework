@@ -78,7 +78,7 @@ void DrsInputUtils::AddInputContextToSubsystem(UEnhancedInputLocalPlayerSubsyste
 {
 	// When an input context is added or removed, it can cause some active inputs to be left stuck in an active state.
 	// (Input actions will not receive 'Completed' or 'Canceled' events. Any logic that relies on those events will be
-	// broken as a result.) We therefore force complete/canceled events on any dangling or overridden inputs.
+	// broken as a result.) We therefore force complete/cancelled events on any dangling or overridden inputs.
 	
 	if (!ensure(IsValid(context)))
 	{
@@ -127,7 +127,7 @@ void DrsInputUtils::RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSub
 {
 	// When an input context is added or removed, it can cause some active inputs to be left stuck in an active state.
 	// (Input actions will not receive 'Completed' or 'Canceled' events. Any logic that relies on those events will be
-	// broken as a result.) We therefore force complete/canceled events on any dangling or overridden inputs.
+	// broken as a result.) We therefore force complete/cancelled events on any dangling or overridden inputs.
 	
 	if (!ensure(IsValid(context)))
 	{

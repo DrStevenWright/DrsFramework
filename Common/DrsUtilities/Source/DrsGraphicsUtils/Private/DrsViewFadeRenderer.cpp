@@ -13,13 +13,13 @@
 
 namespace
 {
-	// Holdout: color = dst * (1 - a), alpha = a + dst * (1 - a). Matches the AlphaHoldout material blend mode.
+	// Holdout: colour = dst * (1 - a), alpha = a + dst * (1 - a). Matches the AlphaHoldout material blend mode.
 	using THoldoutBlendState = TStaticBlendState<CW_RGBA, BO_Add, BF_Zero, BF_InverseSourceAlpha, BO_Add, BF_One, BF_InverseSourceAlpha>;
 
-	// Fade: color = src * a + dst * (1 - a), alpha = dst * (1 - a).
+	// Fade: colour = src * a + dst * (1 - a), alpha = dst * (1 - a).
 	using TFadeBlendState = TStaticBlendState<CW_RGBA, BO_Add, BF_SourceAlpha, BF_InverseSourceAlpha, BO_Add, BF_Zero, BF_InverseSourceAlpha>;
 
-	void DrawFullScreenQuad(FRHICommandList& rhiCmdList, FRHIBlendState* blendState, const FLinearColor& color)
+	void DrawFullScreenQuad(FRHICommandList& rhiCmdList, FRHIBlendState* blendState, const FLinearColor& colour)
 	{
 		FGraphicsPipelineStateInitializer graphicsPsoInit;
 		rhiCmdList.ApplyCachedRenderTargets(graphicsPsoInit);
@@ -48,7 +48,7 @@ namespace
 		rhiCmdList.SetBatchedShaderParameters(rhiCmdList.GetBoundVertexShader(), batchedParameters);
 
 		TOneColorPixelShaderMRT::FParameters parameters;
-		pixelShader->FillParameters(parameters, &color, 1);
+		pixelShader->FillParameters(parameters, &colour, 1);
 		SetShaderParameters(rhiCmdList, pixelShader, pixelShader.GetPixelShader(), parameters);
 
 		rhiCmdList.SetStreamSource(0, GClearVertexBuffer.VertexBufferRHI, 0);
@@ -60,8 +60,8 @@ void FDrsViewFadeRenderer::PostRenderView_RenderThread(FRDGBuilder& graphBuilder
 {
 	AddPass(graphBuilder, RDG_EVENT_NAME("DrsViewFade"), [this, &inView](FRHICommandListImmediate& rhiCmdList)
 	{
-		FLinearColor fadeColor = FadeColor;
-		fadeColor.A = FadeOpacity;
+		FLinearColor fadeColour = FadeColour;
+		fadeColour.A = FadeOpacity;
 		const float holdoutOpacity = HoldoutOpacity;
 
 		const FTextureRHIRef renderTarget = inView.Family->RenderTarget->GetRenderTargetTexture();
@@ -85,9 +85,9 @@ void FDrsViewFadeRenderer::PostRenderView_RenderThread(FRDGBuilder& graphBuilder
 		{
 			DrawFullScreenQuad(rhiCmdList, THoldoutBlendState::GetRHI(), FLinearColor(0.0f, 0.0f, 0.0f, holdoutOpacity));
 		}
-		if (!FMath::IsNearlyZero(fadeColor.A))
+		if (!FMath::IsNearlyZero(fadeColour.A))
 		{
-			DrawFullScreenQuad(rhiCmdList, TFadeBlendState::GetRHI(), fadeColor);
+			DrawFullScreenQuad(rhiCmdList, TFadeBlendState::GetRHI(), fadeColour);
 		}
 
 		rhiCmdList.EndRenderPass();
@@ -99,12 +99,12 @@ bool FDrsViewFadeRenderer::IsActiveThisFrame_Internal(const FSceneViewExtensionC
 	return !FMath::IsNearlyZero(FadeOpacity) || !FMath::IsNearlyZero(HoldoutOpacity);
 }
 
-void FDrsViewFadeRenderer::SetColor(const FLinearColor& color, bool shouldIgnoreAlpha)
+void FDrsViewFadeRenderer::SetColour(const FLinearColor& colour, bool shouldIgnoreAlpha)
 {
-	FadeColor = color;
+	FadeColour = colour;
 	if (!shouldIgnoreAlpha)
 	{
-		SetOpacity(color.A);
+		SetOpacity(colour.A);
 	}
 }
 

@@ -1,12 +1,14 @@
 ﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 #pragma once
 #include "CoreMinimal.h"
-#include "DrsInputMotionData.h"
+#include "DrsInputSettings.h"
+#include "DrsMotionControllerKeys.h"
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
 #include "Misc/DataValidation.h"
 #include "InputTriggerDeflection.generated.h"
 
+class UEnhancedPlayerInput;
 
 // Allowed thumbstick directions as flags.
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
@@ -26,15 +28,14 @@ enum class EDeflectionDirections : uint8
 };
 ENUM_CLASS_FLAGS(EDeflectionDirections)
 
-
 /**
  * Input trigger that requires a controller's thumbstick to have been deflected in some specific direction (or directions).
  * This includes checking of the *initial* deflection direction, in order to capture 'deliberate' deflection inputs, rather
  * than false positives that may occur when rotating the thumbstick from one quadrant to another. (The threshold defining
- * what is considered a 'deflection' is defined in the Drs Input System project settings.)
+ * what is considered a 'deflection' is defined in the DrsInput project settings.)
  * 
  * Deflection triggers are intended to be used in combination with other triggers in order to craft more sophisticated
- * input behavior. In order for this to work reliably, you may need to choose the actuation threshold carefully on the
+ * input behaviour. In order for this to work reliably, you may need to choose the actuation threshold carefully on the
  * other triggers. In this role, one-shot "Hold" triggers can sometimes be more reliable than "Pressed" triggers (being
  * more resistant to input race conditions).
  */
@@ -90,6 +91,7 @@ protected:
 	
 	virtual ETriggerState UpdateState_Implementation(const UEnhancedPlayerInput* playerInput, FInputActionValue modifiedValue, float deltaTime) override
 	{
+		UpdateDeflection(playerInput);
 		return IsDeflectionValid() ? ETriggerState::Triggered : ETriggerState::None;
 	}
 	
@@ -130,13 +132,42 @@ protected:
 
 private:
 
+	// Tracks the thumbstick's deflection using the device-agnostic 2D thumbstick key. That key holds the input as
+	// forwarded (and possibly filtered) by the motion controller input component, so this trigger responds to exactly
+	// what the rest of the game sees. Triggers are evaluated every frame, even while their own action is idle.
+	void UpdateDeflection(const UEnhancedPlayerInput* playerInput)
+	{
+		const FKey thumbstickKey = Drs::MotionControllerKeys::Get(Hand).Thumbstick2D.InputKey;
+		const FVector rawValue = playerInput ? playerInput->GetRawVectorKeyValue(thumbstickKey) : FVector::ZeroVector;
+		const FVector2D thumbstickValue(rawValue.X, rawValue.Y);
+
+		const float deflectionThreshold = UDrsInputSettings::Get().ThumbstickDeflectionThreshold;
+		if (thumbstickValue.SizeSquared() <= FMath::Square(deflectionThreshold))
+		{
+			CurrentDeflectionDirection.Reset();
+			InitialDeflectionDirection.Reset();
+			return;
+		}
+
+		CurrentDeflectionDirection = thumbstickValue.GetSafeNormal();
+		if (!InitialDeflectionDirection.IsSet())
+		{
+			InitialDeflectionDirection = CurrentDeflectionDirection;
+		}
+	}
+
+	// Direction of the thumbstick when it first crossed the deflection threshold, and its direction now. Unset while
+	// the thumbstick is not deflected.
+	TOptional<FVector2D> InitialDeflectionDirection;
+	TOptional<FVector2D> CurrentDeflectionDirection;
+
 	bool IsDeflectionValid() const
 	{
 		bool checkCurrentDeflectionDirection = bCheckCurrentDeflectionDirection;
 		
 		if (bCheckInitialDeflectionDirection)
 		{
-			const TOptional<FVector2D>& deflection = DrsInputMotionData::GetThumbstickInitialDeflectionDirection(Hand);
+			const TOptional<FVector2D>& deflection = InitialDeflectionDirection;
 			if (!deflection.IsSet())
 			{
 				// If initial deflection direction has not been recorded yet, then use current direction as a temporary
@@ -152,7 +183,7 @@ private:
 
 		if (checkCurrentDeflectionDirection)
 		{
-			const auto& deflection = DrsInputMotionData::GetThumbstickCurrentDeflectionDirection(Hand);
+			const TOptional<FVector2D>& deflection = CurrentDeflectionDirection;
 			if (!(deflection.IsSet() && IsDeflectionValid(deflection.GetValue())))
 			{
 				return false;

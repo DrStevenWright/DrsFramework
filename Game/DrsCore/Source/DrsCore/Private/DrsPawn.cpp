@@ -5,6 +5,7 @@
 #include "DrsCore.h"
 #include "DrsHandMeshComponent.h"
 #include "DrsLog.h"
+#include "DrsMotionControllerInputComponent.h"
 #include "DrsXrPlatformLibrary.h"
 #include "Engine/Engine.h"
 #include "MotionControllerComponent.h"
@@ -45,6 +46,12 @@ ADrsPawn::ADrsPawn()
 	RightHand = CreateDefaultSubobject<UDrsHandMeshComponent>(TEXT("RightHand"));
 	RightHand->SetupAttachment(RightController);
 	RightHand->SetHand(EDrsHand::Right);
+
+	LeftMotionInput = CreateDefaultSubobject<UDrsMotionControllerInputComponent>(TEXT("LeftMotionInput"));
+	LeftMotionInput->SetHand(EControllerHand::Left);
+
+	RightMotionInput = CreateDefaultSubobject<UDrsMotionControllerInputComponent>(TEXT("RightMotionInput"));
+	RightMotionInput->SetHand(EControllerHand::Right);
 }
 
 void ADrsPawn::BeginPlay()

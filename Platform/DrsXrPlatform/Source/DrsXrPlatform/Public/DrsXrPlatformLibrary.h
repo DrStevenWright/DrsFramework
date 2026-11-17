@@ -138,8 +138,8 @@ public:
 	/** Whether the floor tracking origin has been requested, or is already set. */
 	static bool IsTrackingOriginSetup();
 
-	/** The HMD's tracking-space pose and the world-to-meters scale. */
-	static void GetHmdDevicePose(UObject* worldContext, FRotator& outRotation, FVector& outPosition, float& outWorldToMetersScale);
+	/** The HMD's tracking-space pose and the world-to-metres scale. */
+	static void GetHmdDevicePose(UObject* worldContext, FRotator& outRotation, FVector& outPosition, float& outWorldToMetresScale);
 
 	//------------------------------------------------------------------
 	// Motion controllers
@@ -222,7 +222,7 @@ public:
 
 	/** GPU utilisation in percent (0-100), on Meta only. Returns false where it isn't available. */
 	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Rendering")
-	static bool GetGpuUtilization(float& outGpuUtilization);
+	static bool GetGpuUtilisation(float& outGpuUtilisation);
 
 	/** Sets the spectator screen mode, used for mirroring. */
 	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Rendering")
