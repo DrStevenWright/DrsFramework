@@ -8,7 +8,7 @@ public class DrsXrGame : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "DrsBase" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "HeadMountedDisplay" });
 	}

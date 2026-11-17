@@ -8,6 +8,9 @@ public class DrsBaseTests : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DrsBase" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DrsBase", "DrsBaseBlueprint" });
+
+		// For the EControllerHand values used by the hand tests.
+		PrivateIncludePathModuleNames.Add("InputCore");
 	}
 }

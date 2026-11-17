@@ -2,10 +2,13 @@
 
 #include "DrsBase.h"
 #include "DrsBaseTestTypes.h"
+#include "DrsHand.h"
+#include "DrsHandLibrary.h"
 #include "DrsLog.h"
 #include "DrsObjectUtils.h"
 #include "DrsVersion.h"
 #include "DrsVotableState.h"
+#include "InputCoreTypes.h"
 #include "Misc/AutomationTest.h"
 #include "Modules/ModuleManager.h"
 
@@ -117,6 +120,80 @@ bool FDrsBaseLogTest::RunTest(const FString& parameters)
 	else
 		DRS_CLOG(false, LogDrsBase, Warning, "DrsLogTest else branch");
 
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsBaseHandTest, "Drs.Base.Hand", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+
+bool FDrsBaseHandTest::RunTest(const FString& parameters)
+{
+	// Opposite and masks.
+	TestEqual(TEXT("Opposite of left"), Drs::Opposite(EDrsHand::Left), EDrsHand::Right);
+	TestEqual(TEXT("Opposite of right"), Drs::Opposite(EDrsHand::Right), EDrsHand::Left);
+	TestEqual(TEXT("Left to mask"), Drs::ToMask(EDrsHand::Left), EDrsHandMask::Left);
+	TestEqual(TEXT("Right to mask"), Drs::ToMask(EDrsHand::Right), EDrsHandMask::Right);
+	TestEqual(TEXT("Left | Right"), EDrsHandMask::Left | EDrsHandMask::Right, EDrsHandMask::Both);
+
+	// Contains.
+	TestTrue(TEXT("Both contains left"), Drs::Contains(EDrsHandMask::Both, EDrsHand::Left));
+	TestTrue(TEXT("Both contains right"), Drs::Contains(EDrsHandMask::Both, EDrsHand::Right));
+	TestTrue(TEXT("Left contains left"), Drs::Contains(EDrsHandMask::Left, EDrsHand::Left));
+	TestFalse(TEXT("Left contains right"), Drs::Contains(EDrsHandMask::Left, EDrsHand::Right));
+	TestFalse(TEXT("None contains left"), Drs::Contains(EDrsHandMask::None, EDrsHand::Left));
+	TestFalse(TEXT("None contains right"), Drs::Contains(EDrsHandMask::None, EDrsHand::Right));
+
+	// Mask to hand: only exactly one hand converts.
+	const TOptional<EDrsHand> rightMaskHand = Drs::ToHand(EDrsHandMask::Right);
+	TestTrue(TEXT("Right mask has a hand"), rightMaskHand.IsSet() && rightMaskHand.GetValue() == EDrsHand::Right);
+	TestFalse(TEXT("Both has no single hand"), Drs::ToHand(EDrsHandMask::Both).IsSet());
+	TestFalse(TEXT("None has no single hand"), Drs::ToHand(EDrsHandMask::None).IsSet());
+
+	// Engine enum to Drs.
+	TestEqual(TEXT("Engine left to mask"), Drs::ToMask(EControllerHand::Left), EDrsHandMask::Left);
+	TestEqual(TEXT("Engine right to mask"), Drs::ToMask(EControllerHand::Right), EDrsHandMask::Right);
+	TestEqual(TEXT("Engine AnyHand to mask"), Drs::ToMask(EControllerHand::AnyHand), EDrsHandMask::Both);
+	TestEqual(TEXT("Engine Gun to mask"), Drs::ToMask(EControllerHand::Gun), EDrsHandMask::None);
+	const TOptional<EDrsHand> engineLeftHand = Drs::ToHand(EControllerHand::Left);
+	TestTrue(TEXT("Engine left to hand"), engineLeftHand.IsSet() && engineLeftHand.GetValue() == EDrsHand::Left);
+	TestFalse(TEXT("Engine AnyHand to hand"), Drs::ToHand(EControllerHand::AnyHand).IsSet());
+	TestFalse(TEXT("Engine Gun to hand"), Drs::ToHand(EControllerHand::Gun).IsSet());
+
+	// Drs to engine enum.
+	TestEqual(TEXT("Left to engine"), Drs::ToControllerHand(EDrsHand::Left), EControllerHand::Left);
+	TestEqual(TEXT("Right to engine"), Drs::ToControllerHand(EDrsHand::Right), EControllerHand::Right);
+	TestEqual(TEXT("Left mask to engine"), Drs::ToControllerHand(EDrsHandMask::Left), EControllerHand::Left);
+	TestEqual(TEXT("Right mask to engine"), Drs::ToControllerHand(EDrsHandMask::Right), EControllerHand::Right);
+	TestEqual(TEXT("Both to engine"), Drs::ToControllerHand(EDrsHandMask::Both), EControllerHand::AnyHand);
+	TestEqual(TEXT("None to engine"), Drs::ToControllerHand(EDrsHandMask::None), EControllerHand::AnyHand);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsBaseHandLibraryTest, "Drs.Base.HandLibrary", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+
+bool FDrsBaseHandLibraryTest::RunTest(const FString& parameters)
+{
+	// The Blueprint wrappers forward to the native helpers, so this mainly checks the wrappers' own contract: failed
+	// conversions return false and still assign the output.
+	TestEqual(TEXT("Hand to mask"), UDrsHandLibrary::Conv_HandToHandMask(EDrsHand::Right), EDrsHandMask::Right);
+	TestEqual(TEXT("Hand to engine"), UDrsHandLibrary::Conv_HandToControllerHand(EDrsHand::Right), EControllerHand::Right);
+	TestEqual(TEXT("Mask to engine"), UDrsHandLibrary::Conv_HandMaskToControllerHand(EDrsHandMask::Both), EControllerHand::AnyHand);
+	TestEqual(TEXT("Engine to mask"), UDrsHandLibrary::Conv_ControllerHandToHandMask(EControllerHand::AnyHand), EDrsHandMask::Both);
+	TestEqual(TEXT("Opposite"), UDrsHandLibrary::OppositeHand(EDrsHand::Left), EDrsHand::Right);
+	TestTrue(TEXT("Mask contains"), UDrsHandLibrary::HandMaskContains(EDrsHandMask::Both, EDrsHand::Right));
+	TestFalse(TEXT("Mask does not contain"), UDrsHandLibrary::HandMaskContains(EDrsHandMask::Left, EDrsHand::Right));
+
+	EDrsHand hand = EDrsHand::Right;
+	TestTrue(TEXT("Left mask to hand"), UDrsHandLibrary::HandMaskToHand(EDrsHandMask::Left, hand));
+	TestEqual(TEXT("Left mask hand"), hand, EDrsHand::Left);
+	hand = EDrsHand::Right;
+	TestFalse(TEXT("Both mask to hand"), UDrsHandLibrary::HandMaskToHand(EDrsHandMask::Both, hand));
+	TestEqual(TEXT("Failed conversion assigns the default hand"), hand, EDrsHand::Left);
+
+	hand = EDrsHand::Left;
+	TestTrue(TEXT("Engine right to hand"), UDrsHandLibrary::ControllerHandToHand(EControllerHand::Right, hand));
+	TestEqual(TEXT("Engine right hand"), hand, EDrsHand::Right);
+	TestFalse(TEXT("Engine AnyHand to hand"), UDrsHandLibrary::ControllerHandToHand(EControllerHand::AnyHand, hand));
+	TestEqual(TEXT("Failed engine conversion assigns the default hand"), hand, EDrsHand::Left);
 	return true;
 }
 

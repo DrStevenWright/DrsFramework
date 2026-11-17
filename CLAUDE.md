@@ -43,7 +43,7 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 | Layer | Folder | Contents |
 |---|---|---|
 | External | `Platform/External/` | Private vendor plugin forks (MetaXR, Pico) as submodules. Only Platform code may use them, and they must not depend on any Drs module. Clones without access won't fetch them. |
-| Base | `Base/` | `DrsBase`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), object, enum, votable state and delegate helpers; `DrsBaseTests` |
+| Base | `Base/` | `DrsBase`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), object, enum, votable state and delegate helpers, and the hand enums `EDrsHand` and `EDrsHandMask`; `DrsBaseTests` |
 | Common | `Common/` | Plugins that need only the engine and `DrsBase` and don't depend on each other, such as `DrsUtilities` (modules `DrsMathUtils`, `DrsGraphicsUtils` with the view fade) |
 | Platform | `Platform/` | `DrsXrPlatform`: XR platform API over OpenXR (`UDrsXrPlatformLibrary`), the vendor plugin arbiter (`DrsXrArbiter`), desktop runtime selection (`DrsXrRuntime`), Meta hand tracking and passthrough. |
 | GameSupport | `GameSupport/` | The fundamental game systems built on the layers below: `DrsXrGame` (tracked hand meshes), `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` (empty for now). Plugins here may depend on each other, as long as the graph is acyclic. |
