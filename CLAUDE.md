@@ -18,6 +18,12 @@ Check the layer rules (run from this repo's root; exits 1 on a violation). Run i
 powershell -ExecutionPolicy Bypass -File Tools/CheckLayers.ps1
 ```
 
+Check the DRS spelling in categories, class groups and plugin descriptors (exits 1 on a violation). Run it after adding a `Category`, `ClassGroup`, settings class or `.uplugin`:
+
+```
+powershell -ExecutionPolicy Bypass -File Tools/CheckNaming.ps1
+```
+
 Build from the **host project's** root. Bootstrap fetches submodules, finds the engine from the `.uproject`'s `EngineAssociation` (launcher install or a registered source build), generates project files and, with `-Build`, builds `<Project>Editor` Win64 Development:
 
 ```

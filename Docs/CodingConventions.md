@@ -30,7 +30,7 @@ The framework is called DRS. Write **DRS** in prose and display text, and `Drs` 
 | Plugin, module, repo and log category names | `Drs` | `DrsInput`, `LogDrsInput` |
 | Macros | `DRS_` | `DRS_LOG` |
 
-Names the editor derives from identifiers (such as "Drs Pawn" in class pickers) stay as they are. Don't sweep comments: use DRS in files you touch anyway and in new text.
+Names the editor derives from identifiers (such as "Drs Pawn" in class pickers) stay as they are. Don't sweep comments: use DRS in files you touch anyway and in new text. `Tools/CheckNaming.ps1` checks the categories, class groups and plugin descriptors.
 
 ### Prefixes
 
