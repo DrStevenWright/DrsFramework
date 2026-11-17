@@ -107,34 +107,38 @@ void UDrsMotionControllerInputComponent::ForwardKeyPressed(const FDrsMotionInput
 
 	if (APlayerController* playerController = GetPlayerController())
 	{
+		// If the pawn changed controller while the key was down, release it on the controller that has it down.
+		const TWeakObjectPtr<APlayerController>* previous = ForwardedKeys.Find(key.InputKey);
+		if (previous && previous->IsValid() && previous->Get() != playerController)
+		{
+			ForwardKeyReleased(key);
+		}
+
 		playerController->InputKey(FInputKeyEventArgs::CreateSimulated(key.InputKey, IE_Pressed, value));
-		ForwardedKeys.Add(key.InputKey);
+		ForwardedKeys.Add(key.InputKey, playerController);
 	}
 }
 
 void UDrsMotionControllerInputComponent::ForwardKeyReleased(const FDrsMotionInputKey& key)
 {
-	if (ForwardedKeys.Remove(key.InputKey) > 0)
+	TWeakObjectPtr<APlayerController> playerController;
+	if (ForwardedKeys.RemoveAndCopyValue(key.InputKey, playerController))
 	{
-		if (APlayerController* playerController = GetPlayerController())
+		// Send the release to the controller that received the press, which the pawn may no longer have.
+		if (APlayerController* controller = playerController.Get())
 		{
-			playerController->InputKey(FInputKeyEventArgs::CreateSimulated(key.InputKey, IE_Released, 0.0f));
+			controller->InputKey(FInputKeyEventArgs::CreateSimulated(key.InputKey, IE_Released, 0.0f));
 		}
 	}
 }
 
 void UDrsMotionControllerInputComponent::ReleaseAllForwardedKeys()
 {
-	if (ForwardedKeys.IsEmpty())
+	for (const TPair<FKey, TWeakObjectPtr<APlayerController>>& pair : ForwardedKeys)
 	{
-		return;
-	}
-
-	if (APlayerController* playerController = GetPlayerController())
-	{
-		for (const FKey& key : ForwardedKeys)
+		if (APlayerController* controller = pair.Value.Get())
 		{
-			playerController->InputKey(FInputKeyEventArgs::CreateSimulated(key, IE_Released, 0.0f));
+			controller->InputKey(FInputKeyEventArgs::CreateSimulated(pair.Key, IE_Released, 0.0f));
 		}
 	}
 

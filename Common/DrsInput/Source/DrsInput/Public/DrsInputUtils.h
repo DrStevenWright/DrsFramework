@@ -14,8 +14,8 @@ struct FInputContextDefinitionTwoHands;
 
 namespace DrsInputUtils
 {
-	// Reason used when a C++ caller doesn't give one. It is deliberately not NAME_None, which is the reason Blueprint
-	// callers use for default add/remove behaviour, so that Blueprint logic never withdraws a reason that C++ code added.
+	// Reason used when a C++ caller doesn't give one. It is deliberately not NAME_None, which is the default reason that
+	// Blueprint callers use for add/remove behaviour, so that Blueprint logic never withdraws a reason that C++ code added.
 	// C++ callers should normally pass a reason of their own that says why the context is needed.
 	const FName DefaultInputReason("DrsDefault");
 	

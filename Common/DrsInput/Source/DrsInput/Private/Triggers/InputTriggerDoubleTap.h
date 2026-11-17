@@ -43,6 +43,18 @@ protected:
 		return ETriggerState::None;
 	}
 
+	// The engine replaces trigger instances when it rebuilds the control mappings (for example whenever any context is
+	// added or removed), and only carries over the base class state.
+	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
+	{
+		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
+		if (const UInputTriggerDoubleTap* old = Cast<const UInputTriggerDoubleTap>(oldTrigger))
+		{
+			LastTappedTime = old->LastTappedTime;
+			LastTapInterval = old->LastTapInterval;
+		}
+	}
+
 	virtual FString GetDebugState() const override
 	{
 		return IsActuated(LastValue) ? FString::Printf(TEXT("DoubleTap:Interval:%.2f/%.2f"), LastTapInterval, MaxTapInterval) : FString();

@@ -7,7 +7,7 @@
 /**
  * Per-frame state tracker for a digital button. Register presses and releases as they arrive (SetPressed/SetReleased),
  * then call Update once per frame. The registered change takes effect on that Update, so Pressed/Released are true for
- * exactly one frame, and presses and releases that arrive between two Updates are not lost.
+ * exactly one frame.
  */
 struct DRSINPUT_API FDrsMotionControllerButtonInput
 {

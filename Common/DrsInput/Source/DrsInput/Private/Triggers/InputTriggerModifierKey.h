@@ -56,11 +56,12 @@ protected:
 	virtual ETriggerState UpdateState_Implementation(const UEnhancedPlayerInput* playerInput, FInputActionValue modifiedValue, float deltaTime) override
 	{
 		bIsModifierKeyDown = false;
-		if (TArray<FKey>* keys = ModifierKeys.Find(ModifierKey))
+		// Ask the player input directly. Its outer is not guaranteed to be a player controller.
+		if (const TArray<FKey>* keys = playerInput ? ModifierKeys.Find(ModifierKey) : nullptr)
 		{
 			for (const FKey& key : *keys)
 			{
-				if (playerInput->GetOuterAPlayerController()->IsInputKeyDown(key))
+				if (playerInput->IsPressed(key))
 				{
 					bIsModifierKeyDown = true;
 					break;

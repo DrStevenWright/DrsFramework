@@ -96,6 +96,19 @@ protected:
 		return IsDeflectionValid() ? ETriggerState::Triggered : ETriggerState::None;
 	}
 	
+	// The engine replaces trigger instances when it rebuilds the control mappings (for example whenever any context is
+	// added or removed), and only carries over the base class state. Without this, the initial deflection direction of a
+	// stick that is already deflected would be captured again from its current direction.
+	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
+	{
+		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
+		if (const UInputTriggerDeflection* old = Cast<const UInputTriggerDeflection>(oldTrigger))
+		{
+			InitialDeflectionDirection = old->InitialDeflectionDirection;
+			CurrentDeflectionDirection = old->CurrentDeflectionDirection;
+		}
+	}
+
 	virtual FString GetDebugState() const override
 	{
 		return IsActuated(LastValue) ? (IsDeflectionValid() ? FString("Deflection:Valid") : FString("Deflection:Invalid" )) : FString();

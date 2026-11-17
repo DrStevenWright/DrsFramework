@@ -52,6 +52,17 @@ protected:
 		return ETriggerState::None;
 	}
 
+	// The engine replaces trigger instances when it rebuilds the control mappings (for example whenever any context is
+	// added or removed), and only carries over the base class state. Without this, a held input would lose its state.
+	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
+	{
+		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
+		if (const UInputTriggerDownBuffered* old = Cast<const UInputTriggerDownBuffered>(oldTrigger))
+		{
+			bIsActuated = old->bIsActuated;
+		}
+	}
+
 #if WITH_EDITOR
 	virtual EDataValidationResult IsDataValid(FDataValidationContext& context) const override
 	{

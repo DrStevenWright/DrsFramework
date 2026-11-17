@@ -45,6 +45,18 @@ protected:
 		return ETriggerState::None;
 	}
 
+	// The engine replaces trigger instances when it rebuilds the control mappings (for example whenever any context is
+	// added or removed), and only carries over the base class state.
+	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
+	{
+		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
+		if (const UInputTriggerFilteredPress* old = Cast<const UInputTriggerFilteredPress>(oldTrigger))
+		{
+			LastTriggerTime = old->LastTriggerTime;
+			RepeatTime = old->RepeatTime;
+		}
+	}
+
 	virtual FString GetDebugState() const override
 	{
 		return IsActuated(LastValue) ? FString::Printf(TEXT("Pressed(Filtered):RepeatTime:%.2f/%.2f"), RepeatTime, MinRepeatTime) : FString();

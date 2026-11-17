@@ -83,8 +83,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintGetter = GetHand, Category = "DRS|Input")
 	EDrsHand Hand = EDrsHand::Left;
 
-	// Keys that are currently being forwarded as pressed.
-	TSet<FKey> ForwardedKeys;
+	// Keys that are currently being forwarded as pressed, and the controller that each press was sent to. The release has
+	// to go to that same controller, because by the time the pawn is destroyed or unpossessed it no longer has one.
+	TMap<FKey, TWeakObjectPtr<APlayerController>> ForwardedKeys;
 
 	bool bInputBindingsAdded = false;
 };
