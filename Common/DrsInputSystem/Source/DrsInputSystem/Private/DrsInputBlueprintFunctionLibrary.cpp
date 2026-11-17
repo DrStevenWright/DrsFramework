@@ -3,6 +3,7 @@
 #include "DrsInputBlueprintFunctionLibrary.h"
 #include "DrsInputSettings.h"
 #include "DrsInputUtils.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(DrsInputBlueprintFunctionLibrary)
 
 namespace
 {

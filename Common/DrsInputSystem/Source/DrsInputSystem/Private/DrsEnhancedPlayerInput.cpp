@@ -5,6 +5,7 @@
 #include "DrsInputLog.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(DrsEnhancedPlayerInput)
 
 void UDrsEnhancedPlayerInput::ReleaseDanglingInputs(const UInputMappingContext* contextBeingRemoved) const
 {

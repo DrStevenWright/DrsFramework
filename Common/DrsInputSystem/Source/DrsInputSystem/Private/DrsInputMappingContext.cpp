@@ -3,6 +3,7 @@
 #include "DrsInputMappingContext.h"
 #include "DrsInputAction.h"
 #include "DrsInputLog.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(DrsInputMappingContext)
 
 #if WITH_EDITOR
 #include "Editor.h"
@@ -12,12 +13,12 @@ void UDrsInputMappingContext::PostInitProperties()
 {
 	Super::PostInitProperties();
 #if WITH_EDITOR
-	// Clear cached CoreInputActions when entering PIE to avoid using stale input actions.
+	// Clear cached DrsInputActions when entering PIE to avoid using stale input actions.
 	if (GIsEditor)
 	{
 		PIEBeginHandle = FEditorDelegates::BeginPIE.AddWeakLambda(this, [this](const bool isSimulating)
 		{
-			CoreInputActions.Empty();
+			DrsInputActions.Empty();
 		});
 	}
 #endif
@@ -52,18 +53,18 @@ const UInputAction* UDrsInputMappingContext::FindActionByName(FName actionName) 
 
 const UInputAction* UDrsInputMappingContext::FindActionByID(FName actionID) const
 {
-	if (CoreInputActions.IsEmpty())
+	if (DrsInputActions.IsEmpty())
 	{
 		for (const FEnhancedActionKeyMapping& mapping : DefaultKeyMappings.Mappings)
 		{
 			if (const UDrsInputAction* inputAction = Cast<UDrsInputAction>(mapping.Action))
 			{
-				CoreInputActions.Add(inputAction);
+				DrsInputActions.Add(inputAction);
 			}
 		}
 	}
 	
-	for (const UDrsInputAction* inputAction : CoreInputActions)
+	for (const UDrsInputAction* inputAction : DrsInputActions)
 	{
 		if (inputAction && inputAction->GetActionID() == actionID)
 		{
@@ -71,7 +72,7 @@ const UInputAction* UDrsInputMappingContext::FindActionByID(FName actionID) cons
 		}
 	}
 
-	DRS_LOG(LogDrsInput, Log, "Could not find CoreInputAction with ID '%s' in CoreInputMappingContext '%s'", *actionID.ToString(), *GetName());
+	DRS_LOG(LogDrsInput, Log, "Could not find DrsInputAction with ID '%s' in DrsInputMappingContext '%s'", *actionID.ToString(), *GetName());
 	
 	return nullptr;
 }

@@ -25,7 +25,7 @@ public:
 
 protected:
 
-	// Custom ID to allow Core code to reference input action assets without needing to expose them as properties and
+	// Custom ID to allow Drs code to reference input action assets without needing to expose them as properties and
 	// without being coupled to a specific asset name.
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "DRS|Input")
 	FName ActionID = NAME_None;

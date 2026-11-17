@@ -6,7 +6,7 @@
 #include "InputMappingContext.h"
 #include "DrsInputMappingContext.generated.h"
 
-/** Custom class for input mapping contexts used by Core. */
+/** Custom class for input mapping contexts used by Drs. */
 UCLASS(BlueprintType)
 class DRSINPUTSYSTEM_API UDrsInputMappingContext : public UInputMappingContext
 {
@@ -29,7 +29,7 @@ public:
 private:
 	
 	UPROPERTY(Transient)
-	mutable TSet<const class UDrsInputAction*> CoreInputActions;
+	mutable TSet<const class UDrsInputAction*> DrsInputActions;
 
 #if WITH_EDITOR
 	FDelegateHandle PIEBeginHandle;

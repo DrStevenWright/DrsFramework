@@ -28,7 +28,7 @@ class DRSINPUTSYSTEM_API UDrsInputBlueprintFunctionLibrary : public UBlueprintFu
 
 public:
 	/**
-	* Returns a handle to the CoreInputSystem's developer settings object.
+	* Returns a handle to the DrsInputSystem's developer settings object.
 	*/
 	UFUNCTION(BlueprintPure, Category = "DRS|Input")
 	static const class UDrsInputSettings* GetDrsInputSettings();

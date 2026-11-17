@@ -31,7 +31,7 @@ ENUM_CLASS_FLAGS(EDeflectionDirections)
  * Input trigger that requires a controller's thumbstick to have been deflected in some specific direction (or directions).
  * This includes checking of the *initial* deflection direction, in order to capture 'deliberate' deflection inputs, rather
  * than false positives that may occur when rotating the thumbstick from one quadrant to another. (The threshold defining
- * what is considered a 'deflection' is defined in the Core Input System project settings.)
+ * what is considered a 'deflection' is defined in the Drs Input System project settings.)
  * 
  * Deflection triggers are intended to be used in combination with other triggers in order to craft more sophisticated
  * input behavior. In order for this to work reliably, you may need to choose the actuation threshold carefully on the
@@ -55,7 +55,7 @@ protected:
 	EControllerHand Hand = EControllerHand::Left;
 	
 	// Allowed direction(s) for the thumbstick deflection.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/CoreInputSystem.EDeflectionDirections", DisplayThumbnail = "false"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/DrsInputSystem.EDeflectionDirections", DisplayThumbnail = "false"))
 	int32 AllowedDeflectionDirections = static_cast<int32>(EDeflectionDirections::Default);
 
 	// Specifies whether the initial deflection direction (i.e. the direction when the thumbstick first crossed the

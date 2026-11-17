@@ -13,7 +13,7 @@ struct FInputContextDefinitionTwoHands;
 
 namespace DrsInputUtils
 {
-	const FName DefaultInputReason("CoreDefault");
+	const FName DefaultInputReason("DrsDefault");
 	
 	DRSINPUTSYSTEM_API UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputSubsystem(const UObject* worldContext);
 
