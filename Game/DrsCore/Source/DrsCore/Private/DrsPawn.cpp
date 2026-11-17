@@ -10,7 +10,6 @@
 #include "DrsLog.h"
 #include "DrsMotionControllerInputComponent.h"
 #include "DrsXrPlatformLibrary.h"
-#include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"

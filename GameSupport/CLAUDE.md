@@ -12,6 +12,6 @@ Reusable gameplay building blocks: components and world subsystems that a game a
 
 - **Plugins here may depend on each other** (`"SameLayer": "Any"`), so list every plugin you use in your `.uplugin`. Both the module graph and the plugin graph must stay acyclic, and `Tools/CheckLayers.ps1` checks that. Depend on a plugin when yours genuinely builds on it. If two features only need to react to each other, connect them in `DrsCore` instead of adding a dependency; that keeps this layer from becoming a tangle.
 - Shared XR types that several features need go in `DrsXrGame`. Types that every layer needs, such as the hand enums `EDrsHand` and `EDrsHandMask`, live in `DrsBase`.
-- Components use `ClassGroup = (Drs)` and `meta = (BlueprintSpawnableComponent)`. UFUNCTION/UPROPERTY categories are `Drs|<Feature>`.
+- Components use `ClassGroup = (DRS)` and `meta = (BlueprintSpawnableComponent)`. UFUNCTION/UPROPERTY categories are `DRS|<Feature>`.
 - World subsystems override `DoesSupportWorldType` to choose which world types they run in.
 - Say in each class's doc comment whether it holds replicated state ("Local-only: holds no replicated state").

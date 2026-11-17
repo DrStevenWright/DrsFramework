@@ -16,7 +16,7 @@ public:
 	UDrsInputSettings()
 	{
 		// Project Settings > Drs > Input.
-		CategoryName = TEXT("Drs");
+		CategoryName = TEXT("DRS");
 		SectionName = TEXT("Input");
 	}
 
@@ -24,6 +24,6 @@ public:
 
 	// Input threshold beyond which a thumbstick is considered to be 'deflected' in some direction. Used in corresponding
 	// deflection input triggers.
-	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = "Drs|Input")
+	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = "DRS|Input")
 	float ThumbstickDeflectionThreshold = 0.6f;
 };

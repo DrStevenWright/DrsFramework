@@ -11,14 +11,14 @@
  * Per-user editor setting: which vendor XR plugin the editor loads. The arbiter reads it from config at startup, so it
  * takes effect after an editor restart.
  */
-UCLASS(Config = EditorSettings, DisplayName = "Drs XR Plugin Selection")
+UCLASS(Config = EditorSettings, DisplayName = "DRS XR Plugin Selection")
 class DRSXRPLATFORMEDITOR_API UDrsXrPlatformEditorSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
 public:
 	virtual FName GetContainerName() const override { return TEXT("Editor"); }
-	virtual FName GetCategoryName() const override { return TEXT("DrsFramework"); }
+	virtual FName GetCategoryName() const override { return TEXT("DRS"); }
 
 	/**
 	 * The vendor XR plugin to load in the editor, so that its project settings can be edited and PIE runs with it.

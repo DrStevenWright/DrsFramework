@@ -33,11 +33,11 @@ public:
 	using FViewFadeOpaqueDelegate = TMulticastDelegate<void(bool isOpaque)>;
 
 	/** Sets the fade colour and opacity at once, stopping any fade in progress. */
-	UFUNCTION(BlueprintCallable, Category = "Drs|View Fade", meta = (WorldContext = "worldContext", AutoCreateRefTerm = "colour"))
+	UFUNCTION(BlueprintCallable, Category = "DRS|View Fade", meta = (WorldContext = "worldContext", AutoCreateRefTerm = "colour"))
 	static void SetViewFadeColour(const UObject* worldContext, const FLinearColor& colour = FLinearColor::Black, float opacity = 0.0f, bool fadeAudio = false);
 
 	/** Sets the fade opacity at once, stopping any fade in progress. */
-	UFUNCTION(BlueprintCallable, Category = "Drs|View Fade", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "DRS|View Fade", meta = (WorldContext = "worldContext"))
 	static void SetViewFadeOpacity(const UObject* worldContext, float opacity = 0.0f, bool fadeAudio = false);
 
 	/** Fades along a colour curve (its alpha is the opacity). */
@@ -57,25 +57,25 @@ public:
 		const FViewFadeFinishedDelegate& onFadeFinished = FViewFadeFinishedDelegate(), const FViewFadeUpdateDelegate& onFadeUpdate = FViewFadeUpdateDelegate());
 
 	/** Stops the fade in progress, clearing the fade unless keepFadeColour is set. */
-	UFUNCTION(BlueprintCallable, Category = "Drs|View Fade")
+	UFUNCTION(BlueprintCallable, Category = "DRS|View Fade")
 	static void StopViewFade(bool keepFadeColour = false);
 
-	UFUNCTION(BlueprintPure, Category = "Drs|View Fade")
+	UFUNCTION(BlueprintPure, Category = "DRS|View Fade")
 	static float GetViewFadeOpacity();
 
-	UFUNCTION(BlueprintPure, Category = "Drs|View Fade")
+	UFUNCTION(BlueprintPure, Category = "DRS|View Fade")
 	static void GetViewFadeColour(FLinearColor& outColour);
 
 	/** Whether the view is faded at all (any opacity is treated as a passing state). */
-	UFUNCTION(BlueprintPure, Category = "Drs|View Fade")
+	UFUNCTION(BlueprintPure, Category = "DRS|View Fade")
 	static bool IsFading();
 
 	/** Whether a fade towards a colour is in progress. */
-	UFUNCTION(BlueprintPure, Category = "Drs|View Fade")
+	UFUNCTION(BlueprintPure, Category = "DRS|View Fade")
 	static bool IsFadingOut();
 
 	/** Whether a fade back from a colour is in progress. */
-	UFUNCTION(BlueprintPure, Category = "Drs|View Fade")
+	UFUNCTION(BlueprintPure, Category = "DRS|View Fade")
 	static bool IsFadingIn();
 
 	/** Whether the fade is fully opaque, so only the fade colour is visible. */
@@ -92,15 +92,15 @@ public:
 	static FViewFadeOpaqueDelegate OnViewFadeOpaqueChanged;
 
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Drs|View Fade", meta = (DisplayName = "Start View Fade (Colour Curve)", WorldContext = "worldContext", AdvancedDisplay = "fadeAudio,onFadeFinished,onFadeUpdate", AutoCreateRefTerm = "onFadeFinished,onFadeUpdate"))
+	UFUNCTION(BlueprintCallable, Category = "DRS|View Fade", meta = (DisplayName = "Start View Fade (Colour Curve)", WorldContext = "worldContext", AdvancedDisplay = "fadeAudio,onFadeFinished,onFadeUpdate", AutoCreateRefTerm = "onFadeFinished,onFadeUpdate"))
 	static void StartViewFadeColourCurve(const UObject* worldContext, const UCurveLinearColor* fadeCurve, bool fadeAudio,
 		const FDrsViewFadeFinishedSignature& onFadeFinished, const FDrsViewFadeUpdateSignature& onFadeUpdate);
 
-	UFUNCTION(BlueprintCallable, Category = "Drs|View Fade", meta = (DisplayName = "Start View Fade (Alpha Curve)", WorldContext = "worldContext", AdvancedDisplay = "resetCurrentFadeColour,fadeAudio,onFadeFinished,onFadeUpdate", AutoCreateRefTerm = "targetColour,onFadeFinished,onFadeUpdate"))
+	UFUNCTION(BlueprintCallable, Category = "DRS|View Fade", meta = (DisplayName = "Start View Fade (Alpha Curve)", WorldContext = "worldContext", AdvancedDisplay = "resetCurrentFadeColour,fadeAudio,onFadeFinished,onFadeUpdate", AutoCreateRefTerm = "targetColour,onFadeFinished,onFadeUpdate"))
 	static void StartViewFadeAlphaCurve(const UObject* worldContext, const FLinearColor& targetColour, const UCurveFloat* alphaCurve, bool resetCurrentFadeColour, bool fadeAudio,
 		const FDrsViewFadeFinishedSignature& onFadeFinished, const FDrsViewFadeUpdateSignature& onFadeUpdate);
 
-	UFUNCTION(BlueprintCallable, Category = "Drs|View Fade", meta = (DisplayName = "Start View Fade", WorldContext = "worldContext", AdvancedDisplay = "resetCurrentFade,fadeAudio,onFadeFinished,onFadeUpdate", AutoCreateRefTerm = "targetColour,onFadeFinished,onFadeUpdate"))
+	UFUNCTION(BlueprintCallable, Category = "DRS|View Fade", meta = (DisplayName = "Start View Fade", WorldContext = "worldContext", AdvancedDisplay = "resetCurrentFade,fadeAudio,onFadeFinished,onFadeUpdate", AutoCreateRefTerm = "targetColour,onFadeFinished,onFadeUpdate"))
 	static void StartViewFadeLinear(const UObject* worldContext, const FLinearColor& targetColour, float duration, bool resetCurrentFade, bool fadeAudio,
 		const FDrsViewFadeFinishedSignature& onFadeFinished, const FDrsViewFadeUpdateSignature& onFadeUpdate);
 
