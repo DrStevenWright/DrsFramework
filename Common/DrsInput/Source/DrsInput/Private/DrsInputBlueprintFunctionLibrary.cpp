@@ -93,13 +93,14 @@ void UDrsInputBlueprintFunctionLibrary::ReleaseCustomInputKey(APlayerController*
 
 void UDrsInputBlueprintFunctionLibrary::ResetCustomInputKeys(APlayerController* controller, EDrsCustomInputKeyScope scope)
 {
-	TSet<FName>& activeKeys = GetActiveCustomInputs(scope);
+	// Without a controller nothing can be released, so keep the record rather than forget keys that are still down.
 	if (controller)
 	{
+		TSet<FName>& activeKeys = GetActiveCustomInputs(scope);
 		for (FName key : activeKeys)
 		{
 			controller->InputKey(FInputKeyEventArgs::CreateSimulated(FKey(key), IE_Released, 0.0f));
 		}
+		activeKeys.Reset();
 	}
-	activeKeys.Reset();
 }
