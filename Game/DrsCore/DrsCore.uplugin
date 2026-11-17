@@ -43,6 +43,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "DrsUserInterface",
+			"Enabled": true
+		},
+		{
 			"Name": "DrsUtilities",
 			"Enabled": true
 		},
