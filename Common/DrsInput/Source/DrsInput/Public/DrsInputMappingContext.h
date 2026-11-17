@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
@@ -6,6 +6,8 @@
 #include "DrsHand.h"
 #include "InputMappingContext.h"
 #include "DrsInputMappingContext.generated.h"
+
+class UDrsInputAction;
 
 /** Custom class for input mapping contexts used by Drs. */
 UCLASS(BlueprintType)
@@ -22,6 +24,9 @@ public:
 	
 	virtual void PostInitProperties() override;
 	virtual void BeginDestroy() override;
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& propertyChangedEvent) override;
+#endif
 	
 	const UInputAction* FindActionByName(FName actionName) const;
 	const UInputAction* FindActionByID(FName actionID) const;
@@ -29,8 +34,11 @@ public:
 
 private:
 	
+	// Cache of the context's UDrsInputActions, built on first use and dropped when the mappings may have changed.
 	UPROPERTY(Transient)
-	mutable TSet<const class UDrsInputAction*> DrsInputActions;
+	mutable TSet<TObjectPtr<const UDrsInputAction>> DrsInputActions;
+
+	mutable bool bDrsInputActionsCached = false;
 
 #if WITH_EDITOR
 	FDelegateHandle PIEBeginHandle;
@@ -39,7 +47,7 @@ private:
 
 /** Definition structure for grouping input contexts alongside their priority. */
 USTRUCT(BlueprintType)
-struct DRSINPUT_API FInputContextDefinition
+struct DRSINPUT_API FDrsInputContextDefinition
 {
 	GENERATED_BODY()
 
@@ -54,7 +62,7 @@ struct DRSINPUT_API FInputContextDefinition
 
 /** Definition structure for grouping input contexts alongside their priority. */
 USTRUCT(BlueprintType)
-struct DRSINPUT_API FInputContextDefinitionTwoHands
+struct DRSINPUT_API FDrsInputContextDefinitionTwoHands
 {
 	GENERATED_BODY()
 

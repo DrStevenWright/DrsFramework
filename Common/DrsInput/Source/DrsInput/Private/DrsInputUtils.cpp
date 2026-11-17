@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsInputUtils.h"
 #include "DrsEnhancedInputComponent.h"
@@ -22,7 +22,7 @@ namespace
 	}
 }
 
-UEnhancedInputLocalPlayerSubsystem* DrsInputUtils::GetEnhancedInputSubsystem(const UObject* worldContext)
+UEnhancedInputLocalPlayerSubsystem* Drs::Input::GetEnhancedInputSubsystem(const UObject* worldContext)
 {
 	if (const APlayerController* controller = UGameplayStatics::GetPlayerController(worldContext, 0))
 	{
@@ -31,18 +31,18 @@ UEnhancedInputLocalPlayerSubsystem* DrsInputUtils::GetEnhancedInputSubsystem(con
 	return nullptr;
 }
 
-void DrsInputUtils::AddInputContext(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason)
+void Drs::Input::AddInputContext(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason)
 {
 	AddInputContext(worldContext, contextDefinition.Context, contextDefinition.Priority, reason);
 }
 
 
-void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason)
+void Drs::Input::RemoveInputContext(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason)
 {
 	RemoveInputContext(worldContext, contextDefinition.Context, reason);
 }
 
-void DrsInputUtils::AddInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
+void Drs::Input::AddInputContext(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
 	if (hands == EDrsHandMask::None)
 	{
@@ -61,7 +61,7 @@ void DrsInputUtils::AddInputContext(const UObject* worldContext, const FInputCon
 	}
 }
 
-void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
+void Drs::Input::RemoveInputContext(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
 	if (hands == EDrsHandMask::None)
 	{
@@ -80,7 +80,7 @@ void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const FInput
 	}
 }
 
-void DrsInputUtils::AddInputContextToSubsystem(UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, int32 priority, FName reason)
+void Drs::Input::AddInputContextToSubsystem(UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, int32 priority, FName reason)
 {
 	// When an input context is added or removed, it can cause some active inputs to be left stuck in an active state.
 	// (Input actions will not receive 'Completed' or 'Canceled' events. Any logic that relies on those events will be
@@ -136,7 +136,7 @@ void DrsInputUtils::AddInputContextToSubsystem(UEnhancedInputLocalPlayerSubsyste
 	reasons->AddReason(context, reason);
 }
 
-void DrsInputUtils::RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, FName reason)
+void Drs::Input::RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, FName reason)
 {
 	// When an input context is added or removed, it can cause some active inputs to be left stuck in an active state.
 	// (Input actions will not receive 'Completed' or 'Canceled' events. Any logic that relies on those events will be
@@ -178,7 +178,7 @@ void DrsInputUtils::RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSub
 	}
 }
 
-bool DrsInputUtils::HasMappingForAction(const UInputMappingContext* context, const UInputAction* action)
+bool Drs::Input::HasMappingForAction(const UInputMappingContext* context, const UInputAction* action)
 {
 	if (context && action)
 	{
@@ -193,7 +193,7 @@ bool DrsInputUtils::HasMappingForAction(const UInputMappingContext* context, con
 	return false;
 }
 
-TOptional<EDrsHand> DrsInputUtils::GetHandForInputAction(const UInputAction* action)
+TOptional<EDrsHand> Drs::Input::GetHandForInputAction(const UInputAction* action)
 {
 	// For actions that *might* be bound to a specific hand, this method attempts to determine which hand triggered the
 	// action. For example, some actions might have an additional "non-VR" variant which would not be bound to a specific
@@ -206,7 +206,7 @@ TOptional<EDrsHand> DrsInputUtils::GetHandForInputAction(const UInputAction* act
 	return TOptional<EDrsHand>();
 }
 
-TOptional<EDrsHand> DrsInputUtils::GetHandForInputAction(const UInputAction* action, const UInputMappingContext* leftHandContext, const UInputMappingContext* rightHandContext)
+TOptional<EDrsHand> Drs::Input::GetHandForInputAction(const UInputAction* action, const UInputMappingContext* leftHandContext, const UInputMappingContext* rightHandContext)
 {
 	// For actions that are *expected* to be bound to a specific hand, this method attempts to determine which hand
 	// triggered the action. In such cases, actions would typically be mapped in separate left- and right-hand input
@@ -234,7 +234,7 @@ TOptional<EDrsHand> DrsInputUtils::GetHandForInputAction(const UInputAction* act
 	return TOptional<EDrsHand>();
 }
 
-void DrsInputUtils::ClearBindingsForContext(UEnhancedInputComponent* inputComponent, const UObject* owner, const UInputMappingContext* context)
+void Drs::Input::ClearBindingsForContext(UEnhancedInputComponent* inputComponent, const UObject* owner, const UInputMappingContext* context)
 {
 	if (inputComponent == nullptr || owner == nullptr || context == nullptr)
 	{
@@ -251,7 +251,7 @@ void DrsInputUtils::ClearBindingsForContext(UEnhancedInputComponent* inputCompon
 	}
 }
 
-void DrsInputUtils::ClearBindingsForHands(UEnhancedInputComponent* inputComponent, UObject* owner, EDrsHandMask hands)
+void Drs::Input::ClearBindingsForHands(UEnhancedInputComponent* inputComponent, UObject* owner, EDrsHandMask hands)
 {
 	if (inputComponent == nullptr || owner == nullptr || hands == EDrsHandMask::None)
 	{
@@ -277,7 +277,7 @@ void DrsInputUtils::ClearBindingsForHands(UEnhancedInputComponent* inputComponen
 	}
 }
 
-void DrsInputUtils::ReleaseDanglingInputs(const UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context)
+void Drs::Input::ReleaseDanglingInputs(const UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context)
 {
 	if (UDrsEnhancedPlayerInput* playerInput = enhancedInput ? Cast<UDrsEnhancedPlayerInput>(enhancedInput->GetPlayerInput()) : nullptr)
 	{
@@ -293,7 +293,7 @@ void DrsInputUtils::ReleaseDanglingInputs(const UEnhancedInputLocalPlayerSubsyst
 	}
 }
 
-void DrsInputUtils::ReleaseOverriddenInputs(const UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, int32 priority)
+void Drs::Input::ReleaseOverriddenInputs(const UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, int32 priority)
 {
 	// Sometimes UE handles this case natively and sometimes it doesn't. :-/
 	if (UDrsEnhancedPlayerInput* playerInput = enhancedInput ? Cast<UDrsEnhancedPlayerInput>(enhancedInput->GetPlayerInput()) : nullptr)
@@ -302,7 +302,7 @@ void DrsInputUtils::ReleaseOverriddenInputs(const UEnhancedInputLocalPlayerSubsy
 	}
 }
 
-void DrsInputUtils::FlushPressedKeys(const UObject* worldContext)
+void Drs::Input::FlushPressedKeys(const UObject* worldContext)
 {
 	const UEnhancedInputLocalPlayerSubsystem* enhancedInputSubsystem = GetEnhancedInputSubsystem(worldContext);
 	if (UEnhancedPlayerInput* playerInput = enhancedInputSubsystem ? enhancedInputSubsystem->GetPlayerInput() : nullptr)

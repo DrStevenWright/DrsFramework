@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsInputMappingContext.h"
 #include "DrsInputAction.h"
@@ -19,10 +19,20 @@ void UDrsInputMappingContext::PostInitProperties()
 		PIEBeginHandle = FEditorDelegates::BeginPIE.AddWeakLambda(this, [this](const bool isSimulating)
 		{
 			DrsInputActions.Empty();
+			bDrsInputActionsCached = false;
 		});
 	}
 #endif
 }
+
+#if WITH_EDITOR
+void UDrsInputMappingContext::PostEditChangeProperty(FPropertyChangedEvent& propertyChangedEvent)
+{
+	Super::PostEditChangeProperty(propertyChangedEvent);
+	DrsInputActions.Empty();
+	bDrsInputActionsCached = false;
+}
+#endif
 
 void UDrsInputMappingContext::BeginDestroy()
 {
@@ -46,15 +56,16 @@ const UInputAction* UDrsInputMappingContext::FindActionByName(FName actionName) 
 		}
 	}
 
-	DRS_LOG(LogDrsInput, Log, "Could not find named InputAction '%s' in InputMappingContext '%s'", *actionName.ToString(), *GetName());
+	DRS_LOG(LogDrsInput, Verbose, "Could not find named InputAction '%s' in InputMappingContext '%s'", *actionName.ToString(), *GetName());
 	
 	return nullptr;
 }
 
 const UInputAction* UDrsInputMappingContext::FindActionByID(FName actionID) const
 {
-	if (DrsInputActions.IsEmpty())
+	if (!bDrsInputActionsCached)
 	{
+		bDrsInputActionsCached = true;
 		for (const FEnhancedActionKeyMapping& mapping : DefaultKeyMappings.Mappings)
 		{
 			if (const UDrsInputAction* inputAction = Cast<UDrsInputAction>(mapping.Action))
@@ -72,7 +83,7 @@ const UInputAction* UDrsInputMappingContext::FindActionByID(FName actionID) cons
 		}
 	}
 
-	DRS_LOG(LogDrsInput, Log, "Could not find DrsInputAction with ID '%s' in DrsInputMappingContext '%s'", *actionID.ToString(), *GetName());
+	DRS_LOG(LogDrsInput, Verbose, "Could not find DrsInputAction with ID '%s' in DrsInputMappingContext '%s'", *actionID.ToString(), *GetName());
 	
 	return nullptr;
 }

@@ -132,7 +132,7 @@ void ADrsPawn::AddMotionControllerContext()
 
 	if (UEnhancedInputLocalPlayerSubsystem* subsystem = GetControllingInputSubsystem(this))
 	{
-		DrsInputUtils::AddInputContextToSubsystem(subsystem, MotionControllerContext, MotionControllerContextPriority, MotionControllerContextReason);
+		Drs::Input::AddInputContextToSubsystem(subsystem, MotionControllerContext, MotionControllerContextPriority, MotionControllerContextReason);
 		bMotionControllerContextAdded = true;
 	}
 }
@@ -141,7 +141,7 @@ void ADrsPawn::RemoveMotionControllerContext()
 {
 	if (bMotionControllerContextAdded)
 	{
-		DrsInputUtils::RemoveInputContextFromSubsystem(GetControllingInputSubsystem(this), MotionControllerContext, MotionControllerContextReason);
+		Drs::Input::RemoveInputContextFromSubsystem(GetControllingInputSubsystem(this), MotionControllerContext, MotionControllerContextReason);
 		bMotionControllerContextAdded = false;
 	}
 }

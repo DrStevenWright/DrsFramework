@@ -1,23 +1,23 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
-#include "InputTriggerFilteredPress.generated.h"
+#include "DrsInputTriggerFilteredPress.generated.h"
 
 /**
  * Version of the 'Pressed' trigger that only succeeds if some minimal time has elapsed since the last time this trigger succeeded.
  */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Pressed (Filtered)", NotInputConfigurable = "true"))
-class DRSINPUT_API UInputTriggerFilteredPress : public UInputTrigger
+class UDrsInputTriggerFilteredPress : public UInputTrigger
 {
 	GENERATED_BODY()
 
 public:
 	
-	UInputTriggerFilteredPress() {}
+	UDrsInputTriggerFilteredPress() {}
 	
 protected:
 	
@@ -30,9 +30,12 @@ protected:
 
 	virtual ETriggerState UpdateState_Implementation(const UEnhancedPlayerInput* playerInput, FInputActionValue modifiedValue, float deltaTime) override
 	{
+		// Time is counted from the frame deltas, so that pausing and time dilation affect it like the rest of the game.
+		ElapsedTime += deltaTime;
+
 		if (IsActuated(modifiedValue) && !IsActuated(LastValue))
 		{
-			const double currentTriggerTime = FApp::GetCurrentTime();
+			const double currentTriggerTime = ElapsedTime;
 			RepeatTime = (currentTriggerTime - LastTriggerTime.Get(0));
 			
 			if (!LastTriggerTime.IsSet() || RepeatTime >= MinRepeatTime)
@@ -50,8 +53,9 @@ protected:
 	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
 	{
 		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
-		if (const UInputTriggerFilteredPress* old = Cast<const UInputTriggerFilteredPress>(oldTrigger))
+		if (const UDrsInputTriggerFilteredPress* old = Cast<const UDrsInputTriggerFilteredPress>(oldTrigger))
 		{
+			ElapsedTime = old->ElapsedTime;
 			LastTriggerTime = old->LastTriggerTime;
 			RepeatTime = old->RepeatTime;
 		}
@@ -64,6 +68,7 @@ protected:
 	
 private:
 
+	double ElapsedTime = 0.0;
 	TOptional<double> LastTriggerTime;
 	double RepeatTime = 0.0f;
 };

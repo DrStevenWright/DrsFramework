@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
@@ -10,13 +10,13 @@
 
 class UInputMappingContext;
 
-/** 
- * Optional scope for a custom input key, allows us to associate an input with a specific hand so that active inputs can
- * be automatically cleaned up when that hand changes control mode, for example. Globally-scoped custom inputs will not be
- * cleaned up except via an appropriate call to ResetCustomInputKeys.
+/**
+ * Optional scope for a custom input key. The scope only groups the keys that were pressed, so that ResetCustomInputKeys
+ * can release one group (for example one hand's) without touching the others. Nothing releases a scope automatically:
+ * whatever changes the hand's control mode must call ResetCustomInputKeys itself.
  */
 UENUM(BlueprintType)
-enum class ECustomInputKeyScope : uint8
+enum class EDrsCustomInputKeyScope : uint8
 {
 	Global,
 	LeftHand,
@@ -66,7 +66,7 @@ public:
 	 *                  default binary add/remove behaviour.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
-	static void AddInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason);
+	static void AddInputContextDefinition(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason);
 
 	/**
 	 * Removes an InputMappingContext from the enhanced input system
@@ -76,7 +76,7 @@ public:
 	 *                  behaviour.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
-	static void RemoveInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason);
+	static void RemoveInputContextDefinition(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason);
 
 	/**
 	 * Adds hand-specific InputMappingContext(s) to the enhanced input system at a pre-defined priority.
@@ -87,7 +87,7 @@ public:
 	 *                  default binary add/remove behaviour.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
-	static void AddInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason);
+	static void AddInputContextDefinitionForHands(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason);
 
 	/**
 	 * Removes hand-specific InputMappingContext(s) from the enhanced input system.
@@ -98,7 +98,7 @@ public:
 	 *                  behaviour.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input", meta = (WorldContext = "worldContext"))
-	static void RemoveInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason);
+	static void RemoveInputContextDefinitionForHands(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason);
 
 	/**
 	 * Flushes all currently pressed keys in the input system.
@@ -111,24 +111,21 @@ public:
 	//--------------------------------------------------------------------------------------------------------
 
 	// Sets input value on a custom input key. (Pressed/released states are determined automatically based on supplied value.)
-	// (The input can be optionally scoped to a specific hand, so that it will be automatically released when that hand
-	// changes control mode.)
+	// (The input can optionally be scoped to a specific hand.)
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
-	static void SetCustomInputKey(APlayerController* controller, FName customKeyID, float value = 1.0f, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
+	static void SetCustomInputKey(APlayerController* controller, FName customKeyID, float value = 1.0f, EDrsCustomInputKeyScope scope = EDrsCustomInputKeyScope::Global);
 
 	// Sets pressed state on a custom input key.
-	// (The input can be optionally scoped to a specific hand, so that it will be automatically released when that hand
-	// changes control mode.)
+	// (The input can optionally be scoped to a specific hand.)
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
-	static void PressCustomInputKey(APlayerController* controller, FName customKeyID, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
+	static void PressCustomInputKey(APlayerController* controller, FName customKeyID, EDrsCustomInputKeyScope scope = EDrsCustomInputKeyScope::Global);
 
 	// Removes pressed state on a custom input key.
-	// (The input can be optionally scoped to a specific hand, so that it will be automatically released when that hand
-	// changes control mode.)
+	// (The input can optionally be scoped to a specific hand.)
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
-	static void ReleaseCustomInputKey(APlayerController* controller, FName customKeyID, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
+	static void ReleaseCustomInputKey(APlayerController* controller, FName customKeyID, EDrsCustomInputKeyScope scope = EDrsCustomInputKeyScope::Global);
 
 	// Clears pressed state on all custom input keys within a specific scope.
 	UFUNCTION(BlueprintCallable, Category = "Drs|Input")
-	static void ResetCustomInputKeys(APlayerController* controller, ECustomInputKeyScope scope = ECustomInputKeyScope::Global);
+	static void ResetCustomInputKeys(APlayerController* controller, EDrsCustomInputKeyScope scope = EDrsCustomInputKeyScope::Global);
 };

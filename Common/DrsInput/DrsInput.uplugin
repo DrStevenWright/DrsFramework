@@ -1,9 +1,9 @@
-﻿{
+{
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "0.1.0",
-	"FriendlyName": "DRS Input",
-	"Description": "DRS wrapper around the engine's Enhanced input system.",
+	"FriendlyName": "Drs Input",
+	"Description": "Drs wrapper around the engine's Enhanced input system.",
 	"Category": "DrsFramework",
 	"CreatedBy": "Steven Wright",
 	"CreatedByURL": "",

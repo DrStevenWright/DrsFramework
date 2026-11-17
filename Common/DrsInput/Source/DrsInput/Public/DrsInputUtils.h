@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
@@ -9,10 +9,10 @@ class UEnhancedInputComponent;
 class UEnhancedInputLocalPlayerSubsystem;
 class UInputMappingContext;
 class UInputAction;
-struct FInputContextDefinition;
-struct FInputContextDefinitionTwoHands;
+struct FDrsInputContextDefinition;
+struct FDrsInputContextDefinitionTwoHands;
 
-namespace DrsInputUtils
+namespace Drs::Input
 {
 	// Reason used when a C++ caller doesn't give one. It is deliberately not NAME_None, which is the default reason that
 	// Blueprint callers use for add/remove behaviour, so that Blueprint logic never withdraws a reason that C++ code added.
@@ -21,11 +21,11 @@ namespace DrsInputUtils
 	
 	DRSINPUT_API UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputSubsystem(const UObject* worldContext);
 
-	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason = DefaultInputReason);
-	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason = DefaultInputReason);
+	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason = DefaultInputReason);
+	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason = DefaultInputReason);
 
-	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason = DefaultInputReason);
-	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason = DefaultInputReason);
+	DRSINPUT_API void AddInputContext(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason = DefaultInputReason);
+	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason = DefaultInputReason);
 	
 	DRSINPUT_API void AddInputContext(const UObject* worldContext, const UInputMappingContext* context, int32 priority, FName reason = DefaultInputReason);
 	DRSINPUT_API void RemoveInputContext(const UObject* worldContext, const UInputMappingContext* context, FName reason = DefaultInputReason);
@@ -55,12 +55,12 @@ namespace DrsInputUtils
 	DRSINPUT_API void FlushPressedKeys(const UObject* worldContext);
 }
 
-FORCEINLINE void DrsInputUtils::AddInputContext(const UObject* worldContext, const UInputMappingContext* context, int32 priority, FName reason)
+FORCEINLINE void Drs::Input::AddInputContext(const UObject* worldContext, const UInputMappingContext* context, int32 priority, FName reason)
 {
 	AddInputContextToSubsystem(GetEnhancedInputSubsystem(worldContext), context, priority, reason);
 }
 
-FORCEINLINE void DrsInputUtils::RemoveInputContext(const UObject* worldContext, const UInputMappingContext* context, FName reason)
+FORCEINLINE void Drs::Input::RemoveInputContext(const UObject* worldContext, const UInputMappingContext* context, FName reason)
 {
 	RemoveInputContextFromSubsystem(GetEnhancedInputSubsystem(worldContext), context, reason);
 }

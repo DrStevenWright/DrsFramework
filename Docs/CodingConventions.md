@@ -18,7 +18,9 @@ This covers `.h`, `.cpp`, `.inl`, `.Build.cs`, `.Target.cs` and any other `.cs` 
 
 ### Prefixes
 
-- Use the `Drs` prefix for plugins, modules, types, log categories, repos and projects: `DrsCore`, `ADrsPawn`, `FDrsXrRuntimeModule`, `LogDrsXrPlatform`.
+- Use the `Drs` prefix for plugins, modules, log categories, repos and projects: `DrsCore`, `FDrsXrRuntimeModule`, `LogDrsXrPlatform`.
+- **Prefix reflected types** (`UCLASS`, `USTRUCT`, `UENUM`, including `UINTERFACE`): `ADrsPawn`, `UDrsInputAction`, `EDrsHand`. Their names are global and UHT can't put them in a namespace, so the prefix is what keeps them from clashing with an engine or project type, which fails at load. This matters most for names that copy the engine's own pattern, such as `UInputTrigger…`.
+- **Plain C++ types don't need the prefix.** Put them in a `Drs` namespace, nested by area, and name them as you would anywhere: `Drs::Input::MotionKey` rather than `FDrsMotionInputKey`. Types that already carry the prefix can stay as they are; rename them only when touching them for another reason.
 - Use `DRS_` only for macros: `DRS_LOG`, `DRS_LOG_GLOBAL`.
 - Put free functions and constants in the `Drs` namespace, nested by area where useful: `Drs::GetDebugName`, `Drs::Math::ToYawOnly`, `Drs::XrRuntime::FindOculusRuntimeJson`.
 

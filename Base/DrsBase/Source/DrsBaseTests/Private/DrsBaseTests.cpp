@@ -176,7 +176,7 @@ bool FDrsBaseHandLibraryTest::RunTest(const FString& parameters)
 	// conversions return false and still assign the output.
 	TestEqual(TEXT("Hand to mask"), UDrsHandLibrary::Conv_HandToHandMask(EDrsHand::Right), EDrsHandMask::Right);
 	TestEqual(TEXT("Hand to engine"), UDrsHandLibrary::Conv_HandToControllerHand(EDrsHand::Right), EControllerHand::Right);
-	TestEqual(TEXT("Mask to engine"), UDrsHandLibrary::Conv_HandMaskToControllerHand(EDrsHandMask::Both), EControllerHand::AnyHand);
+	TestEqual(TEXT("Mask to engine"), UDrsHandLibrary::HandMaskToControllerHand(EDrsHandMask::Both), EControllerHand::AnyHand);
 	TestEqual(TEXT("Engine to mask"), UDrsHandLibrary::Conv_ControllerHandToHandMask(EControllerHand::AnyHand), EDrsHandMask::Both);
 	TestEqual(TEXT("Opposite"), UDrsHandLibrary::OppositeHand(EDrsHand::Left), EDrsHand::Right);
 	TestTrue(TEXT("Mask contains"), UDrsHandLibrary::HandMaskContains(EDrsHandMask::Both, EDrsHand::Right));

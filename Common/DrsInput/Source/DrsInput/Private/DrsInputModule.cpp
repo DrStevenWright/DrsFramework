@@ -1,9 +1,13 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
+#include "DrsInputLog.h"
 #include "DrsMotionControllerKeys.h"
+#include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
 
-class FDrsInputModule : public FDefaultGameModuleImpl
+DEFINE_LOG_CATEGORY(LogDrsInput)
+
+class FDrsInputModule : public IModuleInterface
 {
 public:
 
@@ -11,6 +15,11 @@ public:
 	{
 		Drs::MotionControllerKeys::Register();
 	}
+
+	virtual void ShutdownModule() override
+	{
+		Drs::MotionControllerKeys::Unregister();
+	}
 };
 
-IMPLEMENT_GAME_MODULE(FDrsInputModule, DrsInput);
+IMPLEMENT_MODULE(FDrsInputModule, DrsInput)

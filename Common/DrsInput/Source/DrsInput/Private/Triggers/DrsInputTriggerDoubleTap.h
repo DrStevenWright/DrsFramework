@@ -1,17 +1,17 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
-#include "InputTriggerDoubleTap.generated.h"
+#include "DrsInputTriggerDoubleTap.generated.h"
 
 /**
  * Input trigger requiring a second input press within some interval of the first.
  */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Double Tap", NotInputConfigurable = "true"))
-class UInputTriggerDoubleTap : public UInputTrigger
+class UDrsInputTriggerDoubleTap : public UInputTrigger
 {
 	GENERATED_BODY()
  
@@ -27,17 +27,21 @@ protected:
 	
 	virtual ETriggerState UpdateState_Implementation(const UEnhancedPlayerInput* playerInput, FInputActionValue modifiedValue, float deltaTime) override
 	{
+		// Time is counted from the frame deltas, so that pausing and time dilation affect it like the rest of the game.
+		ElapsedTime += deltaTime;
+
 		if (IsActuated(modifiedValue) && !IsActuated(LastValue))
 		{
-			const double currentTime = FApp::GetCurrentTime();
-			const double currentTapInterval = currentTime - LastTappedTime;
-			if (currentTapInterval < MaxTapInterval)
+			if (LastTappedTime.IsSet())
 			{
-				LastTappedTime = 0;
-				return ETriggerState::Triggered;
+				LastTapInterval = ElapsedTime - LastTappedTime.GetValue();
+				if (LastTapInterval < MaxTapInterval)
+				{
+					LastTappedTime.Reset();
+					return ETriggerState::Triggered;
+				}
 			}
-			LastTappedTime = currentTime;
-			LastTapInterval = currentTapInterval;
+			LastTappedTime = ElapsedTime;
 		}
 	
 		return ETriggerState::None;
@@ -48,8 +52,9 @@ protected:
 	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
 	{
 		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
-		if (const UInputTriggerDoubleTap* old = Cast<const UInputTriggerDoubleTap>(oldTrigger))
+		if (const UDrsInputTriggerDoubleTap* old = Cast<const UDrsInputTriggerDoubleTap>(oldTrigger))
 		{
+			ElapsedTime = old->ElapsedTime;
 			LastTappedTime = old->LastTappedTime;
 			LastTapInterval = old->LastTapInterval;
 		}
@@ -62,6 +67,7 @@ protected:
 
 private:
 	
-	double LastTappedTime = 0;
+	double ElapsedTime = 0;
+	TOptional<double> LastTappedTime;
 	double LastTapInterval = 0;
 };

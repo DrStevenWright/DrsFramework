@@ -18,7 +18,7 @@ EControllerHand UDrsHandLibrary::Conv_HandToControllerHand(EDrsHand hand)
 	return Drs::ToControllerHand(hand);
 }
 
-EControllerHand UDrsHandLibrary::Conv_HandMaskToControllerHand(EDrsHandMask mask)
+EControllerHand UDrsHandLibrary::HandMaskToControllerHand(EDrsHandMask mask)
 {
 	return Drs::ToControllerHand(mask);
 }

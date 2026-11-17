@@ -32,9 +32,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Drs|Hand", meta = (BlueprintAutocast, CompactNodeTitle = "->", DisplayName = "To Controller Hand (Hand)"))
 	static EControllerHand Conv_HandToControllerHand(EDrsHand hand);
 
-	/** Converts a hand mask to the engine's hand enum. Both and None have no engine equivalent other than AnyHand. */
-	UFUNCTION(BlueprintPure, Category = "Drs|Hand", meta = (BlueprintAutocast, CompactNodeTitle = "->", DisplayName = "To Controller Hand (Hand Mask)"))
-	static EControllerHand Conv_HandMaskToControllerHand(EDrsHandMask mask);
+	/** Gets a controller hand from a hand mask. Both and None have no engine equivalent, so this is an explicit node rather than an autocast. */
+	UFUNCTION(BlueprintPure, Category = "Drs|Hand", meta = (DisplayName = "To Controller Hand (Hand Mask)"))
+	static EControllerHand HandMaskToControllerHand(EDrsHandMask mask);
 	
 	/** Gets the hand from a mask that is exactly Left or Right. Returns false, with outHand set to Left, for None and Both. */
 	UFUNCTION(BlueprintPure, Category = "Drs|Hand", meta = (DisplayName = "To Hand (Hand Mask)"))

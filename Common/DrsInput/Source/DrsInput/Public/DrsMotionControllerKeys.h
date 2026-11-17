@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
@@ -22,7 +22,7 @@ struct DRSINPUT_API FDrsMotionInputKey
 	{
 	}
 
-	// Name used to find the input action (see UDrsInputAction::ID) that supplies this key.
+	// Name used to find the input action (see UDrsInputAction::GetActionID) that supplies this key.
 	FName ActionID;
 
 	// The custom input key itself. (Its FName is the same as ActionID.)
@@ -61,4 +61,7 @@ namespace Drs::MotionControllerKeys
 
 	/** Registers all of the keys with the engine's key table. Called by the DrsInput module at startup. */
 	void Register();
+
+	/** Removes the keys again. Called by the DrsInput module at shutdown. */
+	void Unregister();
 }

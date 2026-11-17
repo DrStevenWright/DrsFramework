@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsMotionControllerKeys.h"
 
@@ -18,7 +18,11 @@ namespace
 
 	void AddKey(const FDrsMotionInputKey& key, const uint32 flags)
 	{
-		EKeys::AddKey(FKeyDetails(key.InputKey, FText::FromString(key.DisplayName), flags, MenuCategory));
+		// EKeys::AddKey ensures on a key that is already registered, which would happen if the module were reloaded.
+		if (!EKeys::GetKeyDetails(key.InputKey).IsValid())
+		{
+			EKeys::AddKey(FKeyDetails(key.InputKey, FText::FromString(key.DisplayName), flags, MenuCategory));
+		}
 	}
 
 	void RegisterHand(const FDrsMotionControllerHandKeys& keys)
@@ -81,4 +85,9 @@ void Drs::MotionControllerKeys::Register()
 	EKeys::AddMenuCategoryDisplayInfo(MenuCategory, INVTEXT("DRS Motion Controller"), TEXT("GraphEditor.PadEvent_16x"));
 	RegisterHand(Get(EDrsHand::Left));
 	RegisterHand(Get(EDrsHand::Right));
+}
+
+void Drs::MotionControllerKeys::Unregister()
+{
+	EKeys::RemoveKeysWithCategory(MenuCategory);
 }

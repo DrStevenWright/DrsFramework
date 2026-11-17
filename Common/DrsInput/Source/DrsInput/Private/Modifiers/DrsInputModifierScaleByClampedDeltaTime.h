@@ -1,18 +1,18 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "EnhancedPlayerInput.h"
 #include "InputModifiers.h"
-#include "InputModifierScaleByClampedDeltaTime.generated.h"
+#include "DrsInputModifierScaleByClampedDeltaTime.generated.h"
 
 /**
  * Clamped version of the 'Scale By Delta Time' modifier. This multiplies the input value by the current frame's time
  * delta, up to some specified maximum value (in case of performance spikes).
  */
-UCLASS(NotBlueprintable, MinimalAPI, meta = (DisplayName = "Scale By Delta Time (Clamped)"))
-class UInputModifierScaleByClampedDeltaTime : public UInputModifier
+UCLASS(NotBlueprintable, meta = (DisplayName = "Scale By Delta Time (Clamped)"))
+class UDrsInputModifierScaleByClampedDeltaTime : public UInputModifier
 {
 	GENERATED_BODY()
 	

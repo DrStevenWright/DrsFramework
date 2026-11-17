@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsInputBlueprintFunctionLibrary.h"
 #include "DrsInputSettings.h"
@@ -7,11 +7,11 @@
 
 namespace
 {
-	TSet<FName> ActiveCustomInputs[static_cast<int32>(ECustomInputKeyScope::NumScopes)]; // Custom input keys pressed within each scope.
+	TSet<FName> ActiveCustomInputs[static_cast<int32>(EDrsCustomInputKeyScope::NumScopes)]; // Custom input keys pressed within each scope.
 
-	TSet<FName>& GetActiveCustomInputs(ECustomInputKeyScope scope)
+	TSet<FName>& GetActiveCustomInputs(EDrsCustomInputKeyScope scope)
 	{
-		check(scope != ECustomInputKeyScope::NumScopes);
+		check(scope != EDrsCustomInputKeyScope::NumScopes);
 		return ActiveCustomInputs[static_cast<uint8>(scope)];
 	}
 }
@@ -23,40 +23,40 @@ const UDrsInputSettings* UDrsInputBlueprintFunctionLibrary::GetDrsInputSettings(
 
 void UDrsInputBlueprintFunctionLibrary::AddInputContext(const UObject* worldContext, const UInputMappingContext* context, int32 priority, FName reason)
 {
-	DrsInputUtils::AddInputContext(worldContext, context, priority, reason);
+	Drs::Input::AddInputContext(worldContext, context, priority, reason);
 }
 
 void UDrsInputBlueprintFunctionLibrary::RemoveInputContext(const UObject* worldContext, const UInputMappingContext* context, FName reason)
 {
-	DrsInputUtils::RemoveInputContext(worldContext, context, reason);
+	Drs::Input::RemoveInputContext(worldContext, context, reason);
 }
 
-void UDrsInputBlueprintFunctionLibrary::AddInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason)
+void UDrsInputBlueprintFunctionLibrary::AddInputContextDefinition(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason)
 {
-	DrsInputUtils::AddInputContext(worldContext, contextDefinition, reason);
+	Drs::Input::AddInputContext(worldContext, contextDefinition, reason);
 }
 
-void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinition(const UObject* worldContext, const FInputContextDefinition& contextDefinition, FName reason)
+void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinition(const UObject* worldContext, const FDrsInputContextDefinition& contextDefinition, FName reason)
 {
-	DrsInputUtils::RemoveInputContext(worldContext, contextDefinition, reason);
+	Drs::Input::RemoveInputContext(worldContext, contextDefinition, reason);
 }
 
-void UDrsInputBlueprintFunctionLibrary::AddInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
+void UDrsInputBlueprintFunctionLibrary::AddInputContextDefinitionForHands(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
-	DrsInputUtils::AddInputContext(worldContext, contextDefinition, hands, reason);
+	Drs::Input::AddInputContext(worldContext, contextDefinition, hands, reason);
 }
 
-void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinitionForHands(const UObject* worldContext, const FInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
+void UDrsInputBlueprintFunctionLibrary::RemoveInputContextDefinitionForHands(const UObject* worldContext, const FDrsInputContextDefinitionTwoHands& contextDefinition, EDrsHandMask hands, FName reason)
 {
-	DrsInputUtils::RemoveInputContext(worldContext, contextDefinition, hands, reason);
+	Drs::Input::RemoveInputContext(worldContext, contextDefinition, hands, reason);
 }
 
 void UDrsInputBlueprintFunctionLibrary::FlushPressedKeys(const UObject* worldContext)
 {
-	DrsInputUtils::FlushPressedKeys(worldContext);
+	Drs::Input::FlushPressedKeys(worldContext);
 }
 
-void UDrsInputBlueprintFunctionLibrary::SetCustomInputKey(APlayerController* controller, FName customKeyID, float value, ECustomInputKeyScope scope)
+void UDrsInputBlueprintFunctionLibrary::SetCustomInputKey(APlayerController* controller, FName customKeyID, float value, EDrsCustomInputKeyScope scope)
 {
 	if (controller)
 	{
@@ -73,7 +73,7 @@ void UDrsInputBlueprintFunctionLibrary::SetCustomInputKey(APlayerController* con
 	}
 }
 
-void UDrsInputBlueprintFunctionLibrary::PressCustomInputKey(APlayerController* controller, FName customKeyID, ECustomInputKeyScope scope)
+void UDrsInputBlueprintFunctionLibrary::PressCustomInputKey(APlayerController* controller, FName customKeyID, EDrsCustomInputKeyScope scope)
 {
 	if (controller)
 	{
@@ -82,7 +82,7 @@ void UDrsInputBlueprintFunctionLibrary::PressCustomInputKey(APlayerController* c
 	}
 }
 
-void UDrsInputBlueprintFunctionLibrary::ReleaseCustomInputKey(APlayerController* controller, FName customKeyID, ECustomInputKeyScope scope)
+void UDrsInputBlueprintFunctionLibrary::ReleaseCustomInputKey(APlayerController* controller, FName customKeyID, EDrsCustomInputKeyScope scope)
 {
 	if (controller)
 	{
@@ -91,7 +91,7 @@ void UDrsInputBlueprintFunctionLibrary::ReleaseCustomInputKey(APlayerController*
 	}
 }
 
-void UDrsInputBlueprintFunctionLibrary::ResetCustomInputKeys(APlayerController* controller, ECustomInputKeyScope scope)
+void UDrsInputBlueprintFunctionLibrary::ResetCustomInputKeys(APlayerController* controller, EDrsCustomInputKeyScope scope)
 {
 	TSet<FName>& activeKeys = GetActiveCustomInputs(scope);
 	if (controller)

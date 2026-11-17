@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
@@ -6,14 +6,14 @@
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
 #include "Misc/DataValidation.h"
-#include "InputTriggerDownBuffered.generated.h"
+#include "DrsInputTriggerDownBuffered.generated.h"
 
 /**
  * Version of the 'Down' input trigger with separate actuation and release thresholds, giving an input tolerance
  * buffer between starting and ending an input action.
  */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Down (buffered)", NotInputConfigurable = "true"))
-class UInputTriggerDownBuffered : public UInputTrigger
+class UDrsInputTriggerDownBuffered : public UInputTrigger
 {
 	GENERATED_BODY()
  
@@ -57,7 +57,7 @@ protected:
 	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
 	{
 		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
-		if (const UInputTriggerDownBuffered* old = Cast<const UInputTriggerDownBuffered>(oldTrigger))
+		if (const UDrsInputTriggerDownBuffered* old = Cast<const UDrsInputTriggerDownBuffered>(oldTrigger))
 		{
 			bIsActuated = old->bIsActuated;
 		}
@@ -68,9 +68,9 @@ protected:
 	{
 		EDataValidationResult result = Super::IsDataValid(context);
 	
-		if (ReleaseThreshold > ActuationThreshold)
+		if (ReleaseThreshold >= ActuationThreshold)
 		{
-			context.AddError(INVTEXT("Down (buffered) trigger: Release threshold should be less than the actuation threshold."));
+			context.AddError(INVTEXT("Down (buffered) trigger: Release threshold must be less than the actuation threshold."));
 			result = EDataValidationResult::Invalid;
 		}
 	

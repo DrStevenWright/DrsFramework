@@ -218,7 +218,7 @@ bool FDrsInputActionLookupTest::RunTest(const FString& parameters)
 	TestEqual(TEXT("Context finds its action by asset name"), leftContext->FindActionByName(TEXT("IA_LeftThing")), static_cast<const UInputAction*>(leftAction));
 	TestEqual(TEXT("Every key mapped to an ID is found"), rightContext->FindKeysForActionID(TEXT("Right_Thing")).Num(), 2);
 
-	FInputContextDefinitionTwoHands definition;
+	FDrsInputContextDefinitionTwoHands definition;
 	definition.LeftHandContext = leftContext;
 	definition.RightHandContext = rightContext;
 

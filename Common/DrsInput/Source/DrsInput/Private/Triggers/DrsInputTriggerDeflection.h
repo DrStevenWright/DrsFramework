@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 #pragma once
 #include "CoreMinimal.h"
 #include "DrsHand.h"
@@ -7,13 +7,13 @@
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
 #include "Misc/DataValidation.h"
-#include "InputTriggerDeflection.generated.h"
+#include "DrsInputTriggerDeflection.generated.h"
 
 class UEnhancedPlayerInput;
 
 // Allowed thumbstick directions as flags.
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
-enum class EDeflectionDirections : uint8
+enum class EDrsDeflectionDirections : uint8
 {
 	None = 0 UMETA(Hidden),
 	Up = (1 << 0),
@@ -24,10 +24,8 @@ enum class EDeflectionDirections : uint8
 	UpRight = (1 << 5),
 	DownLeft = (1 << 6),
 	DownRight = (1 << 7),
-	Default = Up UMETA(Hidden),
-	
 };
-ENUM_CLASS_FLAGS(EDeflectionDirections)
+ENUM_CLASS_FLAGS(EDrsDeflectionDirections)
 
 /**
  * Input trigger that requires a controller's thumbstick to have been deflected in some specific direction (or directions).
@@ -41,11 +39,11 @@ ENUM_CLASS_FLAGS(EDeflectionDirections)
  * more resistant to input race conditions).
  */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Deflection", NotInputConfigurable = "true"))
-class UInputTriggerDeflection : public UInputTrigger
+class UDrsInputTriggerDeflection : public UInputTrigger
 {
 	GENERATED_BODY()
 
-	UInputTriggerDeflection()
+	UDrsInputTriggerDeflection()
 	{
 		ActuationThreshold = 0.0f;
 	}
@@ -57,8 +55,8 @@ protected:
 	EDrsHand Hand = EDrsHand::Left;
 	
 	// Allowed direction(s) for the thumbstick deflection.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/DrsInput.EDeflectionDirections", DisplayThumbnail = "false"))
-	int32 AllowedDeflectionDirections = static_cast<int32>(EDeflectionDirections::Default);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings", meta = (Bitmask, BitmaskEnum = "/Script/DrsInput.EDrsDeflectionDirections", DisplayThumbnail = "false"))
+	int32 AllowedDeflectionDirections = static_cast<int32>(EDrsDeflectionDirections::Up);
 
 	// Specifies whether the initial deflection direction (i.e. the direction when the thumbstick first crossed the
 	// deflection threshold) must satisfy the direction requirements. Without this criterion, the trigger condition could
@@ -102,7 +100,7 @@ protected:
 	virtual void ReceiveTriggerReinstanced_Implementation(const UInputTrigger* oldTrigger) override
 	{
 		Super::ReceiveTriggerReinstanced_Implementation(oldTrigger);
-		if (const UInputTriggerDeflection* old = Cast<const UInputTriggerDeflection>(oldTrigger))
+		if (const UDrsInputTriggerDeflection* old = Cast<const UDrsInputTriggerDeflection>(oldTrigger))
 		{
 			InitialDeflectionDirection = old->InitialDeflectionDirection;
 			CurrentDeflectionDirection = old->CurrentDeflectionDirection;
@@ -119,7 +117,7 @@ protected:
 	{
 		EDataValidationResult result = Super::IsDataValid(context);
 
-		if (AllowedDeflectionDirections == static_cast<int32>(EDeflectionDirections::None))
+		if (AllowedDeflectionDirections == static_cast<int32>(EDrsDeflectionDirections::None))
 		{
 			context.AddError(INVTEXT("Deflection trigger: No allowed directions specified."));
 			result = EDataValidationResult::Invalid;
@@ -134,8 +132,21 @@ protected:
 			context.AddError(INVTEXT("Deflection trigger: AllowedAngleShift must not exceed the range defined by AllowedAngle."));
 			result = EDataValidationResult::Invalid;
 		}
+		if (AllowedAngle + FMath::Abs(AllowedAngleShift) > 90.0f)
+		{
+			context.AddError(INVTEXT("Deflection trigger: AllowedAngle plus the size of AllowedAngleShift must not exceed 90 degrees, or the range is cut off at the neighbouring direction."));
+			result = EDataValidationResult::Invalid;
+		}
 		
 		return result;
+	}
+
+	// The allowed-angle cosines are cached, so drop them when a setting changes.
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& propertyChangedEvent) override
+	{
+		Super::PostEditChangeProperty(propertyChangedEvent);
+		AllowedClockwiseCosine.Reset();
+		AllowedAntiClockwiseCosine.Reset();
 	}
 #endif
 
@@ -222,24 +233,24 @@ private:
 			{
 				if (deflectionDirection.Y >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Up);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Up);
 				}
 
 				if (deflectionDirection.X >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Right);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Right);
 				}
 			}
 			else
 			{
 				if (deflectionDirection.Y >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Up);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Up);
 				}
 
 				if (-deflectionDirection.X >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Left);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Left);
 				}
 			}
 		}
@@ -249,24 +260,24 @@ private:
 			{
 				if (-deflectionDirection.Y >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Down);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Down);
 				}
 
 				if (deflectionDirection.X >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Right);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Right);
 				}
 			}
 			else
 			{
 				if (-deflectionDirection.Y >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Down);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Down);
 				}
 
 				if (-deflectionDirection.X >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::Left);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::Left);
 				}
 			}
 		}
@@ -277,24 +288,24 @@ private:
 			{
 				if (upRightDiagonalProjection >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::UpRight);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::UpRight);
 				}
 
 				if (upLeftDiagonalProjection >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::UpLeft);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::UpLeft);
 				}
 			}
 			else
 			{
 				if (upRightDiagonalProjection >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::UpRight);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::UpRight);
 				}
 
 				if (-upLeftDiagonalProjection >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::DownRight);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::DownRight);
 				}
 			}
 		}
@@ -304,24 +315,24 @@ private:
 			{
 				if (-upRightDiagonalProjection >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::DownLeft);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::DownLeft);
 				}
 
 				if (upLeftDiagonalProjection >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::UpLeft);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::UpLeft);
 				}
 			}
 			else
 			{
 				if (-upRightDiagonalProjection >= allowedAntiClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::DownLeft);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::DownLeft);
 				}
 
 				if (-upLeftDiagonalProjection >= allowedClockwiseAngleCosine)
 				{
-					deflectionDirectionFlags |= static_cast<int32>(EDeflectionDirections::DownRight);
+					deflectionDirectionFlags |= static_cast<int32>(EDrsDeflectionDirections::DownRight);
 				}
 			}
 		}

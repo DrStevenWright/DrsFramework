@@ -1,14 +1,14 @@
-﻿// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
+// Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
-#include "InputTriggerModifierKey.generated.h"
+#include "DrsInputTriggerModifierKey.generated.h"
 
 UENUM(BlueprintType)
-enum class EModifierKeyType : uint8
+enum class EDrsModifierKeyType : uint8
 {
 	// Any Shift key
 	Shift,
@@ -31,19 +31,19 @@ enum class EModifierKeyType : uint8
  * Trigger that only succeeds when a specified modifier key is pressed or not pressed.
 */
 UCLASS(NotBlueprintable, meta = (DisplayName = "Modifier Key", NotInputConfigurable = "true"))
-class DRSINPUT_API UInputTriggerModifierKey : public UInputTrigger
+class UDrsInputTriggerModifierKey : public UInputTrigger
 {
 	GENERATED_BODY()
 
 public:
 	
-	UInputTriggerModifierKey() { ActuationThreshold = 0.0f; }
+	UDrsInputTriggerModifierKey() { ActuationThreshold = 0.0f; }
 	
 protected:
 	
 	// Modifier key that must be pressed or not pressed for this trigger to succeed.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings")
-	EModifierKeyType ModifierKey = EModifierKeyType::Shift;
+	EDrsModifierKeyType ModifierKey = EDrsModifierKeyType::Shift;
 
 	// Specifies whether the modifier key must be down or up.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Trigger Settings")
@@ -81,16 +81,16 @@ private:
 
 	bool bIsModifierKeyDown = false;
 	
-	inline static TMap<EModifierKeyType, TArray<FKey>> ModifierKeys =
+	inline static TMap<EDrsModifierKeyType, TArray<FKey>> ModifierKeys =
 	{
-		{ EModifierKeyType::Shift, { EKeys::LeftShift, EKeys::RightShift } },
-		{ EModifierKeyType::Control, { EKeys::LeftControl, EKeys::RightControl } },
-		{ EModifierKeyType::Alt, { EKeys::LeftAlt, EKeys::RightAlt } },
-		{ EModifierKeyType::LeftShift, { EKeys::LeftShift } },
-		{ EModifierKeyType::RightShift, { EKeys::RightShift } },
-		{ EModifierKeyType::LeftControl, { EKeys::LeftControl } },
-		{ EModifierKeyType::RightControl, { EKeys::RightControl } },
-		{ EModifierKeyType::LeftAlt, { EKeys::LeftAlt } },
-		{ EModifierKeyType::RightAlt, { EKeys::RightAlt } },
+		{ EDrsModifierKeyType::Shift, { EKeys::LeftShift, EKeys::RightShift } },
+		{ EDrsModifierKeyType::Control, { EKeys::LeftControl, EKeys::RightControl } },
+		{ EDrsModifierKeyType::Alt, { EKeys::LeftAlt, EKeys::RightAlt } },
+		{ EDrsModifierKeyType::LeftShift, { EKeys::LeftShift } },
+		{ EDrsModifierKeyType::RightShift, { EKeys::RightShift } },
+		{ EDrsModifierKeyType::LeftControl, { EKeys::LeftControl } },
+		{ EDrsModifierKeyType::RightControl, { EKeys::RightControl } },
+		{ EDrsModifierKeyType::LeftAlt, { EKeys::LeftAlt } },
+		{ EDrsModifierKeyType::RightAlt, { EKeys::RightAlt } },
 	};
 };
