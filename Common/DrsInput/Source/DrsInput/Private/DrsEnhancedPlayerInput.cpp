@@ -55,7 +55,8 @@ void UDrsEnhancedPlayerInput::ReleaseOverriddenInputs(const UInputMappingContext
 	{
 		if (const bool* keydown = KeyDownPrevious.Find(mapping.Key))
 		{
-			if (*keydown && mapping.Action->bConsumeInput)
+			// A row without an action (easy to leave while editing a context) consumes nothing.
+			if (*keydown && IsValid(mapping.Action) && mapping.Action->bConsumeInput)
 			{
 				overriddenKeys.Emplace(mapping.Key);
 			}
@@ -75,9 +76,15 @@ void UDrsEnhancedPlayerInput::ReleaseOverriddenInputs(const UInputMappingContext
 			const UInputMappingContext* overriddenContext = pair.Key;
 			for (const FKey& overriddenKey : overriddenKeys)
 			{
-				if (const FEnhancedActionKeyMapping* overriddenMapping = overriddenContext->GetMappings().FindByPredicate([&overriddenKey](const FEnhancedActionKeyMapping& mapping) { return mapping.Key == overriddenKey; }))
+				// Several actions in the context can be mapped to the same key, and each one is overridden.
+				for (const FEnhancedActionKeyMapping& overriddenMapping : overriddenContext->GetMappings())
 				{
-					if (const FInputActionInstance* instance = FindActionInstanceData(overriddenMapping->Action))
+					if (overriddenMapping.Key != overriddenKey || !IsValid(overriddenMapping.Action))
+					{
+						continue;
+					}
+
+					if (const FInputActionInstance* instance = FindActionInstanceData(overriddenMapping.Action))
 					{
 						switch (instance->GetTriggerEvent())
 						{
@@ -88,7 +95,7 @@ void UDrsEnhancedPlayerInput::ReleaseOverriddenInputs(const UInputMappingContext
 							{
 								// TODO: In some extreme edge cases we cannot be 100% certain that the input key being
 								// consumed is the one actually triggering the action.
-								DRS_LOG(LogDrsInput, Log, "Releasing input action '%s' in context '%s', overridden by key '%s' in context '%s'", *overriddenMapping->Action->GetName(), *overriddenContext->GetName(), *overriddenKey.ToString(), *contextBeingAdded->GetName());
+								DRS_LOG(LogDrsInput, Log, "Releasing input action '%s' in context '%s', overridden by key '%s' in context '%s'", *overriddenMapping.Action->GetName(), *overriddenContext->GetName(), *overriddenKey.ToString(), *contextBeingAdded->GetName());
 								overriddenActions.Add(instance);
 							}
 							break;

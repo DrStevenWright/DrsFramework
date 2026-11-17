@@ -83,7 +83,7 @@ struct DRSINPUT_API FInputContextDefinitionTwoHands
 		{
 			return action;
 		}
-		return RightHandContext ? RightHandContext->FindActionByName(actionID) : nullptr;
+		return RightHandContext ? RightHandContext->FindActionByID(actionID) : nullptr;
 	}
 	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
