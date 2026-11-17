@@ -60,7 +60,7 @@ Dependencies on engine modules are not checked.
 
 ## CLAUDE.md files
 
-The guidance is split by folder. This file covers the whole framework. Each layer folder (`Base/`, `Common/`, `Platform/`, `GameSupport/`, `Game/`) has a CLAUDE.md for what belongs in that layer, and some plugins have their own (currently `Game/DrsCore` and `Platform/DrsXrPlatform`). Claude Code loads a subfolder's file only when it works on files in that folder.
+The guidance is split by folder. This file covers the whole framework. Each layer folder (`Base/`, `Common/`, `Platform/`, `GameSupport/`, `Game/`) has a CLAUDE.md for what belongs in that layer, and some plugins have their own (currently `Common/DrsInput`, `Game/DrsCore` and `Platform/DrsXrPlatform`). Claude Code loads a subfolder's file only when it works on files in that folder.
 
 - **Add a CLAUDE.md to a plugin as soon as it has something non-obvious:** load-order or platform limits, a rule that spans several files, a project-facing contract such as config paths, or a design decision that a reader of a single file would miss. A plugin that is still a placeholder doesn't need one. When you add one, update the list above.
 - **Each level adds only what is specific to it.** Don't repeat a rule from a parent file; refer to it. Facts that a tool enforces (layer order, `AllowedSameLayer`) stay in `Tools/LayerRules.json` and this file.
