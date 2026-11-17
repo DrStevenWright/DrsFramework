@@ -11,13 +11,13 @@
  * Project settings for the XR plugin arbiter. The arbiter reads this section from config directly, because it decides
  * before this object is loaded; the class is here so the settings can be edited in the editor.
  */
-UCLASS(Config = Game, DefaultConfig, DisplayName = "Drs XR Plugin Arbiter")
+UCLASS(Config = Game, DefaultConfig, DisplayName = "DRS XR Plugin Arbiter")
 class DRSXRARBITER_API UDrsXrArbiterSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
 public:
-	virtual FName GetCategoryName() const override { return TEXT("DrsFramework"); }
+	virtual FName GetCategoryName() const override { return TEXT("DRS"); }
 
 	/**
 	 * Forces the XR plugin type for this project, overriding the rules. Use it only where the hardware is known and fixed,

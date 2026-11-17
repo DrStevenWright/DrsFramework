@@ -16,6 +16,22 @@ This covers `.h`, `.cpp`, `.inl`, `.Build.cs`, `.Target.cs` and any other `.cs` 
 
 ## Naming
 
+### Spelling of DRS
+
+The framework is called DRS. Write **DRS** in prose and display text, and `Drs` only where an identifier needs Unreal's camel-case.
+
+| Where | Spelling | Example |
+|---|---|---|
+| Reflection categories and `ClassGroup` | DRS | `Category = "DRS|Input"`, `ClassGroup = (DRS)` |
+| Plugin `FriendlyName`, `Description` and `Category` | DRS | `"DRS Input"` |
+| Project Settings page category and `DisplayName` metas | DRS | `CategoryName = TEXT("DRS")`, `"DRS XR Plugin Arbiter"` |
+| Comments and docs | DRS | "the DRS framework" |
+| Type names, files, namespaces | `Drs` | `UDrsInputAction`, `Drs::Input` |
+| Plugin, module, repo and log category names | `Drs` | `DrsInput`, `LogDrsInput` |
+| Macros | `DRS_` | `DRS_LOG` |
+
+Names the editor derives from identifiers (such as "Drs Pawn" in class pickers) stay as they are. Don't sweep comments: use DRS in files you touch anyway and in new text.
+
 ### Prefixes
 
 - Use the `Drs` prefix for plugins, modules, log categories, repos and projects: `DrsCore`, `FDrsXrRuntimeModule`, `LogDrsXrPlatform`.
@@ -87,13 +103,13 @@ Exceptions:
 
 `Category` on `UPROPERTY` and `UFUNCTION` decides where an item appears in the Details panel and the Blueprint palette.
 
-- **Format: `Drs|<Feature>[|<Area>]`**, for example `Drs|Input`, `Drs|Input|Triggers`, `Drs|XR Platform|HMD`. The root is always `Drs` (never `DRS`). The editor compares categories without regard to case but shows the first spelling it sees, so mixed spellings make the same group look different from run to run.
+- **Format: `DRS|<Feature>[|<Area>]`**, for example `DRS|Input`, `DRS|Input|Triggers`, `DRS|XR Platform|HMD`. The root is always `DRS` (never `Drs`): DRS is the framework's name, and `Drs` is only for identifiers. The editor compares categories without regard to case but shows the first spelling it sees, so mixed spellings make the same group look different from run to run.
 - **The second level is the feature in plain words**, written as it should display (spaces allowed, as in the engine's own `Hand Tracking`). Don't use a module or class name, and don't use the word "System". Use a third level only when a feature has distinct areas, and never go deeper than three levels.
-- **Don't put the layer in the category.** `Drs|GameSupport|...` and `Drs|Common|...` describe our structure, not something users look for.
+- **Don't put the layer in the category.** `DRS|GameSupport|...` and `DRS|Common|...` describe our structure, not something users look for.
 - **Use the same category for a feature's properties and functions**, so the Details panel and the palette agree.
-- **Use a sub-category such as `Drs|Input|Advanced` or `Drs|Input|Debug`** for items most users don't need, together with `AdvancedDisplay` for properties.
-- **`UDeveloperSettings` classes** also use `Drs|<Feature>`, so each feature's Project Settings page is grouped under Drs.
-- **`ClassGroup = (Drs)` on components is separate** (it controls the Add Component menu). Set both.
+- **Use a sub-category such as `DRS|Input|Advanced` or `DRS|Input|Debug`** for items most users don't need, together with `AdvancedDisplay` for properties.
+- **`UDeveloperSettings` classes** return `DRS` from `GetCategoryName()` (or set `CategoryName`), so every feature's Project Settings page is grouped under DRS.
+- **`ClassGroup = (DRS)` on components is separate** (it controls the Add Component menu). Set both.
 - Vendor plugins in `Platform/External/` keep their own categories.
 
 ## Logging

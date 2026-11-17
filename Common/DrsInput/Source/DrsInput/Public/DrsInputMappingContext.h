@@ -53,10 +53,10 @@ struct DRSINPUT_API FDrsInputContextDefinition
 
 	bool IsValid() const { return Context != nullptr; }
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
 	const UDrsInputMappingContext* Context = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
 	int32 Priority = 0;
 };
 
@@ -94,12 +94,12 @@ struct DRSINPUT_API FDrsInputContextDefinitionTwoHands
 		return RightHandContext ? RightHandContext->FindActionByID(actionID) : nullptr;
 	}
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
 	const UDrsInputMappingContext* LeftHandContext = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
 	const UDrsInputMappingContext* RightHandContext = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Drs|Input")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "DRS|Input")
 	int32 Priority = 0;
 };

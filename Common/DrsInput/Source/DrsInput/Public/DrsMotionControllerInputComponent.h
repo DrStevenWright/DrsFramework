@@ -24,7 +24,7 @@ struct FInputActionValue;
  * Platform-specific behaviour such as controller capabilities, hand tracking or emulated inputs belongs in a derived class
  * in a higher layer.
  */
-UCLASS(BlueprintType, ClassGroup = (Drs), meta = (BlueprintSpawnableComponent))
+UCLASS(BlueprintType, ClassGroup = (DRS), meta = (BlueprintSpawnableComponent))
 class DRSINPUT_API UDrsMotionControllerInputComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -36,7 +36,7 @@ public:
 	/** Sets the hand that this component forwards input for. Call before adding input bindings. */
 	void SetHand(EDrsHand hand);
 
-	UFUNCTION(BlueprintPure, Category = "Drs|Input")
+	UFUNCTION(BlueprintPure, Category = "DRS|Input")
 	EDrsHand GetHand() const { return Hand; }
 
 	/**
@@ -80,7 +80,7 @@ private:
 	void BindAxis(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FDrsMotionInputKey& key);
 
 	// Hand this component forwards input for.
-	UPROPERTY(EditAnywhere, BlueprintGetter = GetHand, Category = "Drs|Input")
+	UPROPERTY(EditAnywhere, BlueprintGetter = GetHand, Category = "DRS|Input")
 	EDrsHand Hand = EDrsHand::Left;
 
 	// Keys that are currently being forwarded as pressed.

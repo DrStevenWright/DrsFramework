@@ -14,7 +14,7 @@
  * Attach it to a UMotionControllerComponent. It hides itself while its parent controller is not tracked.
  * Local-only: holds no replicated state.
  */
-UCLASS(ClassGroup = (Drs), meta = (BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (DRS), meta = (BlueprintSpawnableComponent))
 class DRSXRGAME_API UDrsHandMeshComponent : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
@@ -23,10 +23,10 @@ public:
 	UDrsHandMeshComponent();
 
 	/** Sets the hand and updates the tint. */
-	UFUNCTION(BlueprintCallable, Category = "Drs|Hand")
+	UFUNCTION(BlueprintCallable, Category = "DRS|Hand")
 	void SetHand(EDrsHand hand);
 
-	UFUNCTION(BlueprintPure, Category = "Drs|Hand")
+	UFUNCTION(BlueprintPure, Category = "DRS|Hand")
 	EDrsHand GetHand() const { return Hand; }
 
 	/** Default tint for a hand. */
@@ -36,11 +36,11 @@ public:
 	virtual void TickComponent(float deltaTime, ELevelTick tickType, FActorComponentTickFunction* thisTickFunction) override;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Drs|Hand")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DRS|Hand")
 	EDrsHand Hand = EDrsHand::Left;
 
 	/** Hide the mesh while the parent motion controller has no tracking. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Drs|Hand")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DRS|Hand")
 	bool bHideWhenUntracked = true;
 
 private:

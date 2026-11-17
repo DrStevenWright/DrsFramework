@@ -33,31 +33,31 @@ protected:
 	void RemoveMotionControllerContext();
 
 	/** Floor-level origin of the tracking space. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<USceneComponent> TrackingOrigin;
 
 	/** Camera driven by the HMD pose. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UCameraComponent> Camera;
 
 	/** Left hand grip pose (controller or hand tracking, depending on the runtime). */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UMotionControllerComponent> LeftController;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UMotionControllerComponent> RightController;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UDrsHandMeshComponent> LeftHand;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UDrsHandMeshComponent> RightHand;
 
 	/** Forwards each hand's motion controller input as device-agnostic input keys. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UDrsMotionControllerInputComponent> LeftMotionInput;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<UDrsMotionControllerInputComponent> RightMotionInput;
 
 	/**
@@ -65,7 +65,7 @@ protected:
 	 * as device-agnostic keys. It is added to the controlling local player at the highest possible priority so that nothing can
 	 * override it. The project's default input component class must be UDrsEnhancedInputComponent.
 	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drs|Pawn")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DRS|Pawn")
 	TObjectPtr<const UDrsInputMappingContext> MotionControllerContext;
 
 	// Whether MotionControllerContext is currently added to the controlling local player.
