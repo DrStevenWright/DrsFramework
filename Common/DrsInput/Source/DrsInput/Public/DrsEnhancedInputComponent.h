@@ -23,18 +23,6 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type endPlayReason) override;
 	
 	// --------------------------------------------------------------
-	// Input context management
-	// --------------------------------------------------------------
-	static void CacheInputContextReason(const UInputMappingContext* context, const FName& reason);
-	static bool UncacheInputContextReason(const UInputMappingContext* context, const FName& reason);
-	static bool HasCachedInputContextReason(const UInputMappingContext* context, const FName& reason);
-	
-	static TArray<FName> GetCachedInputContexts();
-	static TArray<FName> GetCachedInputContextReasons(const UInputMappingContext* context);
-	static FString GetCachedInputContextReasonsString(const UInputMappingContext* context);
-	static void PrintCachedInputContextReasons(const UInputMappingContext* context);
-
-	// --------------------------------------------------------------
 	// Input interruption handling
 	// --------------------------------------------------------------
 	static void ReleaseDanglingInputs(const TArray<const FInputActionInstance*>& danglingActionInstances);
@@ -81,8 +69,4 @@ private:
 	using FOnNotifyInputInterrupt = TMulticastDelegate<void(const TArray<const FInputActionInstance*>& interruptedActionInstances)>;
 	static FOnNotifyInputInterrupt OnNotifyDanglingInput;
 	static FOnNotifyInputInterrupt OnNotifyOverriddenInput;
-	
-	// Lookup of all input contexts currently added for a named reason.
-	// TODO: Consider moving this to a world subsystem at some point.
-	static TMap<FName, TSet<FName>> ActiveInputContexts;
-};
+	};

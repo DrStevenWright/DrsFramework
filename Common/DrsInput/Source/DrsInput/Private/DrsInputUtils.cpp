@@ -3,12 +3,24 @@
 #include "DrsInputUtils.h"
 #include "DrsEnhancedInputComponent.h"
 #include "DrsEnhancedPlayerInput.h"
+#include "DrsInputContextSubsystem.h"
 #include "DrsInputLog.h"
 #include "DrsInputMappingContext.h"
 #include "EnhancedInputComponent.h"
+#include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Kismet/GameplayStatics.h"
+
+namespace
+{
+	// Gets the object that remembers why contexts were added for the local player that the subsystem belongs to.
+	UDrsInputContextSubsystem* GetContextReasons(const UEnhancedInputLocalPlayerSubsystem* enhancedInput)
+	{
+		const ULocalPlayer* localPlayer = enhancedInput ? enhancedInput->GetLocalPlayer() : nullptr;
+		return localPlayer ? localPlayer->GetSubsystem<UDrsInputContextSubsystem>() : nullptr;
+	}
+}
 
 UEnhancedInputLocalPlayerSubsystem* DrsInputUtils::GetEnhancedInputSubsystem(const UObject* worldContext)
 {
@@ -85,6 +97,13 @@ void DrsInputUtils::AddInputContextToSubsystem(UEnhancedInputLocalPlayerSubsyste
 		DRS_LOG(LogDrsInput, Error, "AddInputContextToSubsystem error: Could not add input context '%s' - Invalid EnhancedInputLocalPlayerSubsystem.", *context->GetName());
 		return;
 	}
+
+	UDrsInputContextSubsystem* reasons = GetContextReasons(enhancedInput);
+	if (!ensure(reasons))
+	{
+		DRS_LOG(LogDrsInput, Error, "AddInputContextToSubsystem error: Could not add input context '%s' - The local player has no UDrsInputContextSubsystem.", *context->GetName());
+		return;
+	}
 	
 	int32 existingPriority = 0;
 	if (!enhancedInput->HasMappingContext(context, existingPriority))
@@ -110,11 +129,11 @@ void DrsInputUtils::AddInputContextToSubsystem(UEnhancedInputLocalPlayerSubsyste
 	}
 	else
 	{
-		DRS_CLOG(UDrsEnhancedInputComponent::HasCachedInputContextReason(context, reason), LogDrsInput, Log, "Input context '%s' already added with reason '%s'.", *context->GetName(), *reason.ToString());
+		DRS_CLOG(reasons->HasReason(context, reason), LogDrsInput, Log, "Input context '%s' already added with reason '%s'.", *context->GetName(), *reason.ToString());
 	}
 
 	// Cache the reasons why we want this context added.
-	UDrsEnhancedInputComponent::CacheInputContextReason(context, reason);
+	reasons->AddReason(context, reason);
 }
 
 void DrsInputUtils::RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSubsystem* enhancedInput, const UInputMappingContext* context, FName reason)
@@ -135,10 +154,17 @@ void DrsInputUtils::RemoveInputContextFromSubsystem(UEnhancedInputLocalPlayerSub
 		DRS_LOG(LogDrsInput, Verbose, "RemoveInputContextFromSubsystem error: Could not remove input context '%s' - Invalid EnhancedInputLocalPlayerSubsystem.", *context->GetName());
 		return;
 	}
-	
-	if (!UDrsEnhancedInputComponent::UncacheInputContextReason(context, reason))
+
+	UDrsInputContextSubsystem* reasons = GetContextReasons(enhancedInput);
+	if (!ensure(reasons))
 	{
-		DRS_LOG(LogDrsInput, Log, "Skipping removal of input context '%s' for reasons: %s.", *context->GetName(), *UDrsEnhancedInputComponent::GetCachedInputContextReasonsString(context));
+		DRS_LOG(LogDrsInput, Error, "RemoveInputContextFromSubsystem error: Could not remove input context '%s' - The local player has no UDrsInputContextSubsystem.", *context->GetName());
+		return;
+	}
+	
+	if (!reasons->RemoveReason(context, reason))
+	{
+		DRS_LOG(LogDrsInput, Log, "Skipping removal of input context '%s' for reasons: %s.", *context->GetName(), *reasons->GetReasonsString(context));
 	}
 	else if (enhancedInput->HasMappingContext(context))
 	{
