@@ -264,10 +264,10 @@ bool UDrsXrPlatformLibrary::IsTrackingOriginSetup()
 	return bTrackingOriginRequested || UHeadMountedDisplayFunctionLibrary::GetTrackingOrigin() == EHMDTrackingOrigin::LocalFloor;
 }
 
-void UDrsXrPlatformLibrary::GetHmdDevicePose(UObject* worldContext, FRotator& outRotation, FVector& outPosition, float& outWorldToMetersScale)
+void UDrsXrPlatformLibrary::GetHmdDevicePose(UObject* worldContext, FRotator& outRotation, FVector& outPosition, float& outWorldToMetresScale)
 {
 	UHeadMountedDisplayFunctionLibrary::GetOrientationAndPosition(outRotation, outPosition);
-	outWorldToMetersScale = UHeadMountedDisplayFunctionLibrary::GetWorldToMetersScale(worldContext);
+	outWorldToMetresScale = UHeadMountedDisplayFunctionLibrary::GetWorldToMetersScale(worldContext);
 }
 
 //------------------------------------------------------------------
@@ -455,15 +455,15 @@ float UDrsXrPlatformLibrary::GetDisplayFrequency()
 	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.GetDisplayFrequency(); }, 0.0f);
 }
 
-bool UDrsXrPlatformLibrary::GetGpuUtilization(float& outGpuUtilization)
+bool UDrsXrPlatformLibrary::GetGpuUtilisation(float& outGpuUtilisation)
 {
 	bool isGpuAvailable = false;
-	outGpuUtilization = 0.0f;
+	outGpuUtilisation = 0.0f;
 #if DRS_ENABLE_META_XR
 	if (IsMetaXrMode())
 	{
 		// The XR_META_performance_metrics counter, in percent.
-		UOculusXRFunctionLibrary::GetGPUUtilization(isGpuAvailable, outGpuUtilization);
+		UOculusXRFunctionLibrary::GetGPUUtilization(isGpuAvailable, outGpuUtilisation);
 		return isGpuAvailable;
 	}
 #endif

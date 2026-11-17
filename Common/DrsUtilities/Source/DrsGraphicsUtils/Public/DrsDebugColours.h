@@ -7,5 +7,5 @@
 namespace Drs::Graphics
 {
 	/** Returns a distinct, saturated colour for an index, for debug drawing of many items. */
-	DRSGRAPHICSUTILS_API FLinearColor GetDebugColor(int32 index);
+	DRSGRAPHICSUTILS_API FLinearColor GetDebugColour(int32 index);
 }

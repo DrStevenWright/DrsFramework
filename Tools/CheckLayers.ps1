@@ -10,7 +10,8 @@
         SameLayer is 'Plugin' (the default: dependencies within a plugin are allowed), 'Any' or 'None'.
         *Tests modules may always depend on modules in their own plugin.
       - an AllowedSameLayer entry for a dependency that the layer's policy already allows
-      - a dependency cycle between framework modules
+      - a dependency cycle between framework modules, or between framework plugins
+      - a layer with more plugins than its MaxPlugins allows
       - a module that depends on a module in another framework plugin that its .uplugin does not list
       - a .uplugin that lists a framework plugin in a higher layer
     Dependencies on engine or other non-framework modules are ignored.
@@ -59,6 +60,9 @@ function Get-Layer([string]$RelativePath) {
     return $best
 }
 
+# MaxPlugins is optional; 0 means no limit.
+$maxPlugins = @(foreach ($l in $layers) { if ($l.MaxPlugins) { [int]$l.MaxPlugins } else { 0 } })
+
 # --- Collect plugins and modules ---------------------------------------------
 $plugins = @{}   # plugin name -> info
 $modules = @{}   # module name -> info
@@ -71,6 +75,15 @@ foreach ($file in Get-ChildItem $FrameworkRoot -Recurse -Filter *.uplugin -File)
     $plugins[$file.BaseName] = [pscustomobject]@{
         Name = $file.BaseName; Dir = $file.DirectoryName; Layer = $layer
         PluginDeps = @($json.Plugins | Where-Object { $_ -and $_.Name } | ForEach-Object { $_.Name })
+    }
+}
+
+for ($i = 0; $i -lt $layers.Count; $i++) {
+    if ($maxPlugins[$i] -gt 0) {
+        $inLayer = @($plugins.Values | Where-Object { $_.Layer.Index -eq $i } | ForEach-Object { $_.Name } | Sort-Object)
+        if ($inLayer.Count -gt $maxPlugins[$i]) {
+            $errors.Add("Layer '$($layers[$i].Name)' holds at most $($maxPlugins[$i]) plugin(s) but has $($inLayer.Count): $($inLayer -join ', ').")
+        }
     }
 }
 
@@ -176,6 +189,38 @@ function Visit([string]$Name) {
     $stack.RemoveAt($stack.Count - 1); $state[$Name] = 2
 }
 foreach ($n in @($modules.Keys | Sort-Object)) { if (-not $state.ContainsKey($n)) { Visit $n } }
+
+# --- Cycle detection (plugin graph) ---------------------------------------------------
+# Edges come from .uplugin dependencies and from modules that use another plugin's modules.
+# A cycle here can exist even when the module graph is acyclic, and the engine cannot load it.
+$pluginEdges = @{}
+foreach ($p in $plugins.Values) {
+    $set = New-Object System.Collections.Generic.HashSet[string]
+    foreach ($d in $p.PluginDeps) { if ($plugins.ContainsKey($d) -and $d -ne $p.Name) { [void]$set.Add($d) } }
+    $pluginEdges[$p.Name] = $set
+}
+foreach ($mod in $modules.Values) {
+    foreach ($depName in $mod.Deps) {
+        if (-not $modules.ContainsKey($depName)) { continue }
+        $depPlugin = $modules[$depName].Plugin.Name
+        if ($depPlugin -ne $mod.Plugin.Name) { [void]$pluginEdges[$mod.Plugin.Name].Add($depPlugin) }
+    }
+}
+$pState = @{}
+$pStack = New-Object System.Collections.Generic.List[string]
+function VisitPlugin([string]$Name) {
+    $pState[$Name] = 1; $pStack.Add($Name)
+    foreach ($d in @($pluginEdges[$Name] | Sort-Object)) {
+        if ($pState[$d] -eq 1) {
+            $start = $pStack.IndexOf($d)
+            $cycle = (@($pStack.GetRange($start, $pStack.Count - $start)) + $d) -join ' -> '
+            $errors.Add("Plugin dependency cycle: $cycle.")
+        }
+        elseif (-not $pState.ContainsKey($d)) { VisitPlugin $d }
+    }
+    $pStack.RemoveAt($pStack.Count - 1); $pState[$Name] = 2
+}
+foreach ($n in @($plugins.Keys | Sort-Object)) { if (-not $pState.ContainsKey($n)) { VisitPlugin $n } }
 
 # --- Report -------------------------------------------------------------------------
 Write-Host "Checked $($plugins.Count) plugins and $($modules.Count) modules under $FrameworkRoot"

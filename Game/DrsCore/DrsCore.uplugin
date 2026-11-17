@@ -27,15 +27,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "DrsUtilities",
-			"Enabled": true
-		},
-		{
-			"Name": "DrsXrPlatform",
-			"Enabled": true
-		},
-		{
-			"Name": "DrsXrGame",
+			"Name": "DrsInput",
 			"Enabled": true
 		},
 		{
@@ -48,6 +40,18 @@
 		},
 		{
 			"Name": "DrsSpawning",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsXrGame",
+			"Enabled": true
+		},
+		{
+			"Name": "DrsXrPlatform",
 			"Enabled": true
 		}
 	]

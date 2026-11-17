@@ -21,6 +21,11 @@
 			"LoadingPhase": "Default"
 		},
 		{
+			"Name": "DrsBaseBlueprint",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
 			"Name": "DrsBaseTests",
 			"Type": "DeveloperTool",
 			"LoadingPhase": "Default"

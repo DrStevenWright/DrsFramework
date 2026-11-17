@@ -61,10 +61,10 @@ void UDrsViewFadeLibrary::ResetForPie(bool isSimulating)
 }
 #endif
 
-void UDrsViewFadeLibrary::SetViewFadeColor(const UObject* worldContext, const FLinearColor& color, float opacity, bool fadeAudio)
+void UDrsViewFadeLibrary::SetViewFadeColour(const UObject* worldContext, const FLinearColor& colour, float opacity, bool fadeAudio)
 {
 	SetViewFadeOpacity(worldContext, opacity, fadeAudio);
-	GetFadeRenderer()->SetColor(color);
+	GetFadeRenderer()->SetColour(colour);
 }
 
 void UDrsViewFadeLibrary::SetViewFadeOpacity(const UObject* worldContext, float opacity, bool fadeAudio)
@@ -88,9 +88,9 @@ void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const FRich
 	if (fadeAudio && IsValid(worldContext))
 	{
 		UWorld* world = worldContext->GetWorld();
-		transition.OnFadeUpdated().AddWeakLambda(world, [world](float progress, const FLinearColor& color)
+		transition.OnFadeUpdated().AddWeakLambda(world, [world](float progress, const FLinearColor& colour)
 		{
-			SetAudioVolume(world, 1.0f - color.A);
+			SetAudioVolume(world, 1.0f - colour.A);
 		});
 	}
 
@@ -104,58 +104,58 @@ void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const UCurv
 	StartViewFade(worldContext, fadeCurve->FloatCurves[0], fadeCurve->FloatCurves[1], fadeCurve->FloatCurves[2], fadeCurve->FloatCurves[3], fadeAudio, onFadeFinished, onFadeUpdate);
 }
 
-void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const FLinearColor& targetColor, float duration, bool resetCurrentFade, bool fadeAudio,
+void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const FLinearColor& targetColour, float duration, bool resetCurrentFade, bool fadeAudio,
 	const FViewFadeFinishedDelegate& onFadeFinished, const FViewFadeUpdateDelegate& onFadeUpdate)
 {
 	FRichCurve rCurve, gCurve, bCurve, aCurve;
 	if (resetCurrentFade || FMath::IsNearlyZero(GetViewFadeOpacity()))
 	{
-		rCurve.AddKey(0.0f, targetColor.R);
-		gCurve.AddKey(0.0f, targetColor.G);
-		bCurve.AddKey(0.0f, targetColor.B);
+		rCurve.AddKey(0.0f, targetColour.R);
+		gCurve.AddKey(0.0f, targetColour.G);
+		bCurve.AddKey(0.0f, targetColour.B);
 		aCurve.AddKey(0.0f, 0.0f);
 	}
 	else if (duration > 0.0f)
 	{
-		const FLinearColor& currentColor = GetFadeRenderer()->GetColor();
-		rCurve.AddKey(0.0f, currentColor.R);
-		gCurve.AddKey(0.0f, currentColor.G);
-		bCurve.AddKey(0.0f, currentColor.B);
+		const FLinearColor& currentColour = GetFadeRenderer()->GetColour();
+		rCurve.AddKey(0.0f, currentColour.R);
+		gCurve.AddKey(0.0f, currentColour.G);
+		bCurve.AddKey(0.0f, currentColour.B);
 		aCurve.AddKey(0.0f, GetViewFadeOpacity());
 	}
 
-	rCurve.AddKey(duration, targetColor.R);
-	gCurve.AddKey(duration, targetColor.G);
-	bCurve.AddKey(duration, targetColor.B);
-	aCurve.AddKey(duration, targetColor.A);
+	rCurve.AddKey(duration, targetColour.R);
+	gCurve.AddKey(duration, targetColour.G);
+	bCurve.AddKey(duration, targetColour.B);
+	aCurve.AddKey(duration, targetColour.A);
 
 	StartViewFade(worldContext, rCurve, gCurve, bCurve, aCurve, fadeAudio, onFadeFinished, onFadeUpdate);
 }
 
-void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const FLinearColor& targetColor, const UCurveFloat* alphaCurve, bool resetCurrentFadeColor, bool fadeAudio,
+void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const FLinearColor& targetColour, const UCurveFloat* alphaCurve, bool resetCurrentFadeColour, bool fadeAudio,
 	const FViewFadeFinishedDelegate& onFadeFinished, const FViewFadeUpdateDelegate& onFadeUpdate)
 {
 	check(alphaCurve);
 
 	FRichCurve rCurve, gCurve, bCurve;
-	const FLinearColor startColor = (resetCurrentFadeColor || FMath::IsNearlyZero(GetViewFadeOpacity())) ? targetColor : GetFadeRenderer()->GetColor();
-	rCurve.AddKey(0.0f, startColor.R);
-	gCurve.AddKey(0.0f, startColor.G);
-	bCurve.AddKey(0.0f, startColor.B);
+	const FLinearColor startColour = (resetCurrentFadeColour || FMath::IsNearlyZero(GetViewFadeOpacity())) ? targetColour : GetFadeRenderer()->GetColour();
+	rCurve.AddKey(0.0f, startColour.R);
+	gCurve.AddKey(0.0f, startColour.G);
+	bCurve.AddKey(0.0f, startColour.B);
 
 	float minTime = 0.0f;
 	float maxTime = 0.0f;
 	alphaCurve->FloatCurve.GetTimeRange(minTime, maxTime);
-	rCurve.AddKey(maxTime, targetColor.R);
-	gCurve.AddKey(maxTime, targetColor.G);
-	bCurve.AddKey(maxTime, targetColor.B);
+	rCurve.AddKey(maxTime, targetColour.R);
+	gCurve.AddKey(maxTime, targetColour.G);
+	bCurve.AddKey(maxTime, targetColour.B);
 
 	StartViewFade(worldContext, rCurve, gCurve, bCurve, alphaCurve->FloatCurve, fadeAudio, onFadeFinished, onFadeUpdate);
 }
 
-void UDrsViewFadeLibrary::StopViewFade(bool keepFadeColor)
+void UDrsViewFadeLibrary::StopViewFade(bool keepFadeColour)
 {
-	GetFadeTransition().StopViewFade(!keepFadeColor);
+	GetFadeTransition().StopViewFade(!keepFadeColour);
 }
 
 float UDrsViewFadeLibrary::GetViewFadeOpacity()
@@ -163,9 +163,9 @@ float UDrsViewFadeLibrary::GetViewFadeOpacity()
 	return GetFadeRenderer()->GetOpacity();
 }
 
-void UDrsViewFadeLibrary::GetViewFadeColor(FLinearColor& outColor)
+void UDrsViewFadeLibrary::GetViewFadeColour(FLinearColor& outColour)
 {
-	outColor = GetFadeRenderer()->GetColor();
+	outColour = GetFadeRenderer()->GetColour();
 }
 
 bool UDrsViewFadeLibrary::IsFading()
@@ -198,20 +198,20 @@ float UDrsViewFadeLibrary::GetViewHoldoutOpacity()
 	return GetFadeRenderer()->GetHoldoutOpacity();
 }
 
-void UDrsViewFadeLibrary::StartViewFadeColorCurve(const UObject* worldContext, const UCurveLinearColor* fadeCurve, bool fadeAudio,
+void UDrsViewFadeLibrary::StartViewFadeColourCurve(const UObject* worldContext, const UCurveLinearColor* fadeCurve, bool fadeAudio,
 	const FDrsViewFadeFinishedSignature& onFadeFinished, const FDrsViewFadeUpdateSignature& onFadeUpdate)
 {
 	StartViewFade(worldContext, fadeCurve, fadeAudio, Drs::AsNative<FViewFadeFinishedDelegate>(onFadeFinished), Drs::AsNative<FViewFadeUpdateDelegate>(onFadeUpdate));
 }
 
-void UDrsViewFadeLibrary::StartViewFadeAlphaCurve(const UObject* worldContext, const FLinearColor& targetColor, const UCurveFloat* alphaCurve, bool resetCurrentFadeColor, bool fadeAudio,
+void UDrsViewFadeLibrary::StartViewFadeAlphaCurve(const UObject* worldContext, const FLinearColor& targetColour, const UCurveFloat* alphaCurve, bool resetCurrentFadeColour, bool fadeAudio,
 	const FDrsViewFadeFinishedSignature& onFadeFinished, const FDrsViewFadeUpdateSignature& onFadeUpdate)
 {
-	StartViewFade(worldContext, targetColor, alphaCurve, resetCurrentFadeColor, fadeAudio, Drs::AsNative<FViewFadeFinishedDelegate>(onFadeFinished), Drs::AsNative<FViewFadeUpdateDelegate>(onFadeUpdate));
+	StartViewFade(worldContext, targetColour, alphaCurve, resetCurrentFadeColour, fadeAudio, Drs::AsNative<FViewFadeFinishedDelegate>(onFadeFinished), Drs::AsNative<FViewFadeUpdateDelegate>(onFadeUpdate));
 }
 
-void UDrsViewFadeLibrary::StartViewFadeLinear(const UObject* worldContext, const FLinearColor& targetColor, float duration, bool resetCurrentFade, bool fadeAudio,
+void UDrsViewFadeLibrary::StartViewFadeLinear(const UObject* worldContext, const FLinearColor& targetColour, float duration, bool resetCurrentFade, bool fadeAudio,
 	const FDrsViewFadeFinishedSignature& onFadeFinished, const FDrsViewFadeUpdateSignature& onFadeUpdate)
 {
-	StartViewFade(worldContext, targetColor, duration, resetCurrentFade, fadeAudio, Drs::AsNative<FViewFadeFinishedDelegate>(onFadeFinished), Drs::AsNative<FViewFadeUpdateDelegate>(onFadeUpdate));
+	StartViewFade(worldContext, targetColour, duration, resetCurrentFade, fadeAudio, Drs::AsNative<FViewFadeFinishedDelegate>(onFadeFinished), Drs::AsNative<FViewFadeUpdateDelegate>(onFadeUpdate));
 }

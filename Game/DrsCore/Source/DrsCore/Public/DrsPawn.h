@@ -8,6 +8,9 @@
 
 class UCameraComponent;
 class UDrsHandMeshComponent;
+class UDrsInputMappingContext;
+class UDrsMotionControllerInputComponent;
+class UInputComponent;
 class UMotionControllerComponent;
 
 /** Framework XR pawn: a floor-level tracking origin with an HMD-driven camera and two tracked hands. */
@@ -21,6 +24,13 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type endPlayReason) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* playerInputComponent) override;
+	virtual void UnPossessed() override;
+
+	/** Adds or removes MotionControllerContext on the local player that controls this pawn. */
+	void AddMotionControllerContext();
+	void RemoveMotionControllerContext();
 
 	/** Floor-level origin of the tracking space. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
@@ -42,4 +52,22 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
 	TObjectPtr<UDrsHandMeshComponent> RightHand;
+
+	/** Forwards each hand's motion controller input as device-agnostic input keys. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UDrsMotionControllerInputComponent> LeftMotionInput;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<UDrsMotionControllerInputComponent> RightMotionInput;
+
+	/**
+	 * Maps each platform's physical motion controller inputs to the input actions that the motion input components forward
+	 * as device-agnostic keys. It is added to the controlling local player at the highest possible priority so that nothing can
+	 * override it. The project's default input component class must be UDrsEnhancedInputComponent.
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drs|Pawn")
+	TObjectPtr<const UDrsInputMappingContext> MotionControllerContext;
+
+	// Whether MotionControllerContext is currently added to the controlling local player.
+	bool bMotionControllerContextAdded = false;
 };

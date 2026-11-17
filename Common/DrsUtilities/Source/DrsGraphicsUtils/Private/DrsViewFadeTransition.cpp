@@ -28,14 +28,14 @@ void FDrsViewFadeTransition::StartViewFade(const FRichCurve& rCurve, const FRich
 	UpdateFade();
 }
 
-void FDrsViewFadeTransition::StopViewFade(bool shouldClearColor)
+void FDrsViewFadeTransition::StopViewFade(bool shouldClearColour)
 {
-	FLinearColor color = Renderer->GetColor();
-	color.A = Renderer->GetOpacity();
-	FadeFinished.Broadcast(color);
+	FLinearColor colour = Renderer->GetColour();
+	colour.A = Renderer->GetOpacity();
+	FadeFinished.Broadcast(colour);
 
 	bIsFading = false;
-	if (shouldClearColor)
+	if (shouldClearColour)
 	{
 		Renderer->SetOpacity(0.0f);
 	}
@@ -44,18 +44,18 @@ void FDrsViewFadeTransition::StopViewFade(bool shouldClearColor)
 	FadeUpdated.Clear();
 }
 
-bool FDrsViewFadeTransition::GetFadeColor(FLinearColor& outColor) const
+bool FDrsViewFadeTransition::GetFadeColour(FLinearColor& outColour) const
 {
 	if (!IsFading())
 	{
 		return false;
 	}
 
-	const FLinearColor& currentColor = Renderer->GetColor();
-	outColor.R = RCurve.Eval(CurrentFadeTime, currentColor.R);
-	outColor.G = GCurve.Eval(CurrentFadeTime, currentColor.G);
-	outColor.B = BCurve.Eval(CurrentFadeTime, currentColor.B);
-	outColor.A = ACurve.Eval(CurrentFadeTime, Renderer->GetOpacity());
+	const FLinearColor& currentColour = Renderer->GetColour();
+	outColour.R = RCurve.Eval(CurrentFadeTime, currentColour.R);
+	outColour.G = GCurve.Eval(CurrentFadeTime, currentColour.G);
+	outColour.B = BCurve.Eval(CurrentFadeTime, currentColour.B);
+	outColour.A = ACurve.Eval(CurrentFadeTime, Renderer->GetOpacity());
 	return true;
 }
 
@@ -79,12 +79,12 @@ void FDrsViewFadeTransition::UpdateFadeDuration()
 
 void FDrsViewFadeTransition::UpdateFade()
 {
-	FLinearColor fadeColor;
-	if (GetFadeColor(fadeColor))
+	FLinearColor fadeColour;
+	if (GetFadeColour(fadeColour))
 	{
-		Renderer->SetColor(fadeColor, false); // The alpha channel is the opacity.
+		Renderer->SetColour(fadeColour, false); // The alpha channel is the opacity.
 		const float progress = (FadeDuration <= CurrentFadeTime) ? 1.0f : CurrentFadeTime / FadeDuration;
-		FadeUpdated.Broadcast(progress, fadeColor);
+		FadeUpdated.Broadcast(progress, fadeColour);
 	}
 
 	if (FadeDuration <= CurrentFadeTime)

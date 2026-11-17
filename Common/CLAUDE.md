@@ -1,11 +1,12 @@
 # Common layer
 
-General-purpose helpers for one area each, such as maths or graphics. Modules here may depend on Base (`DrsBase`) and on engine modules only.
+Code for one area each, such as maths, graphics or input. Modules here may depend on Base (`DrsBase`) and on engine modules only.
 
-**Belongs here:** stateless helpers that know nothing about XR, the platform or gameplay. Today: `DrsUtilities` with `DrsMathUtils` (`Drs::Math`) and `DrsGraphicsUtils` (e.g. `DrsDebugColors`, and `UDrsViewFadeLibrary`, a full-screen fade and passthrough holdout drawn by a scene view extension; unlike the other helpers it keeps global fade state).
+**Belongs here:** code that depends only on the engine and Base: stateless helpers and utilities, and some low-level systems that the GameSupport systems rely on. Today: `DrsInput` (a wrapper around Enhanced Input: custom triggers and modifiers, mapping contexts, and the device-agnostic motion controller keys and input component), and `DrsUtilities` with `DrsMathUtils` (`Drs::Math`) and `DrsGraphicsUtils` (e.g. `DrsDebugColours`, and `UDrsViewFadeLibrary`, a full-screen fade and passthrough holdout drawn by a scene view extension; unlike the other helpers it keeps global fade state).
 
-**Doesn't belong here:** code that needs XR, subsystems or gameplay types. Put it in `Platform/` or `GameSupport/`.
+**Doesn't belong here:** code that needs XR or platform APIs, or that builds on other framework layers. Put it in `Platform/` or `GameSupport/`.
 
-- **Common modules are independent of each other.** `LayerRules.json` sets `"SameLayer": "None"` for Common, so a maths module must not use a graphics module, for example. If two helpers need each other, merge them or move the shared part down to Base.
+- **Common plugins are independent of each other.** Common uses the default `"SameLayer": "Plugin"`, so the checker rejects a dependency from one Common plugin on another, such as input on haptics. Modules inside one plugin may depend on each other, such as `DrsGraphicsUtils` on `DrsMathUtils`, as long as the module graph stays acyclic. If two Common plugins need each other, merge them or move the shared part down to Base.
+- **`DrsInput` has content** (`CanContainContent` is true), and it is the only Common plugin that does. See its own CLAUDE.md for the content and the project settings it needs.
 - Add a new area as a new module inside `DrsUtilities` (list it in `DrsUtilities.uplugin`), not as a new plugin, unless it needs its own engine plugin dependencies.
 - Put new functions in a nested namespace named after the area: `Drs::Math`, `Drs::Graphics`.

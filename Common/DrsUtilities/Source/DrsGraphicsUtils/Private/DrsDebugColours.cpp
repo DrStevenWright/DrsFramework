@@ -1,8 +1,8 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsDebugColors.h"
+#include "DrsDebugColours.h"
 
-FLinearColor Drs::Graphics::GetDebugColor(int32 index)
+FLinearColor Drs::Graphics::GetDebugColour(int32 index)
 {
 	// Golden-ratio hue stepping keeps consecutive indices visually far apart.
 	constexpr float goldenRatioConjugate = 0.618033988749895f;

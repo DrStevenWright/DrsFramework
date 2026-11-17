@@ -27,11 +27,11 @@ public:
 	/** Before the loading screen, which has priority 0. */
 	virtual int32 GetPriority() const override { return 100; }
 
-	void SetColor(const FLinearColor& color, bool shouldIgnoreAlpha = true);
+	void SetColour(const FLinearColor& colour, bool shouldIgnoreAlpha = true);
 	void SetOpacity(float opacity);
 	void SetHoldoutOpacity(float opacity) { HoldoutOpacity = opacity; }
 
-	const FLinearColor& GetColor() const { return FadeColor; }
+	const FLinearColor& GetColour() const { return FadeColour; }
 	float GetOpacity() const { return FadeOpacity; }
 	float GetHoldoutOpacity() const { return HoldoutOpacity; }
 	bool IsOpaque() const { return FadeOpacity >= 1.0f - KINDA_SMALL_NUMBER; }
@@ -40,7 +40,7 @@ protected:
 	virtual bool IsActiveThisFrame_Internal(const FSceneViewExtensionContext& context) const override;
 
 private:
-	FLinearColor FadeColor = FLinearColor::Black;
+	FLinearColor FadeColour = FLinearColor::Black;
 	float FadeOpacity = 0.0f;
 	float HoldoutOpacity = 0.0f;
 };

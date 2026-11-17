@@ -29,7 +29,7 @@ public:
 	virtual void Deinitialize() override;
 
 	/** Whether the headset supports passthrough. False until the XR session exists. */
-	UFUNCTION(BlueprintPure, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform|Passthrough")
 	bool IsPassthroughSupported() const;
 
 	/**
@@ -37,42 +37,42 @@ public:
 	 * (a null world context makes it persistent).
 	 * @param requestId Unique ID of this request; release it with the same ID.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Drs|XR|Passthrough", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Passthrough", meta = (WorldContext = "worldContext"))
 	void RequestPassthrough(const UObject* worldContext, FName requestId);
 
 	/** Releases a passthrough request. */
-	UFUNCTION(BlueprintCallable, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Passthrough")
 	void ReleasePassthrough(FName requestId);
 
 	/**
 	 * Suspends passthrough until every suspension is withdrawn.
 	 * @param reason The reason, which is also the ID to unsuspend with.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Passthrough")
 	void SuspendPassthrough(FName reason);
 
 	/** Withdraws a suspension. */
-	UFUNCTION(BlueprintCallable, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Passthrough")
 	void UnsuspendPassthrough(FName reason);
 
 	/**
 	 * Blends passthrough in gradually (e.g. as the headset leaves a safe area). Without passthrough this fades to black.
 	 * @param amount 0 = no passthrough, 1 = passthrough only.
 	 */
-	UFUNCTION(BlueprintCallable, Category = "Drs|XR|Passthrough", meta = (WorldContext = "worldContext"))
+	UFUNCTION(BlueprintCallable, Category = "Drs|XR Platform|Passthrough", meta = (WorldContext = "worldContext"))
 	void SetPassthroughBlend(const UObject* worldContext, float amount);
 
-	UFUNCTION(BlueprintPure, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform|Passthrough")
 	float GetPassthroughBlend() const;
 
-	UFUNCTION(BlueprintPure, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform|Passthrough")
 	bool IsPassthroughRequested() const { return !Requests.IsEmpty(); }
 
-	UFUNCTION(BlueprintPure, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform|Passthrough")
 	bool IsPassthroughSuspended() const { return Suspensions.IsVoted(); }
 
 	/** Whether passthrough is visible now. */
-	UFUNCTION(BlueprintPure, Category = "Drs|XR|Passthrough")
+	UFUNCTION(BlueprintPure, Category = "Drs|XR Platform|Passthrough")
 	bool IsPassthroughActive() const { return IsPassthroughRequested() && !IsPassthroughSuspended() && IsPassthroughSupported(); }
 
 private:

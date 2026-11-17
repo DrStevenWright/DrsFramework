@@ -28,6 +28,7 @@ A scope is optional. Use one when the change sits in one area.
 |---|---|
 | `base` | `Base/DrsBase` (logging, version, generic helpers) |
 | `utilities` | `Common/DrsUtilities` |
+| `input` | `Common/DrsInput` |
 | `xrplatform` | `Platform/DrsXrPlatform`, including `DrsXrRuntime` |
 | `xrgame` | `GameSupport/DrsXrGame` |
 | `interaction` | `GameSupport/DrsInteraction` |

@@ -8,20 +8,21 @@ Targets: Meta Quest (Link and standalone Android), with Pico as a cross-platform
 ## Layers
 
 Each layer may depend only on the layers below it. Dependencies within a plugin are allowed
-unless the layer forbids them; other same-layer dependencies must be listed in
-[`Tools/LayerRules.json`](Tools/LayerRules.json). The module graph must be acyclic.
+unless the layer forbids them. Plugins in GameSupport and External may depend on each other; in
+Common they may not. Other same-layer dependencies must be listed in
+[`Tools/LayerRules.json`](Tools/LayerRules.json). The module and plugin graphs must be acyclic.
 
 | Layer | Folder | Plugins |
 |---|---|---|
 | Game | `Game/` | `DrsCore`: game classes (GameMode, GameState, PlayerState, PlayerController, Pawn, GameInstance) and communication between otherwise independent plugins |
-| GameSupport | `GameSupport/` | `DrsXrGame`, `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` |
+| GameSupport | `GameSupport/` | `DrsXrGame`, `DrsInteraction`, `DrsLocomotion`, `DrsSpawning`; these may depend on each other |
 | Platform | `Platform/` | `DrsXrPlatform`; vendor plugin forks in `Platform/External/` |
-| Common | `Common/` | `DrsUtilities` (independent modules such as `DrsMathUtils`, `DrsGraphicsUtils`) |
+| Common | `Common/` | Plugins that need only the engine and `DrsBase` and don't depend on each other, such as `DrsUtilities` (`DrsMathUtils`, `DrsGraphicsUtils`) |
 | Base | `Base/` | `DrsBase` (`DrsBase`, `DrsBaseTests`) |
 
 ## Naming
 
-- Plugins, modules, types, repos and projects use the `Drs` prefix: `DrsCore`, `ADrsPawn`, `LogDrsXrPlatform`.
+- Plugins, modules, reflected types (`UCLASS`, `USTRUCT`, `UENUM`), repos and projects use the `Drs` prefix: `DrsCore`, `ADrsPawn`, `LogDrsXrPlatform`. Plain C++ types go in a `Drs` namespace instead.
 - `DRS_` is used only for macros, e.g. `DRS_LOG(LogDrsCore, Log, "...")`.
 
 ## Using it in a project

@@ -21,11 +21,11 @@ public:
 
 	void StartViewFade(const FRichCurve& rCurve, const FRichCurve& gCurve, const FRichCurve& bCurve, const FRichCurve& aCurve);
 
-	/** Stops the fade, broadcasting OnFadeFinished, and clears the fade if shouldClearColor is set. */
-	void StopViewFade(bool shouldClearColor = false);
+	/** Stops the fade, broadcasting OnFadeFinished, and clears the fade if shouldClearColour is set. */
+	void StopViewFade(bool shouldClearColour = false);
 
 	float GetFadeDuration() const { return FadeDuration; }
-	bool GetFadeColor(FLinearColor& outColor) const;
+	bool GetFadeColour(FLinearColor& outColour) const;
 	float GetFadeTargetOpacity() const;
 
 	bool IsFading() const { return bIsFading; }
