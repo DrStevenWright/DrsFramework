@@ -9,9 +9,6 @@ namespace
 	TOptional<FVector2D> RightThumbstickInitialDeflectionDirection;
 	TOptional<FVector2D> LeftThumbstickCurrentDeflectionDirection;
 	TOptional<FVector2D> RightThumbstickCurrentDeflectionDirection;
-	
-	float LeftHandUntrackedTime = 0.f;
-	float RightHandUntrackedTime = 0.f;
 }
 
 void DrsInputMotionData::SetThumbstickInputDirection(EControllerHand hand, const FVector2D& vector)
@@ -92,31 +89,3 @@ TOptional<FVector2D> DrsInputMotionData::GetThumbstickInitialDeflectionDirection
 	return TOptional<FVector2D>();
 }
 
-void DrsInputMotionData::SetUntrackedTime(EControllerHand hand, float time)
-{
-	if (hand == EControllerHand::Left)
-	{
-		LeftHandUntrackedTime = time;
-	}
-	else if (hand == EControllerHand::Right)
-	{
-		RightHandUntrackedTime = time;
-	}
-}
-
-float DrsInputMotionData::GetUntrackedTime(EControllerHand hand)
-{
-	switch (hand)
-	{
-	case EControllerHand::Left:
-		return LeftHandUntrackedTime;
-
-	case EControllerHand::Right:
-		return RightHandUntrackedTime;
-		
-	default:
-		break;
-	}
-	
-	return 0.0f;
-}

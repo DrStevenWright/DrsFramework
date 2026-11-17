@@ -7,8 +7,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "DrsInputSettings.generated.h"
 
-// SWTODO - Move into GameSupport.
-/** Container for global interaction system settings. */
+// SWTODO - Move into GameSupport layer.
 UCLASS(Config = Game, DefaultConfig)
 class DRSINPUTSYSTEM_API UDrsInputSettings : public UDeveloperSettings
 {
@@ -80,6 +79,7 @@ public:
 	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = "DRS|Input")
 	FInputContextDefinitionTwoHands PlacementControls;
 	*/
+	
 	// Input threshold beyond which a thumbstick is considered to be 'deflected' in some direction. Used in corresponding
 	// deflection input triggers.
 	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = "DRS|Input")

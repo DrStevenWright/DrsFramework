@@ -8,7 +8,7 @@
 #include "InputTriggerDeflection.generated.h"
 
 
-// Conditions under which the laser pointer will be made visible.
+// Allowed thumbstick directions as flags.
 UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
 enum class EDeflectionDirections : uint8
 {
