@@ -47,7 +47,7 @@ DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
  * applied, and libraries staged, whatever the arbiter later selects. To leave a vendor out of a build, disable the plugin.
  *
  * Choosing the type: see DrsXrPlatform/CLAUDE.md. Overrides: the editor setting (UDrsXrPlatformEditorSettings), the
- * -DrsXrPlugin=<Type> command line, and ProjectArbitrationOverride. Commandlets load every type, so everything cooks.
+ * -DrsXrPlugin=<Type> command line, and XrArbiterProjectOverride. Commandlets load every type, so everything cooks.
  */
 namespace Drs::XrArbiter
 {
