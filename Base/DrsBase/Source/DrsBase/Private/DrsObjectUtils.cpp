@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsObjectUtils.h"
+#include "DrsBase/DrsObjectUtils.h"
+
 #include "UObject/Object.h"
 
 FString Drs::GetDebugName(const UObject* object)

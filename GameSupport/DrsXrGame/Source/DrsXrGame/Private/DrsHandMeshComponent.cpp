@@ -1,12 +1,12 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsHandMeshComponent.h"
+#include "DrsXrGame/DrsHandMeshComponent.h"
+
 #include "Engine/SkeletalMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "MotionControllerComponent.h"
 #include "UObject/ConstructorHelpers.h"
-
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsHandMeshComponent)
 
 namespace

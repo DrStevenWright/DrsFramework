@@ -16,7 +16,7 @@ Seven modules with different load rules. Startup order matters: `DrsXrArbiter` a
 
 ## DrsXrArbiter: the plugin arbiter
 
-Decides which vendor XR plugin's modules load, so that competing vendor plugins (Meta, Pico) can be enabled together. It is optional: today no vendor plugin is integrated, so it finds nothing to arbitrate and does nothing. The integration steps for vendors are in the comment at the top of `Public/DrsXrArbiter.h`.
+Decides which vendor XR plugin's modules load, so that competing vendor plugins (Meta, Pico) can be enabled together. It is optional: today no vendor plugin is integrated, so it finds nothing to arbitrate and does nothing. The integration steps for vendors are in the comment at the top of `Public/DrsXrArbiter/DrsXrArbiter.h`.
 
 - **Opting in:** in a `.uplugin`, set a module's `LoadingPhase` to `None`, put its real phase in `ArbitratedLoadingPhase`, and name its type (`Meta`, `Pico`) in `ArbitratedXrPlugin`, on the module or at the plugin's top level. The arbiter reads the raw descriptor JSON because the engine drops unknown keys. `EarliestPossible` can't be arbitrated.
 - **Vendor shaders need an unarbitrated mapping.** A vendor module's global shaders register as soon as its DLL loads, which happens whenever another module links it (as `DrsXrPlatform` links `OculusXRHMD`), even if the arbiter never starts it. Without the shader directory mapping the editor then fails fatally at startup. So an integrated vendor plugin needs an unarbitrated module that maps its shader directory at `PostConfigInit`. (This was tried with MetaXR and reverted when MetaXR went back to loading as normal.)

@@ -1,13 +1,15 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsBase.h"
 #include "DrsBaseTestTypes.h"
-#include "DrsHand.h"
-#include "DrsHandLibrary.h"
-#include "DrsLog.h"
-#include "DrsObjectUtils.h"
-#include "DrsVersion.h"
-#include "DrsVotableState.h"
+
+#include "DrsBase/DrsBase.h"
+#include "DrsBase/DrsHand.h"
+#include "DrsBase/DrsLog.h"
+#include "DrsBase/DrsObjectUtils.h"
+#include "DrsBase/DrsVersion.h"
+#include "DrsBase/DrsVotableState.h"
+#include "DrsBaseBlueprint/DrsHandLibrary.h"
+
 #include "InputCoreTypes.h"
 #include "Misc/AutomationTest.h"
 #include "Modules/ModuleManager.h"

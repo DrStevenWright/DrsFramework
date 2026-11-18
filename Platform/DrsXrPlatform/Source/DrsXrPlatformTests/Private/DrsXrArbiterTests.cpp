@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrArbiter.h"
-#include "DrsXrArbiterTypes.h"
+#include "DrsXrArbiter/DrsXrArbiter.h"
+#include "DrsXrArbiter/DrsXrArbiterTypes.h"
+
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS

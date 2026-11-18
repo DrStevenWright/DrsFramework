@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsMath.h"
+#include "DrsMathUtils/DrsMath.h"
 
 FQuat Drs::Math::ToYawOnly(const FQuat& rotation)
 {

@@ -1,9 +1,12 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 #pragma once
 #include "CoreMinimal.h"
-#include "DrsHand.h"
-#include "DrsInputSettings.h"
-#include "DrsMotionControllerKeys.h"
+
+#include "DrsInput/DrsInputSettings.h"
+#include "DrsInput/MotionController/DrsMotionControllerKeys.h"
+
+#include "DrsBase/DrsHand.h"
+
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
 #include "Misc/DataValidation.h"

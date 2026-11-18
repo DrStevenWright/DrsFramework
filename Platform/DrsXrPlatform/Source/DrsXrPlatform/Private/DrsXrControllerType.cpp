@@ -1,9 +1,10 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrControllerType.h"
-#include "DrsLog.h"
-#include "DrsXrPlatform.h"
+#include "DrsXrPlatform/DrsXrControllerType.h"
 
+#include "DrsXrPlatform/DrsXrPlatform.h"
+
+#include "DrsBase/DrsLog.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrControllerType)
 
 namespace

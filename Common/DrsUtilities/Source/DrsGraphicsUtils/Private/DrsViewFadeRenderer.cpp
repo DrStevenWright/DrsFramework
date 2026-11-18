@@ -1,8 +1,10 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsViewFadeRenderer.h"
+
+#include "DrsGraphicsUtils/DrsViewFadeLibrary.h"
+
 #include "ClearQuad.h"
-#include "DrsViewFadeLibrary.h"
 #include "GlobalShader.h"
 #include "OneColorShader.h"
 #include "PipelineStateCache.h"

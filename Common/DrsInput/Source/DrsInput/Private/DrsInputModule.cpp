@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsInputLog.h"
-#include "DrsMotionControllerKeys.h"
+#include "DrsInput/DrsInputLog.h"
+#include "DrsInput/MotionController/DrsMotionControllerKeys.h"
+
 #include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
 

@@ -1,8 +1,9 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsInputBlueprintFunctionLibrary.h"
-#include "DrsInputSettings.h"
-#include "DrsInputUtils.h"
+#include "DrsInput/DrsInputBlueprintFunctionLibrary.h"
+
+#include "DrsInput/DrsInputSettings.h"
+#include "DrsInput/DrsInputUtils.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsInputBlueprintFunctionLibrary)
 
 namespace

@@ -1,7 +1,9 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "CoreMinimal.h"
-#include "DrsXrHandTrackingProvider.h"
+
+#include "DrsXrPlatform/DrsXrHandTrackingProvider.h"
+
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
 #include "InputCoreTypes.h"

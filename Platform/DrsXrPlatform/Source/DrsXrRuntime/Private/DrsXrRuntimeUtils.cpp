@@ -1,8 +1,11 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsXrRuntimeUtils.h"
-#include "DrsLog.h"
-#include "DrsXrRuntime.h"
+
+#include "DrsXrRuntime/DrsXrRuntime.h"
+
+#include "DrsBase/DrsLog.h"
+
 #include "HAL/PlatformMisc.h"
 #include "Internationalization/Regex.h"
 #include "Misc/Paths.h"

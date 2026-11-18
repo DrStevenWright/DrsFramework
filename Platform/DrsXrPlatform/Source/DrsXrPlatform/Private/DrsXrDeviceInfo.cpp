@@ -1,18 +1,21 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsXrDeviceInfo.h"
-#include "DrsLog.h"
-#include "DrsXrArbiter.h"
-#include "DrsXrDelegates.h"
-#include "DrsXrHandTrackingProvider.h"
-#include "DrsXrPlatform.h"
-#include "DrsXrPlatformLibrary.h"
+
+#include "DrsXrPlatform/DrsXrDelegates.h"
+#include "DrsXrPlatform/DrsXrHandTrackingProvider.h"
+#include "DrsXrPlatform/DrsXrPlatform.h"
+#include "DrsXrPlatform/DrsXrPlatformLibrary.h"
+
+#include "DrsBase/DrsLog.h"
+#include "DrsXrArbiter/DrsXrArbiter.h"
+
 #include "Features/IModularFeatures.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "IHandTracker.h"
 #include "IMotionController.h"
-#include "IOpenXRHMDModule.h"
 #include "Interfaces/IPluginManager.h"
+#include "IOpenXRHMDModule.h"
 #include "OpenXRCore.h"
 
 FDrsXrDeviceInfo::FDrsXrDeviceInfo()

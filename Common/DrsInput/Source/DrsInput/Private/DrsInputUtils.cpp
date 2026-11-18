@@ -1,11 +1,13 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsInputUtils.h"
-#include "DrsEnhancedInputComponent.h"
-#include "DrsEnhancedPlayerInput.h"
-#include "DrsInputContextSubsystem.h"
-#include "DrsInputLog.h"
-#include "DrsInputMappingContext.h"
+#include "DrsInput/DrsInputUtils.h"
+
+#include "DrsInput/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsEnhancedPlayerInput.h"
+#include "DrsInput/DrsInputContextSubsystem.h"
+#include "DrsInput/DrsInputLog.h"
+#include "DrsInput/DrsInputMappingContext.h"
+
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
