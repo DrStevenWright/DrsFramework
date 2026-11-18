@@ -99,6 +99,16 @@ Exceptions:
 - **Macro parameters** follow Epic's PascalCase style (`DRS_LOG(CategoryName, Verbosity, Format, ...)`).
 - **C# build files** (`.Build.cs`, `.Target.cs`) follow Epic's templates, e.g. the `ReadOnlyTargetRules Target` constructor argument.
 
+## Source layout
+
+Each module's `Source/<Module>/` has a `Public/` and a `Private/` folder.
+
+- **Public headers go in `Public/<Module>/`**, named after the module, so every include says where it comes from: `#include "DrsInput/DrsInputSettings.h"`. Headers used only inside the module go in `Private/`.
+- **Split by area, not by kind of type.** When an area reaches about six to eight files, give it a folder (`MotionController/`, `Contexts/`) under both `Public/<Module>/` and `Private/`, with the same name in each, so a header and its `.cpp` sit in the same place. Go at most two levels deep, and keep module-wide files at the top. Don't create `Classes/` or `Structs/` folders.
+- **If a module has several areas that share little, split it into modules** instead of adding folders. The layer checker then covers the dependencies between them.
+- **Include order:** the file's own header (or `CoreMinimal.h` in a header) first, then headers from the same module, then other DRS modules, then engine and third-party headers. Put a blank line between groups and sort each group alphabetically. The `.generated.h` (or `UE_INLINE_GENERATED_CPP_BY_NAME`) line comes last, with no blank line before it.
+- Tests mirror the folders of the module they test.
+
 ## Reflection categories
 
 `Category` on `UPROPERTY` and `UFUNCTION` decides where an item appears in the Details panel and the Blueprint palette.

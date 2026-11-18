@@ -1,8 +1,10 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsMotionControllerInputComponent.h"
-#include "DrsEnhancedInputComponent.h"
-#include "DrsInputMappingContext.h"
+#include "DrsInput/MotionController/DrsMotionControllerInputComponent.h"
+
+#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsInputMappingContext.h"
+
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"

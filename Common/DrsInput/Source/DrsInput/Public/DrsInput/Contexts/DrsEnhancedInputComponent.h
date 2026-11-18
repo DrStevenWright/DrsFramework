@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsInputAction.h"
-#include "DrsInputMappingContext.h"
+
+#include "DrsInput/DrsInputAction.h"
+#include "DrsInput/DrsInputMappingContext.h"
+
 #include "EnhancedInputComponent.h"
 #include "DrsEnhancedInputComponent.generated.h"
 

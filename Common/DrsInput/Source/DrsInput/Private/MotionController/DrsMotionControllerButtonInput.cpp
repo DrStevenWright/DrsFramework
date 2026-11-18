@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsMotionControllerButtonInput.h"
+#include "DrsInput/MotionController/DrsMotionControllerButtonInput.h"
 
 void FDrsMotionControllerButtonInput::Update(float deltaTime)
 {

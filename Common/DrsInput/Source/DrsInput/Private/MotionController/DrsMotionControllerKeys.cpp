@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsMotionControllerKeys.h"
+#include "DrsInput/MotionController/DrsMotionControllerKeys.h"
 
 namespace
 {

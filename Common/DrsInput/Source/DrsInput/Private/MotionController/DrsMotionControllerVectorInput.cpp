@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsMotionControllerVectorInput.h"
+#include "DrsInput/MotionController/DrsMotionControllerVectorInput.h"
 
 void FDrsMotionControllerVectorInput::Update(float deltaTime)
 {

@@ -1,20 +1,21 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsPawn.h"
-#include "Camera/CameraComponent.h"
+
 #include "DrsCore.h"
-#include "DrsEnhancedInputComponent.h"
 #include "DrsHandMeshComponent.h"
-#include "DrsInputMappingContext.h"
-#include "DrsInputUtils.h"
+#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsInputMappingContext.h"
+#include "DrsInput/DrsInputUtils.h"
+#include "DrsInput/MotionController/DrsMotionControllerInputComponent.h"
 #include "DrsLog.h"
-#include "DrsMotionControllerInputComponent.h"
 #include "DrsXrPlatformLibrary.h"
+
+#include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
 #include "MotionControllerComponent.h"
-
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsPawn)
 
 namespace

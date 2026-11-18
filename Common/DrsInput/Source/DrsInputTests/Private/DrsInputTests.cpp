@@ -1,12 +1,13 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsHand.h"
-#include "DrsInputAction.h"
-#include "DrsInputContextSubsystem.h"
-#include "DrsInputMappingContext.h"
-#include "DrsMotionControllerButtonInput.h"
-#include "DrsMotionControllerKeys.h"
-#include "DrsMotionControllerVectorInput.h"
+#include "DrsInput/Contexts/DrsInputContextSubsystem.h"
+#include "DrsInput/DrsInputAction.h"
+#include "DrsInput/DrsInputMappingContext.h"
+#include "DrsInput/MotionController/DrsMotionControllerButtonInput.h"
+#include "DrsInput/MotionController/DrsMotionControllerKeys.h"
+#include "DrsInput/MotionController/DrsMotionControllerVectorInput.h"
+
 #include "Engine/LocalPlayer.h"
 #include "InputCoreTypes.h"
 #include "InputMappingContext.h"

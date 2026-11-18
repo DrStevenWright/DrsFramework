@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+
+#include "DrsInput/MotionController/DrsMotionControllerKeys.h"
+
 #include "DrsHand.h"
-#include "DrsMotionControllerKeys.h"
+
+#include "Components/ActorComponent.h"
 #include "DrsMotionControllerInputComponent.generated.h"
 
 class APlayerController;

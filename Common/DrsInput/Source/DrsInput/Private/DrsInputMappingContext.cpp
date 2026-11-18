@@ -1,8 +1,9 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsInputMappingContext.h"
-#include "DrsInputAction.h"
-#include "DrsInputLog.h"
+#include "DrsInput/DrsInputMappingContext.h"
+
+#include "DrsInput/DrsInputAction.h"
+#include "DrsInput/DrsInputLog.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsInputMappingContext)
 
 #if WITH_EDITOR

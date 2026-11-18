@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsEnhancedInputComponent.h"
-#include "DrsInputLog.h"
+#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
+
+#include "DrsInput/DrsInputLog.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsEnhancedInputComponent)
 
 UDrsEnhancedInputComponent::FOnNotifyInputInterrupt UDrsEnhancedInputComponent::OnNotifyDanglingInput;

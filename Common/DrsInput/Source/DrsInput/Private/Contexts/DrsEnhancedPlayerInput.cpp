@@ -1,8 +1,10 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsEnhancedPlayerInput.h"
-#include "DrsEnhancedInputComponent.h"
-#include "DrsInputLog.h"
+#include "DrsInput/Contexts/DrsEnhancedPlayerInput.h"
+
+#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsInputLog.h"
+
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsEnhancedPlayerInput)
