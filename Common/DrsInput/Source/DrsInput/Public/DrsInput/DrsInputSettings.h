@@ -7,6 +7,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "DrsInputSettings.generated.h"
 
+/** Project settings for DRS input systems. */
 UCLASS(Config = Game, DefaultConfig, DisplayName = "Input")
 class DRSINPUT_API UDrsInputSettings : public UDeveloperSettings
 {
