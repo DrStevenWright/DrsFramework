@@ -121,7 +121,7 @@ Each module's `Source/<Module>/` has a `Public/` and a `Private/` folder.
 - **`UDeveloperSettings` classes** set `CategoryName = TEXT("DRS")` in their constructor, so that every page is grouped under DRS. Don't override `GetCategoryName()` or `GetContainerName()`: the editor container comes from `Config = EditorSettings`.
   - Give the class a `DisplayName` of the feature alone (`"Input"`, `"XR Plugin Arbiter"`). Don't add DRS: the editor already shows the page as "DRS - Input".
   - `SectionName` is only the page's internal ID. It defaults to the class name and is never displayed, so leave it out unless code needs to open the page by ID.
-  - Leave `Category` off the properties of a settings class: the page is already the scope. Add one only for a group that is distinct from the rest of the page, for example `"XR Plugin Arbiter"` on the one arbiter option in the editor settings.
+  - Give the properties of a settings class `Category = NoCategory`: the page is already the scope, and `NoCategory` shows them without a group header. Don't leave `Category` off, because UHT then uses the class name and the editor shows a "Drs Input Settings" group. Use a real category only for a group that is distinct from the rest of the page, for example `"XR Plugin Arbiter"` on the one arbiter option in the editor settings.
 - **`ClassGroup = (DRS)` on components is separate** (it controls the Add Component menu). Set both.
 - Vendor plugins in `Platform/External/` keep their own categories.
 

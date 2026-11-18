@@ -25,6 +25,6 @@ public:
 
 	// Input threshold beyond which a thumbstick is considered to be 'deflected' in some direction. Used in corresponding
 	// deflection input triggers.
-	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(Config, BlueprintReadOnly, EditDefaultsOnly, Category = NoCategory)
 	float ThumbstickDeflectionThreshold = 0.6f;
 };

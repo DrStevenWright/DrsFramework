@@ -27,6 +27,6 @@ public:
 	 * override what plugin is loaded in the editor, for example in case you need to edit the plugin settings.
 	 * 'None' leaves the choice to the project override and the arbitration rules.
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "XR Arbiter", meta = (ConfigRestartRequired = true))
+	UPROPERTY(Config, EditAnywhere, Category = "XR Plugin Arbiter", DisplayName = "Editor Override", meta = (ConfigRestartRequired = true))
 	EDrsXrPluginType XrArbiterEditorOverride = EDrsXrPluginType::None;
 };
