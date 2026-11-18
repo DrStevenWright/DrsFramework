@@ -28,11 +28,11 @@ DEFINE_LOG_CATEGORY(LogDrsXrArbiter);
 namespace
 {
 	const TCHAR* ProjectSettingsSection = TEXT("/Script/DrsXrArbiter.DrsXrArbiterSettings");
-	const TCHAR* ProjectArbitrationOverrideProperty = TEXT("ProjectArbitrationOverride");
+	const TCHAR* XrArbiterProjectOverrideProperty = TEXT("XrArbiterProjectOverride");
 	const TCHAR* MobileArbitrationRulesProperty = TEXT("MobileDeviceArbitrationRules");
 	const TCHAR* TetheredArbitrationRulesProperty = TEXT("TetheredDeviceArbitrationRules");
 	const TCHAR* EditorSettingsSection = TEXT("/Script/DrsXrPlatformEditor.DrsXrPlatformEditorSettings");
-	const TCHAR* EditorConfigurationProperty = TEXT("EditorXrConfiguration");
+	const TCHAR* XrArbiterEditorOverrideProperty = TEXT("XrArbiterEditorOverride");
 	const TCHAR* ArbitratedLoadingPhaseKey = TEXT("ArbitratedLoadingPhase");
 	const TCHAR* ArbitratedXrPluginKey = TEXT("ArbitratedXrPlugin");
 
@@ -108,13 +108,13 @@ namespace
 
 	bool GetPluginTypeFromProjectOverride(EDrsXrPluginType& outPluginType)
 	{
-		return GetPluginTypeFromConfig(ProjectSettingsSection, ProjectArbitrationOverrideProperty, GGameIni, TEXT("the project override"), outPluginType);
+		return GetPluginTypeFromConfig(ProjectSettingsSection, XrArbiterProjectOverrideProperty, GGameIni, TEXT("the project override"), outPluginType);
 	}
 
 	bool GetPluginTypeFromEditorSettings(EDrsXrPluginType& outPluginType)
 	{
 #if WITH_EDITOR
-		return GetPluginTypeFromConfig(EditorSettingsSection, EditorConfigurationProperty, GEditorSettingsIni, TEXT("the editor settings"), outPluginType);
+		return GetPluginTypeFromConfig(EditorSettingsSection, XrArbiterEditorOverrideProperty, GEditorSettingsIni, TEXT("the editor settings"), outPluginType);
 #else
 		return false;
 #endif

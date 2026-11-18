@@ -24,7 +24,7 @@ The framework is called DRS. Write **DRS** in prose and display text, and `Drs` 
 |---|---|---|
 | Reflection categories and `ClassGroup` | DRS | `Category = "DRS|Input"`, `ClassGroup = (DRS)` |
 | Plugin `FriendlyName`, `Description` and `Category` | DRS | `"DRS Input"` |
-| Project Settings page category and `DisplayName` metas | DRS | `CategoryName = TEXT("DRS")`, `"DRS XR Plugin Arbiter"` |
+| Settings page category and other authored `DisplayName` metas | DRS | `CategoryName = TEXT("DRS")`, `"DRS Hand Mesh"` |
 | Comments and docs | DRS | "the DRS framework" |
 | Type names, files, namespaces | `Drs` | `UDrsInputAction`, `Drs::Input` |
 | Plugin, module, repo and log category names | `Drs` | `DrsInput`, `LogDrsInput` |
@@ -118,9 +118,21 @@ Each module's `Source/<Module>/` has a `Public/` and a `Private/` folder.
 - **Don't put the layer in the category.** `DRS|GameSupport|...` and `DRS|Common|...` describe our structure, not something users look for.
 - **Use the same category for a feature's properties and functions**, so the Details panel and the palette agree.
 - **Use a sub-category such as `DRS|Input|Advanced` or `DRS|Input|Debug`** for items most users don't need, together with `AdvancedDisplay` for properties.
-- **`UDeveloperSettings` classes** return `DRS` from `GetCategoryName()` (or set `CategoryName`), so every feature's Project Settings page is grouped under DRS.
+- **`UDeveloperSettings` classes** set `CategoryName = TEXT("DRS")` in their constructor, so that every page is grouped under DRS. Don't override `GetCategoryName()` or `GetContainerName()`: the editor container comes from `Config = EditorSettings`.
+  - Give the class a `DisplayName` of the feature alone (`"Input"`, `"XR Plugin Arbiter"`). Don't add DRS: the editor already shows the page as "DRS - Input".
+  - `SectionName` is only the page's internal ID. It defaults to the class name and is never displayed, so leave it out unless code needs to open the page by ID.
+  - Leave `Category` off the properties of a settings class: the page is already the scope. Add one only for a group that is distinct from the rest of the page, for example `"XR Plugin Arbiter"` on the one arbiter option in the editor settings.
 - **`ClassGroup = (DRS)` on components is separate** (it controls the Add Component menu). Set both.
 - Vendor plugins in `Platform/External/` keep their own categories.
+
+## Tooltips on reflected types
+
+Comments on `UCLASS`, `USTRUCT`, `UENUM` (and its values), `UPROPERTY` and `UFUNCTION` become tooltips in the editor, and a settings class's comment is the description of its page. Write them for the person who sees the tooltip, a designer or developer using the feature in the editor or Blueprint, not for someone reading the code.
+
+- **Say what it does and when to change it:** the effect, the unit, the default or special value (`None` means ...), and anything that needs a restart.
+- **Leave out how it works:** which code reads it, when it is read from config, and why the class exists. Put that in the `.cpp`, in a comment inside the function, or in the plugin's `CLAUDE.md`, because anything directly above the declaration shows up as the tooltip.
+- **On a settings class, describe the scope, not the contents.** Each property has its own tooltip, so the class comment says which area the page covers and who it applies to (the project or just you). Don't list or paraphrase the settings, or the comment goes stale when one is added.
+- **Keep them short and write in full sentences.** If a tooltip needs a paragraph, the setting is probably doing too much.
 
 ## Logging
 
