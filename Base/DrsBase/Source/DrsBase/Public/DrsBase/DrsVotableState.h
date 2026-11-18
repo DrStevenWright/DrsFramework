@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsEnumToString.h"
+
+#include "DrsBase/DrsEnumToString.h"
+
 #include "Templates/IsUEnumClass.h"
 #include "Traits/IsTEnumAsByte.h"
 #include <type_traits>

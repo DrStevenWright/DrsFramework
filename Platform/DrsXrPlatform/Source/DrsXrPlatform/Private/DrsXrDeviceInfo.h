@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsXrControllerMonitor.h"
+
+#include "DrsXrPlatform/DrsXrControllerMonitor.h"
+
 #include "IOpenXRExtensionPlugin.h"
 #include "Tickable.h"
 #include <openxr/openxr.h>

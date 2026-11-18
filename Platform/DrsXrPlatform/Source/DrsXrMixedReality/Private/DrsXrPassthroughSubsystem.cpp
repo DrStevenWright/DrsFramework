@@ -1,13 +1,15 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrPassthroughSubsystem.h"
-#include "DrsLog.h"
-#include "DrsViewFadeLibrary.h"
+#include "DrsXrMixedReality/DrsXrPassthroughSubsystem.h"
+
 #include "DrsXrPassthroughBackend.h"
+
+#include "DrsBase/DrsLog.h"
+#include "DrsGraphicsUtils/DrsViewFadeLibrary.h"
+
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
-
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPassthroughSubsystem)
 
 namespace

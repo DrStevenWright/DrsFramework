@@ -1,8 +1,10 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrConfiguration.h"
-#include "DrsXrArbiter.h"
-#include "DrsXrPlatformLibrary.h"
+#include "DrsXrPlatform/DrsXrConfiguration.h"
+
+#include "DrsXrPlatform/DrsXrPlatformLibrary.h"
+
+#include "DrsXrArbiter/DrsXrArbiter.h"
 
 FDrsXrConfiguration FDrsXrConfiguration::Get()
 {

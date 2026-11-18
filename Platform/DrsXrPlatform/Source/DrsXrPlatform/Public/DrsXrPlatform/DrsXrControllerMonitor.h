@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsXrControllerType.h"
+
+#include "DrsXrPlatform/DrsXrControllerType.h"
+
 #include "InputCoreTypes.h"
 
 /** The live hand-tracking queries FDrsXrControllerMonitor needs. An interface, so tests can run without a headset. */

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "DrsHand.h"
+#include "DrsBase/DrsHand.h"
 
 #include "InputAction.h"
 #include "DrsInputAction.generated.h"

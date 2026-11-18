@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsXrArbiterTypes.h"
-#include "DrsXrControllerType.h"
+
+#include "DrsXrPlatform/DrsXrControllerType.h"
+
+#include "DrsXrArbiter/DrsXrArbiterTypes.h"
+
 #include "HeadMountedDisplayTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DrsXrPlatformLibrary.generated.h"

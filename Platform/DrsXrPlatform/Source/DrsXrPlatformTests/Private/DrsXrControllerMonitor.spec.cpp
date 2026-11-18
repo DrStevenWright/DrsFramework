@@ -4,7 +4,7 @@
 // The profile sequences mirror what device tests recorded on Meta (Link, Quest 3) and Pico (Business Streaming,
 // PICO 4 Ultra).
 
-#include "DrsXrControllerMonitor.h"
+#include "DrsXrPlatform/DrsXrControllerMonitor.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 

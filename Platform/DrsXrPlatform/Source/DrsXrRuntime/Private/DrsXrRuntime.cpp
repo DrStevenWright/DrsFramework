@@ -1,9 +1,12 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrRuntime.h"
-#include "DrsLog.h"
-#include "DrsXrArbiter.h"
+#include "DrsXrRuntime/DrsXrRuntime.h"
+
 #include "DrsXrRuntimeUtils.h"
+
+#include "DrsBase/DrsLog.h"
+#include "DrsXrArbiter/DrsXrArbiter.h"
+
 #include "HAL/PlatformMisc.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"

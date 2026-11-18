@@ -1,10 +1,12 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrArbiterTypes.h"
-#include "DrsLog.h"
-#include "DrsXrArbiter.h"
-#include "Misc/ConfigCacheIni.h"
+#include "DrsXrArbiter/DrsXrArbiterTypes.h"
 
+#include "DrsXrArbiter/DrsXrArbiter.h"
+
+#include "DrsBase/DrsLog.h"
+
+#include "Misc/ConfigCacheIni.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrArbiterTypes)
 
 namespace

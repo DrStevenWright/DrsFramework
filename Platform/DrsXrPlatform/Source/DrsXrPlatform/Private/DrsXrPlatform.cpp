@@ -1,9 +1,12 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrPlatform.h"
-#include "DrsXrArbiter.h"
-#include "DrsXrDelegates.h"
+#include "DrsXrPlatform/DrsXrPlatform.h"
+
 #include "DrsXrDeviceInfo.h"
+#include "DrsXrPlatform/DrsXrDelegates.h"
+
+#include "DrsXrArbiter/DrsXrArbiter.h"
+
 #include "Features/IModularFeatures.h"
 #include "IHeadMountedDisplayModule.h"
 #include "IOpenXRExtensionPlugin.h"

@@ -3,9 +3,9 @@
 #include "DrsXrPassthroughBackend.h"
 
 #if DRS_PASSTHROUGH_SUPPORTED
-#include "DrsLog.h"
-#include "DrsXrPassthroughSubsystem.h"
-#include "DrsXrPlatformLibrary.h"
+#include "DrsBase/DrsLog.h"
+#include "DrsXrMixedReality/DrsXrPassthroughSubsystem.h"
+#include "DrsXrPlatform/DrsXrPlatformLibrary.h"
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
 #include "HAL/IConsoleManager.h"

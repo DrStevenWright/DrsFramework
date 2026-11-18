@@ -1,7 +1,9 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrArbiter.h"
-#include "DrsLog.h"
+#include "DrsXrArbiter/DrsXrArbiter.h"
+
+#include "DrsBase/DrsLog.h"
+
 #include "Dom/JsonObject.h"
 #include "Engine/Engine.h"
 #include "HeadMountedDisplayFunctionLibrary.h"

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsHand.h"
+#include "DrsBase/DrsHand.h"
 #include "DrsInput/Contexts/DrsInputContextSubsystem.h"
 #include "DrsInput/DrsInputAction.h"
 #include "DrsInput/DrsInputMappingContext.h"

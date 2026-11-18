@@ -1,15 +1,16 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsPawn.h"
+#include "DrsCore/DrsPawn.h"
 
-#include "DrsCore.h"
-#include "DrsHandMeshComponent.h"
+#include "DrsCore/DrsCore.h"
+
+#include "DrsBase/DrsLog.h"
 #include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
 #include "DrsInput/DrsInputMappingContext.h"
 #include "DrsInput/DrsInputUtils.h"
 #include "DrsInput/MotionController/DrsMotionControllerInputComponent.h"
-#include "DrsLog.h"
-#include "DrsXrPlatformLibrary.h"
+#include "DrsXrGame/DrsHandMeshComponent.h"
+#include "DrsXrPlatform/DrsXrPlatformLibrary.h"
 
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"

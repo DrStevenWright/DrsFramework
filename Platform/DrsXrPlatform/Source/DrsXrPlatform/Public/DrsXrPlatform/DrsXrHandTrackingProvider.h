@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Features/IModularFeature.h"
 
 enum class EControllerHand : uint8;

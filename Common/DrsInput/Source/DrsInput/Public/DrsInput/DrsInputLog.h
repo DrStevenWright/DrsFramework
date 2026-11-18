@@ -2,6 +2,6 @@
 
 #pragma once
 
-#include "DrsLog.h"
+#include "DrsBase/DrsLog.h"
 
 DRSINPUT_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsInput, Log, All)

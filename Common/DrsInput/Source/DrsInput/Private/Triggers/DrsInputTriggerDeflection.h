@@ -5,7 +5,7 @@
 #include "DrsInput/DrsInputSettings.h"
 #include "DrsInput/MotionController/DrsMotionControllerKeys.h"
 
-#include "DrsHand.h"
+#include "DrsBase/DrsHand.h"
 
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"

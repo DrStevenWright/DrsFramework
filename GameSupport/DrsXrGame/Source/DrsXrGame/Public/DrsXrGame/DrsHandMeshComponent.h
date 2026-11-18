@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "DrsBase/DrsHand.h"
+
 #include "Components/SkeletalMeshComponent.h"
-#include "DrsHand.h"
 #include "DrsHandMeshComponent.generated.h"
 
 /**

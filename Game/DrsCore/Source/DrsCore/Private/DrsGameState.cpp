@@ -1,5 +1,4 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsGameState.h"
-
+#include "DrsCore/DrsGameState.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsGameState)

@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "DrsXrPlatform/DrsXrControllerType.h"
+
 #include "Delegates/Delegate.h"
-#include "DrsXrControllerType.h"
 
 /** Native events for XR device state changes. Local-only: holds no replicated state. */
 class DRSXRPLATFORM_API FDrsXrDelegates

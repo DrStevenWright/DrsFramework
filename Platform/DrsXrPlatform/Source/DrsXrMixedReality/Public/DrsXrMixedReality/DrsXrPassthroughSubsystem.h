@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsVotableState.h"
+
+#include "DrsBase/DrsVotableState.h"
+
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "DrsXrPassthroughSubsystem.generated.h"
 

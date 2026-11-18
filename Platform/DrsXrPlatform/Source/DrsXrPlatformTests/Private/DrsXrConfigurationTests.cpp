@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrConfiguration.h"
+#include "DrsXrPlatform/DrsXrConfiguration.h"
+
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS

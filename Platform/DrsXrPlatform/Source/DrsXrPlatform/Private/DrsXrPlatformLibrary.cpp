@@ -1,23 +1,26 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrPlatformLibrary.h"
+#include "DrsXrPlatform/DrsXrPlatformLibrary.h"
+
+#include "DrsXrDeviceInfo.h"
+#include "DrsXrPlatform/DrsXrConfiguration.h"
+#include "DrsXrPlatform/DrsXrPlatform.h"
+
+#include "DrsBase/DrsLog.h"
+#include "DrsXrArbiter/DrsXrArbiter.h"
+
 #include "DeviceProfiles/DeviceProfile.h"
 #include "DeviceProfiles/DeviceProfileManager.h"
-#include "DrsLog.h"
-#include "DrsXrArbiter.h"
-#include "DrsXrConfiguration.h"
-#include "DrsXrDeviceInfo.h"
-#include "DrsXrPlatform.h"
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
 #include "HAL/IConsoleManager.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
-#include "Misc/CommandLine.h"
 #include "IHandTracker.h"
 #include "IHeadMountedDisplay.h"
 #include "IMotionController.h"
 #include "ISpectatorScreenController.h"
 #include "IXRTrackingSystem.h"
+#include "Misc/CommandLine.h"
 #include "MotionControllerComponent.h"
 #include "OpenXRHandTrackingSettings.h"
 #include "StereoRendering.h"

@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsXrArbiterTypes.h"
+
+#include "DrsXrArbiter/DrsXrArbiterTypes.h"
 
 /** How the running vendor XR plugin came to be the one in use. */
 enum class EDrsXrPluginSource : uint8

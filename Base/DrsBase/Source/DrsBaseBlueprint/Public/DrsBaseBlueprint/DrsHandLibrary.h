@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsHand.h"
+
+#include "DrsBase/DrsHand.h"
+
 #include "InputCoreTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DrsHandLibrary.generated.h"

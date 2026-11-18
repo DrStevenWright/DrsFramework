@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsXrArbiterTypes.h"
+
+#include "DrsXrArbiter/DrsXrArbiterTypes.h"
 
 namespace Drs::XrRuntime
 {

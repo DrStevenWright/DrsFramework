@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "DrsHand.h"
+#include "DrsBase/DrsHand.h"
 
 class UEnhancedInputComponent;
 class UEnhancedInputLocalPlayerSubsystem;

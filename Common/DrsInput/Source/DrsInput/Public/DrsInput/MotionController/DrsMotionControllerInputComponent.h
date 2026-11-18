@@ -6,7 +6,7 @@
 
 #include "DrsInput/MotionController/DrsMotionControllerKeys.h"
 
-#include "DrsHand.h"
+#include "DrsBase/DrsHand.h"
 
 #include "Components/ActorComponent.h"
 #include "DrsMotionControllerInputComponent.generated.h"

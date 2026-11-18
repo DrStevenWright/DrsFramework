@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DrsXrArbiterTypes.h"
+
+#include "DrsXrArbiter/DrsXrArbiterTypes.h"
 
 DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
 

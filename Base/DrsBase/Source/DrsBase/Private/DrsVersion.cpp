@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsVersion.h"
+#include "DrsBase/DrsVersion.h"
 
 FString Drs::GetFrameworkVersionString()
 {

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Modules/ModuleInterface.h"
 
 DRSXRRUNTIME_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrRuntime, Log, All);

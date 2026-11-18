@@ -1,8 +1,10 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsXrControllerMonitor.h"
-#include "DrsLog.h"
-#include "DrsXrPlatform.h"
+#include "DrsXrPlatform/DrsXrControllerMonitor.h"
+
+#include "DrsXrPlatform/DrsXrPlatform.h"
+
+#include "DrsBase/DrsLog.h"
 
 namespace
 {
