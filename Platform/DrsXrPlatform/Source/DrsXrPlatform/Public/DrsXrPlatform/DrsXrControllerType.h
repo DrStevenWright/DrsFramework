@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "InputCoreTypes.h"
+
 #include "DrsXrControllerType.generated.h"
 
 /** How a hand is controlled: by a physical motion controller, or as a tracked hand. */

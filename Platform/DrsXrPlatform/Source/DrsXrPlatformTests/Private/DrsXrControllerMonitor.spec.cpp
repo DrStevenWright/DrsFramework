@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 //
-// FDrsXrControllerMonitor decisions, driven through a fake hand-tracking source, so no headset or OpenXR session is needed.
+// FXrControllerMonitor decisions, driven through a fake hand-tracking source, so no headset or OpenXR session is needed.
 // The profile sequences mirror what device tests recorded on Meta (Link, Quest 3) and Pico (Business Streaming,
 // PICO 4 Ultra).
 
@@ -10,6 +10,9 @@
 
 #include "Misc/AutomationTest.h"
 
+using Drs::XrPlatform::FXrControllerMonitor;
+using Drs::XrPlatform::IXrControllerSource;
+
 namespace DrsXrControllerMonitorTest
 {
 	const FString TouchProfile(TEXT("/interaction_profiles/meta/touch_controller_plus"));
@@ -18,7 +21,7 @@ namespace DrsXrControllerMonitorTest
 	const FString NoProfile;
 	constexpr float FrameTime = 1.0f / 72.0f;
 
-	class FFakeSource : public IDrsXrControllerSource
+	class FFakeSource : public IXrControllerSource
 	{
 	public:
 
@@ -39,7 +42,7 @@ namespace DrsXrControllerMonitorTest
 	};
 
 	// Updates the monitor for the given time, one frame at a time.
-	void UpdateFor(FDrsXrControllerMonitor& monitor, float time)
+	void UpdateFor(FXrControllerMonitor& monitor, float time)
 	{
 		for (float elapsed = 0.0f; elapsed < time; elapsed += FrameTime)
 		{
@@ -52,30 +55,30 @@ BEGIN_DEFINE_SPEC(FDrsXrControllerMonitorSpec, TEXT("Drs.XrPlatform.ControllerMo
 
 	using EMode = EDrsXrControllerMode;
 
-	void TestModes(const FDrsXrControllerMonitor& monitor, EMode left, EMode right)
+	void TestModes(const FXrControllerMonitor& monitor, EMode left, EMode right)
 	{
 		TestTrue(TEXT("Left mode"), monitor.GetState(EControllerHand::Left).Mode == left);
 		TestTrue(TEXT("Right mode"), monitor.GetState(EControllerHand::Right).Mode == right);
 	}
 
-	void TestModes(const FDrsXrControllerMonitor& monitor, EMode expected)
+	void TestModes(const FXrControllerMonitor& monitor, EMode expected)
 	{
 		TestModes(monitor, expected, expected);
 	}
 
-	void TestControllerProfiles(const FDrsXrControllerMonitor& monitor, const FString& left, const FString& right)
+	void TestControllerProfiles(const FXrControllerMonitor& monitor, const FString& left, const FString& right)
 	{
 		TestEqual(TEXT("Left controller profile"), monitor.GetState(EControllerHand::Left).PhysicalControllerProfilePath, left);
 		TestEqual(TEXT("Right controller profile"), monitor.GetState(EControllerHand::Right).PhysicalControllerProfilePath, right);
 	}
 
-	void TestActive(const FDrsXrControllerMonitor& monitor, bool isLeftActive, bool isRightActive)
+	void TestActive(const FXrControllerMonitor& monitor, bool isLeftActive, bool isRightActive)
 	{
 		TestEqual(TEXT("Left active"), monitor.IsPhysicalControllerActive(EControllerHand::Left), isLeftActive);
 		TestEqual(TEXT("Right active"), monitor.IsPhysicalControllerActive(EControllerHand::Right), isRightActive);
 	}
 
-	void TestPresent(const FDrsXrControllerMonitor& monitor, bool isLeftPresent, bool isRightPresent)
+	void TestPresent(const FXrControllerMonitor& monitor, bool isLeftPresent, bool isRightPresent)
 	{
 		TestEqual(TEXT("Left present"), monitor.IsControllerPresent(EControllerHand::Left), isLeftPresent);
 		TestEqual(TEXT("Right present"), monitor.IsControllerPresent(EControllerHand::Right), isRightPresent);
@@ -104,7 +107,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("enters hand tracking when both hands report a hand profile"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(HandProfile, HandProfile);
 
 			TestTrue(TEXT("Changed"), monitor.Update(FrameTime));
@@ -115,7 +118,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("enters hand tracking without profiles when the joints are tracked (controllers off at launch)"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 
 			TestFalse(TEXT("No change before hands are seen"), monitor.Update(FrameTime));
 			TestModes(monitor, EMode::PhysicalController);
@@ -128,7 +131,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("enters hand tracking without profiles when only one hand is tracked"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			source.bRightJointsTracked = true;
 
 			monitor.Update(FrameTime);
@@ -140,7 +143,7 @@ void FDrsXrControllerMonitorSpec::Define()
 			FFakeSource source;
 			source.bCanTrackHands = false;
 			source.SetJointsTracked(true);
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 
 			TestFalse(TEXT("No change"), monitor.Update(FrameTime));
 			TestModes(monitor, EMode::PhysicalController);
@@ -149,7 +152,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("uses controllers for both hands while either reports a controller profile (one controller never on)"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			source.bLeftJointsTracked = true;
 			monitor.SetProfiles(NoProfile, PicoProfile);
 
@@ -160,7 +163,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("ignores tracked joints while controllers are held (e.g. with mixed controller modes enabled)"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			source.SetJointsTracked(true);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 
@@ -171,7 +174,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("switches between controllers and hands as the profiles change"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			monitor.Update(FrameTime);
 			TestModes(monitor, EMode::PhysicalController);
@@ -193,7 +196,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("keeps hand tracking through joint dropouts"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			source.SetJointsTracked(true);
 			monitor.Update(FrameTime);
 			TestModes(monitor, EMode::TrackedHand);
@@ -206,7 +209,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("keeps controllers when a controller loses its profile until the hand is tracked"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(PicoProfile, PicoProfile);
 			monitor.Update(FrameTime);
 
@@ -226,7 +229,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		{
 			FFakeSource source;
 			source.bMixedControllerModesEnabled = true;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, HandProfile);
 
 			TestTrue(TEXT("Changed"), monitor.Update(FrameTime));
@@ -238,7 +241,7 @@ void FDrsXrControllerMonitorSpec::Define()
 			FFakeSource source;
 			source.bMixedControllerModesEnabled = true;
 			source.bRightJointsTracked = true;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, NoProfile);
 
 			monitor.Update(FrameTime);
@@ -249,7 +252,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		{
 			FFakeSource source;
 			source.bMixedControllerModesEnabled = true;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, HandProfile);
 			monitor.Update(FrameTime);
 
@@ -262,7 +265,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		{
 			FFakeSource source;
 			source.bMixedControllerModesEnabled = true;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, HandProfile);
 			monitor.Update(FrameTime);
 
@@ -277,7 +280,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("reports a new controller profile even when the mode is unchanged"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			TestTrue(TEXT("First controller profile"), monitor.Update(FrameTime));
 			TestControllerProfiles(monitor, TouchProfile, TouchProfile);
@@ -292,7 +295,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("keeps each hand's own controller profile"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(NoProfile, PicoProfile);
 			TestTrue(TEXT("Right controller profile"), monitor.Update(FrameTime));
 			TestControllerProfiles(monitor, NoProfile, PicoProfile);
@@ -305,7 +308,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("keeps the controller profile while hands are tracked"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			monitor.Update(FrameTime);
 			monitor.SetProfiles(HandProfile, HandProfile);
@@ -317,7 +320,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("does not report a profile change that leaves the mode unchanged"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(HandProfile, HandProfile);
 			monitor.Update(FrameTime);
 
@@ -329,7 +332,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("forgets everything on reset"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(HandProfile, TouchProfile);
 			monitor.Update(FrameTime);
 			monitor.Reset();
@@ -346,7 +349,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("activates a controller once its grip is tracked"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 
 			monitor.Update(FrameTime);
@@ -362,7 +365,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("keeps a hand without a powered controller inactive despite its profile (PICO standalone)"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(PicoProfile, PicoProfile);
 			source.bRightGripTracked = true;
 
@@ -374,7 +377,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("keeps a controller active after its grip loses tracking"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(PicoProfile, PicoProfile);
 			source.SetGripsTracked(true);
 			monitor.Update(FrameTime);
@@ -387,7 +390,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("stays active through a short gap without a profile (Meta switching to hands)"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			source.SetGripsTracked(true);
 			monitor.Update(FrameTime);
@@ -404,13 +407,13 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("becomes inactive once the controller profile has been gone for the delay"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			source.SetGripsTracked(true);
 			monitor.Update(FrameTime);
 
 			monitor.SetProfiles(TouchProfile, NoProfile);
-			UpdateFor(monitor, FDrsXrControllerMonitor::PhysicalControllerInactiveDelay - 0.1f);
+			UpdateFor(monitor, FXrControllerMonitor::PhysicalControllerInactiveDelay - 0.1f);
 			TestActive(monitor, true, true);
 
 			UpdateFor(monitor, 0.2f);
@@ -421,14 +424,14 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("requires the grip to be tracked again when a controller becomes active again"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			source.SetGripsTracked(true);
 			monitor.Update(FrameTime);
 
 			monitor.SetProfiles(NoProfile, NoProfile);
 			source.SetGripsTracked(false);
-			UpdateFor(monitor, FDrsXrControllerMonitor::PhysicalControllerInactiveDelay + 0.1f);
+			UpdateFor(monitor, FXrControllerMonitor::PhysicalControllerInactiveDelay + 0.1f);
 			TestActive(monitor, false, false);
 
 			monitor.SetProfiles(TouchProfile, TouchProfile);
@@ -443,7 +446,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("forgets active controllers on reset"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			source.SetGripsTracked(true);
 			monitor.Update(FrameTime);
@@ -459,7 +462,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("reports a tracked hand once it has been seen, and keeps it through dropouts"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(HandProfile, HandProfile);
 			monitor.Update(FrameTime);
 			TestModes(monitor, EMode::TrackedHand);
@@ -477,7 +480,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("stays present while switching from controller to hand"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			monitor.SetProfiles(TouchProfile, TouchProfile);
 			source.SetGripsTracked(true);
 			monitor.Update(FrameTime);
@@ -498,7 +501,7 @@ void FDrsXrControllerMonitorSpec::Define()
 		It(TEXT("forgets a seen tracked hand when switching back to controllers"), [this]()
 		{
 			FFakeSource source;
-			FDrsXrControllerMonitor monitor(source);
+			FXrControllerMonitor monitor(source);
 			source.SetJointsTracked(true);
 			monitor.Update(FrameTime);
 			TestPresent(monitor, true, true);

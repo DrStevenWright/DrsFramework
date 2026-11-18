@@ -1,9 +1,7 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "CoreMinimal.h"
-
 #include "DrsXrPlatform/DrsXrHandTrackingProvider.h"
-
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
 #include "InputCoreTypes.h"
@@ -14,12 +12,14 @@
 #include "OculusXRInputFunctionLibrary.h"
 #include <openxr/openxr.h>
 
+using Drs::XrPlatform::IXrHandTrackingProvider;
+
 DEFINE_LOG_CATEGORY_STATIC(LogDrsXrHandTrackingMeta, Log, All);
 
 namespace
 {
 	/** Meta hand tracking, through the MetaXR plugin. The arbiter loads this module only when it selects Meta. */
-	class FDrsXrHandTrackingMetaProvider : public IDrsXrHandTrackingProvider
+	class FXrHandTrackingMetaProvider : public IXrHandTrackingProvider
 	{
 	public:
 		virtual FString GetName() const override { return TEXT("Meta"); }
@@ -72,16 +72,16 @@ namespace
 	public:
 		virtual void StartupModule() override
 		{
-			IModularFeatures::Get().RegisterModularFeature(IDrsXrHandTrackingProvider::GetModularFeatureName(), &Provider);
+			IModularFeatures::Get().RegisterModularFeature(IXrHandTrackingProvider::GetModularFeatureName(), &Provider);
 		}
 
 		virtual void ShutdownModule() override
 		{
-			IModularFeatures::Get().UnregisterModularFeature(IDrsXrHandTrackingProvider::GetModularFeatureName(), &Provider);
+			IModularFeatures::Get().UnregisterModularFeature(IXrHandTrackingProvider::GetModularFeatureName(), &Provider);
 		}
 
 	private:
-		FDrsXrHandTrackingMetaProvider Provider;
+		FXrHandTrackingMetaProvider Provider;
 	};
 }
 

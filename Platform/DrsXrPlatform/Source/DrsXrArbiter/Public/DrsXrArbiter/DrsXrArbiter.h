@@ -81,11 +81,11 @@ namespace Drs::XrArbiter
 	/** Unset (with an error logged) when the name is not recognised. */
 	DRSXRARBITER_API TOptional<EDrsXrPluginType> PluginTypeFromString(const FString& pluginTypeString);
 
-	/** Records the runtime that DrsXrRuntime selected, and its EDrsXrPlatformProperty flags. */
+	/** Records the runtime that DrsXrRuntime selected, and its EXrPlatformProperty flags. */
 	DRSXRARBITER_API void SetXrRuntime(EDrsXrRuntimeType runtimeType, uint32 runtimeFlags);
 	/** The selected OpenXR runtime (Android on Android; None on desktop until DrsXrRuntime selects one). */
 	DRSXRARBITER_API EDrsXrRuntimeType GetXrRuntimeType();
-	/** The selected runtime's EDrsXrPlatformProperty flags (see ToRuntimeFlag). */
+	/** The selected runtime's EXrPlatformProperty flags (see ToRuntimeFlag). */
 	DRSXRARBITER_API uint32 GetXrRuntimeFlags();
 
 	/** Records the runtime the connected hardware is expected to use, where that differs from the one selected (e.g. a Pico headset over SteamVR). */

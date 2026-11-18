@@ -2,21 +2,20 @@
 
 #include "DrsCore/DrsPawn.h"
 
-#include "DrsCore/DrsCore.h"
-
+#include "Camera/CameraComponent.h"
 #include "DrsBase/DrsLog.h"
+#include "DrsCore/DrsCore.h"
 #include "DrsInput/DrsEnhancedInputComponent.h"
 #include "DrsInput/DrsInputMappingContext.h"
 #include "DrsInput/DrsInputUtils.h"
 #include "DrsInput/MotionController/DrsMotionControllerInputComponent.h"
 #include "DrsXrGame/DrsHandMeshComponent.h"
 #include "DrsXrPlatform/DrsXrPlatformLibrary.h"
-
-#include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/PlayerController.h"
 #include "MotionControllerComponent.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsPawn)
 
 namespace

@@ -22,7 +22,7 @@ Common they may not. Other same-layer dependencies must be listed in
 
 ## Naming
 
-- Plugins, modules, reflected types (`UCLASS`, `USTRUCT`, `UENUM`), repos and projects use the `Drs` prefix: `DrsCore`, `ADrsPawn`, `LogDrsXrPlatform`. Plain C++ types go in a `Drs` namespace instead.
+- Plugins, modules, reflected types (`UCLASS`, `USTRUCT`, `UENUM`), repos and projects use the `Drs` prefix: `DrsCore`, `ADrsPawn`, `LogDrsXrPlatform`. Plain C++ types go in a `Drs` namespace instead, without the prefix.
 - `DRS_` is used only for macros, e.g. `DRS_LOG(LogDrsCore, Log, "...")`.
 
 ## Using it in a project

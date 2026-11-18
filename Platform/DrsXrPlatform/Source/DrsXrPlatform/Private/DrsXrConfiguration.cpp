@@ -2,69 +2,71 @@
 
 #include "DrsXrPlatform/DrsXrConfiguration.h"
 
+#include "DrsXrArbiter/DrsXrArbiter.h"
 #include "DrsXrPlatform/DrsXrPlatformLibrary.h"
 
-#include "DrsXrArbiter/DrsXrArbiter.h"
-
-FDrsXrConfiguration FDrsXrConfiguration::Get()
+namespace Drs::XrPlatform
 {
-	FDrsXrConfiguration configuration;
-	configuration.XrDeviceName = UDrsXrPlatformLibrary::GetHmdDeviceName();
-	configuration.XrRuntimeType = UDrsXrPlatformLibrary::GetXrRuntimeType();
-	configuration.XrSelectedPlugin = Drs::XrArbiter::GetXrPluginType();
-	configuration.XrExpectedPlugin = Drs::XrArbiter::GetExpectedXrPluginType(configuration.XrDeviceName.ToString());
-	const EDrsXrPluginType overridePlugin = Drs::XrArbiter::GetXrPluginOverride(configuration.XrPluginOverrideType);
+	FXrConfiguration FXrConfiguration::Get()
+	{
+		FXrConfiguration configuration;
+		configuration.XrDeviceName = UDrsXrPlatformLibrary::GetHmdDeviceName();
+		configuration.XrRuntimeType = UDrsXrPlatformLibrary::GetXrRuntimeType();
+		configuration.XrSelectedPlugin = Drs::XrArbiter::GetXrPluginType();
+		configuration.XrExpectedPlugin = Drs::XrArbiter::GetExpectedXrPluginType(configuration.XrDeviceName.ToString());
+		const EDrsXrPluginType overridePlugin = Drs::XrArbiter::GetXrPluginOverride(configuration.XrPluginOverrideType);
 
-	if (configuration.XrSelectedPlugin == EDrsXrPluginType::None)
-	{
-		configuration.XrPluginSource = EDrsXrPluginSource::None;
-	}
-	else if (configuration.XrPluginOverrideType != EDrsXrPluginOverrideType::None && overridePlugin == configuration.XrSelectedPlugin)
-	{
-		configuration.XrPluginSource = EDrsXrPluginSource::Forced;
-	}
-	else if (Drs::XrArbiter::IsXrPluginTypeArbitrated(configuration.XrSelectedPlugin))
-	{
-		configuration.XrPluginSource = EDrsXrPluginSource::Arbitrated;
-	}
-	else
-	{
-		configuration.XrPluginSource = EDrsXrPluginSource::Loaded;
-	}
-	return configuration;
-}
-
-bool FDrsXrConfiguration::IsValid() const
-{
-	// Plain OpenXR, a plugin chosen from the hardware, and hardware the rules don't recognise all pass.
-	if (XrPluginSource == EDrsXrPluginSource::None || XrPluginSource == EDrsXrPluginSource::Arbitrated || XrExpectedPlugin == EDrsXrPluginType::None)
-	{
-		return true;
+		if (configuration.XrSelectedPlugin == EDrsXrPluginType::None)
+		{
+			configuration.XrPluginSource = EXrPluginSource::None;
+		}
+		else if (configuration.XrPluginOverrideType != EDrsXrPluginOverrideType::None && overridePlugin == configuration.XrSelectedPlugin)
+		{
+			configuration.XrPluginSource = EXrPluginSource::Forced;
+		}
+		else if (Drs::XrArbiter::IsXrPluginTypeArbitrated(configuration.XrSelectedPlugin))
+		{
+			configuration.XrPluginSource = EXrPluginSource::Arbitrated;
+		}
+		else
+		{
+			configuration.XrPluginSource = EXrPluginSource::Loaded;
+		}
+		return configuration;
 	}
 
-	if (XrSelectedPlugin != XrExpectedPlugin)
+	bool FXrConfiguration::IsValid() const
 	{
-		return false;
-	}
+		// Plain OpenXR, a plugin chosen from the hardware, and hardware the rules don't recognise all pass.
+		if (XrPluginSource == EXrPluginSource::None || XrPluginSource == EXrPluginSource::Arbitrated || XrExpectedPlugin == EDrsXrPluginType::None)
+		{
+			return true;
+		}
 
-	// Standalone devices have no choice of runtime.
-	if (XrRuntimeType == EDrsXrRuntimeType::Android || XrRuntimeType == EDrsXrRuntimeType::None)
-	{
-		return true;
-	}
+		if (XrSelectedPlugin != XrExpectedPlugin)
+		{
+			return false;
+		}
 
-	switch (XrExpectedPlugin)
-	{
-	case EDrsXrPluginType::Meta:
-		// SteamVR is DrsXrRuntime's fallback when there is no Oculus runtime (e.g. Steam Link or Virtual Desktop), at the
-		// cost of Meta-specific OpenXR extensions.
-		return XrRuntimeType == EDrsXrRuntimeType::Oculus || XrRuntimeType == EDrsXrRuntimeType::SteamVR;
+		// Standalone devices have no choice of runtime.
+		if (XrRuntimeType == EDrsXrRuntimeType::Android || XrRuntimeType == EDrsXrRuntimeType::None)
+		{
+			return true;
+		}
 
-	case EDrsXrPluginType::Pico:
-		return XrRuntimeType == EDrsXrRuntimeType::Pico || XrRuntimeType == EDrsXrRuntimeType::SteamVR;
+		switch (XrExpectedPlugin)
+		{
+		case EDrsXrPluginType::Meta:
+			// SteamVR is DrsXrRuntime's fallback when there is no Oculus runtime (e.g. Steam Link or Virtual Desktop), at the
+			// cost of Meta-specific OpenXR extensions.
+			return XrRuntimeType == EDrsXrRuntimeType::Oculus || XrRuntimeType == EDrsXrRuntimeType::SteamVR;
 
-	default:
-		ensure(false);
-		return true;
+		case EDrsXrPluginType::Pico:
+			return XrRuntimeType == EDrsXrRuntimeType::Pico || XrRuntimeType == EDrsXrRuntimeType::SteamVR;
+
+		default:
+			ensure(false);
+			return true;
+		}
 	}
 }

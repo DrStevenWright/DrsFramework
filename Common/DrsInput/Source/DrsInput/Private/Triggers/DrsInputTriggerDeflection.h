@@ -2,14 +2,13 @@
 #pragma once
 #include "CoreMinimal.h"
 
+#include "DrsBase/DrsHand.h"
 #include "DrsInput/DrsInputSettings.h"
 #include "DrsInput/MotionController/DrsMotionControllerKeys.h"
-
-#include "DrsBase/DrsHand.h"
-
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
 #include "Misc/DataValidation.h"
+
 #include "DrsInputTriggerDeflection.generated.h"
 
 class UEnhancedPlayerInput;
@@ -160,7 +159,7 @@ private:
 	// what the rest of the game sees. Triggers are evaluated every frame, even while their own action is idle.
 	void UpdateDeflection(const UEnhancedPlayerInput* playerInput)
 	{
-		const FKey thumbstickKey = Drs::MotionControllerKeys::Get(Hand).Thumbstick2D.InputKey;
+		const FKey thumbstickKey = Drs::Input::GetMotionControllerKeysForHand(Hand).Thumbstick2D.InputKey;
 		const FVector rawValue = playerInput ? playerInput->GetRawVectorKeyValue(thumbstickKey) : FVector::ZeroVector;
 		const FVector2D thumbstickValue(rawValue.X, rawValue.Y);
 

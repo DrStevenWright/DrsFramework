@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include <atomic>
 
 /** Framework-wide log category, for messages that belong to no single module. */

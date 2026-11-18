@@ -11,9 +11,9 @@ DrsInput only works fully when the host project's config uses its classes. These
 
 ## Device-agnostic motion controller keys
 
-`FDrsMotionControllerHandKeys` (`DrsMotionControllerKeys.h`) defines one custom key per physical input, per hand, such as `Left_Trigger_Press`. The flow is: platform keys (for example Meta Touch) → `IMC_MotionController` → `UDrsInputAction`s → `UDrsMotionControllerInputComponent` → simulated device-agnostic keys → gameplay contexts, which only ever map to those keys.
+`FMotionControllerHandKeys` (`DrsMotionControllerKeys.h`) defines one custom key per physical input, per hand, such as `Left_Trigger_Press`. The flow is: platform keys (for example Meta Touch) → `IMC_MotionController` → `UDrsInputAction`s → `UDrsMotionControllerInputComponent` → simulated device-agnostic keys → gameplay contexts, which only ever map to those keys.
 
-- **The module registers the keys at startup,** from `StartupModule` (`Drs::MotionControllerKeys::Register`). It loads in the `PreDefault` phase so the keys exist before any asset that maps them loads. Don't move it to a later phase.
+- **The module registers the keys at startup,** from `StartupModule` (`Drs::Input::RegisterMotionControllerKeys`). It loads in the `PreDefault` phase so the keys exist before any asset that maps them loads. Don't move it to a later phase.
 - **Key names are serialised into assets.** Every mapping context that maps one of these keys stores its `FName`. Renaming a key breaks those assets, so treat the names like a file format.
 - **An action's `ActionID` must equal its key name.** The input component finds an action by ID, and the key it forwards has the same name. The actions and the global mapping context are in `Content/MotionController/`. Change a key name and its assets together.
 - Platform-specific behaviour (controller capabilities, hand tracking, emulated inputs) doesn't belong here. Derive from `UDrsMotionControllerInputComponent` in a higher layer and override `ShouldForwardKey`.

@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
-
 #include "Engine/DeveloperSettings.h"
+
 #include "DrsXrArbiterSettings.generated.h"
 
 /** Project settings for how DRS chooses which vendor XR plugin (such as Meta or Pico) the project loads. */

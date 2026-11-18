@@ -2,15 +2,15 @@
 
 #include "DrsXrRuntime/DrsXrRuntime.h"
 
-#include "DrsXrRuntimeUtils.h"
-
 #include "DrsBase/DrsLog.h"
 #include "DrsXrArbiter/DrsXrArbiter.h"
-
+#include "DrsXrRuntimeUtils.h"
 #include "HAL/PlatformMisc.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 #include "Modules/ModuleManager.h"
+
+using Drs::XrArbiter::EXrPlatformProperty;
 
 DEFINE_LOG_CATEGORY(LogDrsXrRuntime);
 
@@ -72,7 +72,7 @@ void FDrsXrRuntimeModule::StartupModule()
 	for (const FRuntimeCandidate& candidate : candidates)
 	{
 		// Some runtimes are unstable without a headset.
-		if (isNonVrMode && (candidate.Flags & Drs::XrArbiter::ToRuntimeFlag(EDrsXrPlatformProperty::NonVrNotSupported)))
+		if (isNonVrMode && (candidate.Flags & Drs::XrArbiter::ToRuntimeFlag(EXrPlatformProperty::NonVrNotSupported)))
 		{
 			continue;
 		}

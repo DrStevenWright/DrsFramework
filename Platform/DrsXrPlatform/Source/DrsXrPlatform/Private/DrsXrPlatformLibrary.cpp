@@ -2,15 +2,13 @@
 
 #include "DrsXrPlatform/DrsXrPlatformLibrary.h"
 
+#include "DeviceProfiles/DeviceProfile.h"
+#include "DeviceProfiles/DeviceProfileManager.h"
+#include "DrsBase/DrsLog.h"
+#include "DrsXrArbiter/DrsXrArbiter.h"
 #include "DrsXrDeviceInfo.h"
 #include "DrsXrPlatform/DrsXrConfiguration.h"
 #include "DrsXrPlatform/DrsXrPlatform.h"
-
-#include "DrsBase/DrsLog.h"
-#include "DrsXrArbiter/DrsXrArbiter.h"
-
-#include "DeviceProfiles/DeviceProfile.h"
-#include "DeviceProfiles/DeviceProfileManager.h"
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
 #include "HAL/IConsoleManager.h"
@@ -33,12 +31,16 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPlatformLibrary)
 
+using Drs::XrArbiter::EXrPlatformProperty;
+using Drs::XrPlatform::FXrConfiguration;
+using Drs::XrPlatform::FXrDeviceInfo;
+
 namespace
 {
 	const FName OpenXrMotionControllerName(TEXT("OpenXR")); // The engine's OpenXR motion controller device.
 	bool bTrackingOriginRequested = false;
 
-	FDrsXrDeviceInfo* GetDeviceInfo()
+	FXrDeviceInfo* GetDeviceInfo()
 	{
 		const FDrsXrPlatformModule* module = FDrsXrPlatformModule::Get();
 		return module ? module->GetDeviceInfo() : nullptr;
@@ -48,7 +50,7 @@ namespace
 	template <typename FunctionType, typename ResultType>
 	ResultType QueryDeviceInfo(FunctionType&& function, ResultType defaultValue)
 	{
-		FDrsXrDeviceInfo* deviceInfo = GetDeviceInfo();
+		FXrDeviceInfo* deviceInfo = GetDeviceInfo();
 		return deviceInfo ? function(*deviceInfo) : defaultValue;
 	}
 
@@ -100,12 +102,12 @@ EDrsXrRuntimeType UDrsXrPlatformLibrary::GetXrRuntimeType()
 	return IsRunningDedicatedServer() ? EDrsXrRuntimeType::None : Drs::XrArbiter::GetXrRuntimeType();
 }
 
-FDrsXrConfiguration UDrsXrPlatformLibrary::GetXrConfiguration()
+FXrConfiguration UDrsXrPlatformLibrary::GetXrConfiguration()
 {
-	return FDrsXrConfiguration::Get();
+	return FXrConfiguration::Get();
 }
 
-bool UDrsXrPlatformLibrary::HasXrProperty(EDrsXrPlatformProperty property)
+bool UDrsXrPlatformLibrary::HasXrProperty(EXrPlatformProperty property)
 {
 	if (Drs::XrArbiter::GetXrRuntimeFlags() & Drs::XrArbiter::ToRuntimeFlag(property))
 	{
@@ -114,7 +116,7 @@ bool UDrsXrPlatformLibrary::HasXrProperty(EDrsXrPlatformProperty property)
 
 	switch (property)
 	{
-	case EDrsXrPlatformProperty::ControllerLosesFocus:
+	case EXrPlatformProperty::ControllerLosesFocus:
 		return IsPicoXrMode();
 	default:
 		return false;
@@ -123,12 +125,12 @@ bool UDrsXrPlatformLibrary::HasXrProperty(EDrsXrPlatformProperty property)
 
 bool UDrsXrPlatformLibrary::HasXrFocus()
 {
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.HasFocus(); }, false);
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.HasFocus(); }, false);
 }
 
 bool UDrsXrPlatformLibrary::IsSystemMenuOpen()
 {
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.IsSystemMenuOpen(); }, false);
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.IsSystemMenuOpen(); }, false);
 }
 
 //------------------------------------------------------------------
@@ -178,7 +180,7 @@ bool UDrsXrPlatformLibrary::IsHmdTracking()
 bool UDrsXrPlatformLibrary::IsHmdWorn()
 {
 	// Not GetHMDWornState(), which (at the time of writing) only reports whether a session is running.
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.IsHmdWorn(); }, false);
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.IsHmdWorn(); }, false);
 }
 
 EHMDWornState::Type UDrsXrPlatformLibrary::GetHmdWornState()
@@ -279,12 +281,12 @@ void UDrsXrPlatformLibrary::GetHmdDevicePose(UObject* worldContext, FRotator& ou
 
 FDrsXrControllerType UDrsXrPlatformLibrary::GetControllerType()
 {
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.GetControllerType(); }, FDrsXrControllerType());
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.GetControllerType(); }, FDrsXrControllerType());
 }
 
 bool UDrsXrPlatformLibrary::IsControllerPresent(EControllerHand hand)
 {
-	return QueryDeviceInfo([hand](FDrsXrDeviceInfo& info) { return info.IsControllerPresent(hand); }, false);
+	return QueryDeviceInfo([hand](FXrDeviceInfo& info) { return info.IsControllerPresent(hand); }, false);
 }
 
 bool UDrsXrPlatformLibrary::GetGripPose(EControllerHand hand, FTransform& outWorldTransform)
@@ -297,7 +299,7 @@ bool UDrsXrPlatformLibrary::GetAimPose(EControllerHand hand, FTransform& outWorl
 	// The OpenXR aim pose doesn't suit tracked hands, so use the hand-tracking provider's.
 	if (IsHandTrackingActive(hand) && HasTrackedHandAimPose())
 	{
-		return QueryDeviceInfo([hand, &outWorldTransform](FDrsXrDeviceInfo& info) { return info.GetTrackedHandAimPose(hand, outWorldTransform); }, false);
+		return QueryDeviceInfo([hand, &outWorldTransform](FXrDeviceInfo& info) { return info.GetTrackedHandAimPose(hand, outWorldTransform); }, false);
 	}
 	return GetMotionControllerPose(OpenXrMotionControllerName, GetAimSource(hand), outWorldTransform);
 }
@@ -384,7 +386,7 @@ ETrackingStatus UDrsXrPlatformLibrary::GetMotionControllerTrackingStatus(const U
 
 bool UDrsXrPlatformLibrary::IsPhysicalControllerActive(EControllerHand hand)
 {
-	return QueryDeviceInfo([hand](FDrsXrDeviceInfo& info) { return info.IsPhysicalControllerActive(hand); }, false);
+	return QueryDeviceInfo([hand](FXrDeviceInfo& info) { return info.IsPhysicalControllerActive(hand); }, false);
 }
 
 //------------------------------------------------------------------
@@ -393,17 +395,17 @@ bool UDrsXrPlatformLibrary::IsPhysicalControllerActive(EControllerHand hand)
 
 bool UDrsXrPlatformLibrary::IsHandTrackingAvailable()
 {
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.IsHandTrackingAvailable(); }, false);
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.IsHandTrackingAvailable(); }, false);
 }
 
 bool UDrsXrPlatformLibrary::IsHandTrackingActive(EControllerHand hand)
 {
-	return QueryDeviceInfo([hand](FDrsXrDeviceInfo& info) { return info.IsHandTrackingActive(hand); }, false);
+	return QueryDeviceInfo([hand](FXrDeviceInfo& info) { return info.IsHandTrackingActive(hand); }, false);
 }
 
 bool UDrsXrPlatformLibrary::HasTrackedHandAimPose()
 {
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.HasTrackedHandAimPose(); }, false);
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.HasTrackedHandAimPose(); }, false);
 }
 
 bool UDrsXrPlatformLibrary::GetHandTrackingData(EControllerHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii)
@@ -450,12 +452,12 @@ void UDrsXrPlatformLibrary::SetFoveationLevel(EDrsXrFoveationLevel foveationLeve
 
 void UDrsXrPlatformLibrary::SetDisplayFrequency(float frequency)
 {
-	QueryDeviceInfo([frequency](FDrsXrDeviceInfo& info) { return info.SetDisplayFrequency(frequency); }, false);
+	QueryDeviceInfo([frequency](FXrDeviceInfo& info) { return info.SetDisplayFrequency(frequency); }, false);
 }
 
 float UDrsXrPlatformLibrary::GetDisplayFrequency()
 {
-	return QueryDeviceInfo([](FDrsXrDeviceInfo& info) { return info.GetDisplayFrequency(); }, 0.0f);
+	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.GetDisplayFrequency(); }, 0.0f);
 }
 
 bool UDrsXrPlatformLibrary::GetGpuUtilisation(float& outGpuUtilisation)

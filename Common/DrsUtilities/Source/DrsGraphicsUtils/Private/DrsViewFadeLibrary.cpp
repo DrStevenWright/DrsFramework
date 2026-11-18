@@ -2,14 +2,12 @@
 
 #include "DrsGraphicsUtils/DrsViewFadeLibrary.h"
 
-#include "DrsViewFadeRenderer.h"
-#include "DrsViewFadeTransition.h"
-
-#include "DrsBase/DrsDelegateUtils.h"
-
 #include "AudioDevice.h"
 #include "Curves/CurveFloat.h"
 #include "Curves/CurveLinearColor.h"
+#include "DrsBase/DrsDelegateUtils.h"
+#include "DrsViewFadeRenderer.h"
+#include "DrsViewFadeTransition.h"
 #include "Engine/World.h"
 #include "SceneViewExtension.h"
 #if WITH_EDITOR
@@ -18,19 +16,22 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsViewFadeLibrary)
 
+using Drs::Graphics::FViewFadeRenderer;
+using Drs::Graphics::FViewFadeTransition;
+
 UDrsViewFadeLibrary::FViewFadeOpaqueDelegate UDrsViewFadeLibrary::OnViewFadeOpaqueChanged;
 
 namespace
 {
-	TSharedRef<FDrsViewFadeRenderer, ESPMode::ThreadSafe> GetFadeRenderer()
+	TSharedRef<FViewFadeRenderer, ESPMode::ThreadSafe> GetFadeRenderer()
 	{
-		static TSharedRef<FDrsViewFadeRenderer, ESPMode::ThreadSafe> renderer = FSceneViewExtensions::NewExtension<FDrsViewFadeRenderer>();
+		static TSharedRef<FViewFadeRenderer, ESPMode::ThreadSafe> renderer = FSceneViewExtensions::NewExtension<FViewFadeRenderer>();
 		return renderer;
 	}
 
-	FDrsViewFadeTransition& GetFadeTransition()
+	FViewFadeTransition& GetFadeTransition()
 	{
-		static FDrsViewFadeTransition transition(GetFadeRenderer());
+		static FViewFadeTransition transition(GetFadeRenderer());
 		return transition;
 	}
 
@@ -83,7 +84,7 @@ void UDrsViewFadeLibrary::SetViewFadeOpacity(const UObject* worldContext, float 
 void UDrsViewFadeLibrary::StartViewFade(const UObject* worldContext, const FRichCurve& rCurve, const FRichCurve& gCurve, const FRichCurve& bCurve, const FRichCurve& aCurve,
 	bool fadeAudio, const FViewFadeFinishedDelegate& onFadeFinished, const FViewFadeUpdateDelegate& onFadeUpdate)
 {
-	FDrsViewFadeTransition& transition = GetFadeTransition();
+	FViewFadeTransition& transition = GetFadeTransition();
 	transition.StopViewFade();
 	transition.OnFadeFinished().Add(onFadeFinished);
 	transition.OnFadeUpdated().Add(onFadeUpdate);

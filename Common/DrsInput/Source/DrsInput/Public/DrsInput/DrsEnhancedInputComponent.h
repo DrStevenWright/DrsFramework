@@ -6,8 +6,8 @@
 
 #include "DrsInput/DrsInputAction.h"
 #include "DrsInput/DrsInputMappingContext.h"
-
 #include "EnhancedInputComponent.h"
+
 #include "DrsEnhancedInputComponent.generated.h"
 
 /** Custom version of EnhancedInputComponent to support Drs APIs. */

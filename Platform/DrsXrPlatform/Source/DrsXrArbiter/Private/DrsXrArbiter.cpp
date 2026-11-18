@@ -2,9 +2,8 @@
 
 #include "DrsXrArbiter/DrsXrArbiter.h"
 
-#include "DrsBase/DrsLog.h"
-
 #include "Dom/JsonObject.h"
+#include "DrsBase/DrsLog.h"
 #include "Engine/Engine.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "IHeadMountedDisplayModule.h"
@@ -22,6 +21,8 @@
 #if PLATFORM_ANDROID
 #include "Android/AndroidPlatformMisc.h"
 #endif
+
+using Drs::XrArbiter::FArbitrationInputs;
 
 DEFINE_LOG_CATEGORY(LogDrsXrArbiter);
 
@@ -120,7 +121,7 @@ namespace
 #endif
 	}
 
-	bool GetPluginTypeFromRules(const TCHAR* property, const FDrsArbitrationInputs& inputs, EDrsXrPluginType& outPluginType)
+	bool GetPluginTypeFromRules(const TCHAR* property, const FArbitrationInputs& inputs, EDrsXrPluginType& outPluginType)
 	{
 		for (const FDrsArbitrationRule& rule : FDrsArbitrationRule::ParseFromConfig(ProjectSettingsSection, property, GGameIni))
 		{
@@ -142,7 +143,7 @@ namespace
 		const FString gpuFamily = FAndroidMisc::GetGPUFamily();
 		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the plugin type for device make '%s', model '%s', GPU '%s'.", *deviceMake, *deviceModel, *gpuFamily);
 
-		FDrsArbitrationInputs inputs;
+		FArbitrationInputs inputs;
 		inputs.DeviceMake = &deviceMake;
 		inputs.DeviceModel = &deviceModel;
 		inputs.GpuFamily = &gpuFamily;
@@ -154,7 +155,7 @@ namespace
 
 	bool GetPluginTypeFromDeviceName(const FString& deviceName, EDrsXrPluginType& outPluginType)
 	{
-		FDrsArbitrationInputs inputs;
+		FArbitrationInputs inputs;
 		inputs.DeviceName = &deviceName;
 		return GetPluginTypeFromRules(TetheredArbitrationRulesProperty, inputs, outPluginType);
 	}
@@ -171,7 +172,7 @@ namespace
 		const FString runtimeName = Drs::XrArbiter::RuntimeTypeToString(runtimeType);
 		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the plugin type from the XR runtime '%s'.", *runtimeName);
 
-		FDrsArbitrationInputs inputs;
+		FArbitrationInputs inputs;
 		inputs.XrRuntime = &runtimeName;
 		if (GetPluginTypeFromRules(TetheredArbitrationRulesProperty, inputs, outPluginType))
 		{
@@ -239,7 +240,7 @@ namespace
 		return EDrsXrPluginType::None;
 	}
 
-	struct FDrsArbitratedModule
+	struct FArbitratedModule
 	{
 		FName ModuleName;
 		ELoadingPhase::Type LoadingPhase;
@@ -444,11 +445,11 @@ namespace
 		void LoadModules(ELoadingPhase::Type loadingPhase)
 		{
 			TSet<FName> modulesToLoad;
-			for (const TPair<EDrsXrPluginType, TArray<FDrsArbitratedModule>>& configuration : Configurations)
+			for (const TPair<EDrsXrPluginType, TArray<FArbitratedModule>>& configuration : Configurations)
 			{
 				if (bLoadAllPluginTypes || configuration.Key == CurrentPluginType.Get(EDrsXrPluginType::None))
 				{
-					for (const FDrsArbitratedModule& module : configuration.Value)
+					for (const FArbitratedModule& module : configuration.Value)
 					{
 						if (module.LoadingPhase == loadingPhase)
 						{
@@ -480,7 +481,7 @@ namespace
 			}
 		}
 
-		TMap<EDrsXrPluginType, TArray<FDrsArbitratedModule>> Configurations;
+		TMap<EDrsXrPluginType, TArray<FArbitratedModule>> Configurations;
 		TArray<ELoadingPhase::Type> PendingLoadingPhases;
 		FDelegateHandle LoadingPhaseCompleteHandle;
 	};

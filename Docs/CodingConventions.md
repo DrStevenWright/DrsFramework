@@ -36,7 +36,8 @@ Names the editor derives from identifiers (such as "Drs Pawn" in class pickers) 
 
 - Use the `Drs` prefix for plugins, modules, log categories, repos and projects: `DrsCore`, `FDrsXrRuntimeModule`, `LogDrsXrPlatform`.
 - **Prefix reflected types** (`UCLASS`, `USTRUCT`, `UENUM`, including `UINTERFACE`): `ADrsPawn`, `UDrsInputAction`, `EDrsHand`. Their names are global and UHT can't put them in a namespace, so the prefix is what keeps them from clashing with an engine or project type, which fails at load. This matters most for names that copy the engine's own pattern, such as `UInputTrigger…`.
-- **Plain C++ types don't need the prefix.** Put them in a `Drs` namespace, nested by area, and name them as you would anywhere: `Drs::Input::MotionKey` rather than `FDrsMotionInputKey`. Types that already carry the prefix can stay as they are; rename them only when touching them for another reason.
+- **Plain C++ types don't need the prefix.** Put them in a `Drs` namespace, nested one level by area (`Drs::Input`, `Drs::XrPlatform`), and keep Epic's letter prefix: `Drs::Input::FMotionInputKey` rather than `FDrsMotionInputKey`. This includes the free functions that belong with them (`Drs::Input::GetMotionControllerKeysForHand`). Module classes (`FDrsXrRuntimeModule`) are the exception and keep the prefix, because they appear in logs and crash stacks.
+- **Using namespaces:** don't put `using` declarations or directives at global scope in a header, because they leak into every file that includes it. Inside a header, write the namespace out (`Drs::XrPlatform::FXrConfiguration`), or define the code inside its own namespace block. In a `.cpp`, either put the implementation inside the namespace block, or list `using` declarations for the types you need straight after the includes (`using Drs::XrPlatform::FXrConfiguration;`). Prefer declarations to `using namespace`, so each file shows what it depends on.
 - Use `DRS_` only for macros: `DRS_LOG`, `DRS_LOG_GLOBAL`.
 - Put free functions and constants in the `Drs` namespace, nested by area where useful: `Drs::GetDebugName`, `Drs::Math::ToYawOnly`, `Drs::XrRuntime::FindOculusRuntimeJson`.
 
@@ -106,7 +107,12 @@ Each module's `Source/<Module>/` has a `Public/` and a `Private/` folder.
 - **Public headers go in `Public/<Module>/`**, named after the module, so every include says where it comes from: `#include "DrsInput/DrsInputSettings.h"`. Headers used only inside the module go in `Private/`.
 - **Split by area, not by kind of type.** When an area reaches about six to eight files, give it a folder (such as `MotionController/` in DrsInput) under both `Public/<Module>/` and `Private/`, with the same name in each, so a header and its `.cpp` sit in the same place. Go at most two levels deep, and keep module-wide files at the top. Don't create `Classes/` or `Structs/` folders.
 - **If a module has several areas that share little, split it into modules** instead of adding folders. The layer checker then covers the dependencies between them.
-- **Include order:** the file's own header (or `CoreMinimal.h` in a header) first, then headers from the same module, then other DRS modules, then engine and third-party headers. Put a blank line between groups and sort each group alphabetically. The `.generated.h` (or `UE_INLINE_GENERATED_CPP_BY_NAME`) line comes last, with no blank line before it.
+- **Include order:** three groups, separated by one blank line each:
+  1. The include that must come first: the `.cpp`'s own header, or `CoreMinimal.h` in a header.
+  2. Every other include, sorted alphabetically by path with no blank lines. Don't group DRS and engine headers separately: the module-name folder already keeps a module's headers together. Keep `#if` blocks that contain includes at the end of this group.
+  3. The include that must come last: the `.generated.h`, or `UE_INLINE_GENERATED_CPP_BY_NAME` in a `.cpp`.
+
+  Skip a group that has nothing in it. Files whose includes must keep a fixed order, such as those wrapped in `AllowWindowsPlatformTypes.h` and `HideWindowsPlatformTypes.h`, are the exception: sort around the wrapped block and leave its contents alone.
 - Tests mirror the folders of the module they test.
 
 ## Reflection categories

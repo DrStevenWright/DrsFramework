@@ -7,13 +7,17 @@
 #include "DrsInput/MotionController/DrsMotionControllerButtonInput.h"
 #include "DrsInput/MotionController/DrsMotionControllerKeys.h"
 #include "DrsInput/MotionController/DrsMotionControllerVectorInput.h"
-
 #include "Engine/LocalPlayer.h"
 #include "InputCoreTypes.h"
 #include "InputMappingContext.h"
 #include "Misc/AutomationTest.h"
 #include "Modules/ModuleManager.h"
 #include "UObject/UnrealType.h"
+
+using Drs::Input::FMotionControllerButtonInput;
+using Drs::Input::FMotionControllerHandKeys;
+using Drs::Input::FMotionControllerVectorInput;
+using Drs::Input::FMotionInputKey;
 
 IMPLEMENT_MODULE(FDefaultModuleImpl, DrsInputTests)
 
@@ -41,9 +45,9 @@ bool FDrsInputMotionControllerKeysTest::RunTest(const FString& parameters)
 	for (const EDrsHand hand : { EDrsHand::Left, EDrsHand::Right })
 	{
 		const FString side = (hand == EDrsHand::Left) ? TEXT("Left") : TEXT("Right");
-		const FDrsMotionControllerHandKeys& keys = Drs::MotionControllerKeys::Get(hand);
+		const FMotionControllerHandKeys& keys = Drs::Input::GetMotionControllerKeysForHand(hand);
 
-		const TPair<const FDrsMotionInputKey*, const TCHAR*> expectedKeys[] =
+		const TPair<const FMotionInputKey*, const TCHAR*> expectedKeys[] =
 		{
 			{ &keys.Menu, TEXT("Menu_Press") },
 			{ &keys.Grip, TEXT("Grip_Press") },
@@ -62,7 +66,7 @@ bool FDrsInputMotionControllerKeysTest::RunTest(const FString& parameters)
 			{ &keys.Thumbstick2D, TEXT("Thumbstick_2D") },
 		};
 
-		for (const TPair<const FDrsMotionInputKey*, const TCHAR*>& expected : expectedKeys)
+		for (const TPair<const FMotionInputKey*, const TCHAR*>& expected : expectedKeys)
 		{
 			const FString name = side + TEXT("_") + expected.Value;
 			TestEqual(*FString::Printf(TEXT("%s key name"), *name), expected.Key->InputKey.GetFName(), FName(*name));
@@ -74,7 +78,7 @@ bool FDrsInputMotionControllerKeysTest::RunTest(const FString& parameters)
 		TestTrue(*FString::Printf(TEXT("%s thumbstick 2D is a 2D axis"), *side), stickDetails.IsValid() && stickDetails->IsAxis2D());
 	}
 
-	TestNotEqual(TEXT("Hands have different keys"), Drs::MotionControllerKeys::Get(EDrsHand::Left).Trigger.InputKey, Drs::MotionControllerKeys::Get(EDrsHand::Right).Trigger.InputKey);
+	TestNotEqual(TEXT("Hands have different keys"), Drs::Input::GetMotionControllerKeysForHand(EDrsHand::Left).Trigger.InputKey, Drs::Input::GetMotionControllerKeysForHand(EDrsHand::Right).Trigger.InputKey);
 	return true;
 }
 
@@ -82,7 +86,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsInputButtonInputTest, "Drs.Input.ButtonInpu
 
 bool FDrsInputButtonInputTest::RunTest(const FString& parameters)
 {
-	FDrsMotionControllerButtonInput button;
+	FMotionControllerButtonInput button;
 	TestFalse(TEXT("Not down initially"), button.IsDown());
 	TestFalse(TEXT("Never pressed initially"), button.WasEverPressed());
 
@@ -111,7 +115,7 @@ bool FDrsInputButtonInputTest::RunTest(const FString& parameters)
 	TestEqual(TEXT("Up time"), button.GetUpTime(), 0.25f);
 
 	// Only the latest change registered between two Updates counts.
-	FDrsMotionControllerButtonInput tap;
+	FMotionControllerButtonInput tap;
 	tap.SetPressed();
 	tap.SetReleased();
 	tap.Update(0.1f);
@@ -133,7 +137,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsInputVectorInputTest, "Drs.Input.VectorInpu
 
 bool FDrsInputVectorInputTest::RunTest(const FString& parameters)
 {
-	FDrsMotionControllerVectorInput stick;
+	FMotionControllerVectorInput stick;
 	stick.Update(0.1f);
 	TestTrue(TEXT("A centred stick is idle"), stick.IsIdle());
 	TestTrue(TEXT("Just idle on the frame it became idle"), stick.IsJustIdle());

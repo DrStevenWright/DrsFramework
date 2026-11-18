@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 
 #include "DrsBase/DrsVotableState.h"
-
 #include "Subsystems/GameInstanceSubsystem.h"
+
 #include "DrsXrPassthroughSubsystem.generated.h"
 
 DRSXRMIXEDREALITY_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrMixedReality, Log, All);
@@ -84,5 +84,5 @@ private:
 
 	/** Passthrough requests by ID, with the world each is scoped to (null = persistent). */
 	TMap<FName, TWeakObjectPtr<const UWorld>> Requests;
-	TDrsVotableState<FName> Suspensions;
+	Drs::TVotableState<FName> Suspensions;
 };

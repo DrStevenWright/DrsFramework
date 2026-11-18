@@ -2,7 +2,6 @@
 
 #include "DrsInput/DrsInputLog.h"
 #include "DrsInput/MotionController/DrsMotionControllerKeys.h"
-
 #include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
 
@@ -14,12 +13,12 @@ public:
 
 	virtual void StartupModule() override
 	{
-		Drs::MotionControllerKeys::Register();
+		Drs::Input::RegisterMotionControllerKeys();
 	}
 
 	virtual void ShutdownModule() override
 	{
-		Drs::MotionControllerKeys::Unregister();
+		Drs::Input::UnregisterMotionControllerKeys();
 	}
 };
 

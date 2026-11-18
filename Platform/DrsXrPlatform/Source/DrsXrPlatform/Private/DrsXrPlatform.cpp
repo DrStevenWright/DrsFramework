@@ -2,25 +2,26 @@
 
 #include "DrsXrPlatform/DrsXrPlatform.h"
 
+#include "DrsXrArbiter/DrsXrArbiter.h"
 #include "DrsXrDeviceInfo.h"
 #include "DrsXrPlatform/DrsXrDelegates.h"
-
-#include "DrsXrArbiter/DrsXrArbiter.h"
-
 #include "Features/IModularFeatures.h"
 #include "IHeadMountedDisplayModule.h"
 #include "IOpenXRExtensionPlugin.h"
 #include "Misc/CoreDelegates.h"
 #include "Modules/ModuleManager.h"
 
+using Drs::XrPlatform::FXrDelegates;
+using Drs::XrPlatform::FXrDeviceInfo;
+
 DEFINE_LOG_CATEGORY(LogDrsXrPlatform);
 
 IMPLEMENT_MODULE(FDrsXrPlatformModule, DrsXrPlatform)
 
-FDrsXrDelegates::FHmdWornStateChanged FDrsXrDelegates::OnHmdWornStateChanged;
-FDrsXrDelegates::FSystemMenuStateChanged FDrsXrDelegates::OnSystemMenuStateChanged;
-FDrsXrDelegates::FFocusStateChanged FDrsXrDelegates::OnXrFocusStateChanged;
-FDrsXrDelegates::FControllerTypeChanged FDrsXrDelegates::OnControllerTypeChanged;
+FXrDelegates::FHmdWornStateChanged FXrDelegates::OnHmdWornStateChanged;
+FXrDelegates::FSystemMenuStateChanged FXrDelegates::OnSystemMenuStateChanged;
+FXrDelegates::FFocusStateChanged FXrDelegates::OnXrFocusStateChanged;
+FXrDelegates::FControllerTypeChanged FXrDelegates::OnControllerTypeChanged;
 
 namespace
 {
@@ -40,7 +41,7 @@ void FDrsXrPlatformModule::StartupModule()
 	// Created before the XR tracking system, so that it registers with OpenXRHMD as an extension plugin.
 	if (!IsRunningDedicatedServer() && !IsRunningCommandlet())
 	{
-		DeviceInfo = MakeShared<FDrsXrDeviceInfo>();
+		DeviceInfo = MakeShared<FXrDeviceInfo>();
 	}
 #endif
 

@@ -7,6 +7,7 @@
 #include "Materials/MaterialInterface.h"
 #include "MotionControllerComponent.h"
 #include "UObject/ConstructorHelpers.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsHandMeshComponent)
 
 namespace

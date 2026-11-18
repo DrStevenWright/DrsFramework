@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "DrsBaseTestTypes.generated.h"
 
 /** A reflected enum class for the votable state tests. */
@@ -13,9 +14,12 @@ enum class EDrsBaseTestVoter : uint8
 	Second
 };
 
-/** An enum without reflection, which the votable state shows as a number. */
-enum class EDrsBaseTestPlainVoter : uint8
+namespace Drs::BaseTests
 {
-	First,
-	Second
-};
+	/** An enum without reflection, which the votable state shows as a number. */
+	enum class EPlainVoter : uint8
+	{
+		First,
+		Second
+	};
+}

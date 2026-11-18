@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Runtime/Engine/Classes/Kismet/BlueprintFunctionLibrary.h"
+
 #include "DrsViewFadeLibrary.generated.h"
 
 class UCurveFloat;

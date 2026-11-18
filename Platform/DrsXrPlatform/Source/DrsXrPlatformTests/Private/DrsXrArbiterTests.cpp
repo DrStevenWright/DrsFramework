@@ -2,16 +2,17 @@
 
 #include "DrsXrArbiter/DrsXrArbiter.h"
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
-
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
+using Drs::XrArbiter::FArbitrationInputs;
+
 namespace
 {
-	FDrsArbitrationInputs MobileInputs(const FString& deviceMake, const FString& gpuFamily)
+	FArbitrationInputs MobileInputs(const FString& deviceMake, const FString& gpuFamily)
 	{
-		FDrsArbitrationInputs inputs;
+		FArbitrationInputs inputs;
 		inputs.DeviceMake = &deviceMake;
 		inputs.GpuFamily = &gpuFamily;
 		return inputs;
@@ -62,19 +63,19 @@ bool FDrsXrArbiterRulesTest::RunTest(const FString& parameters)
 		TEXT("(Configuration=Meta,Conditions=((ConditionType=OptionalTrue,Criteria=DeviceName,Value=\"Meta\"),(ConditionType=OptionalTrue,Criteria=DeviceName,Value=\"Quest2\")))"));
 	const FString quest2Name(TEXT("Oculus Quest2"));
 	const FString picoName(TEXT("PICO 4 Ultra"));
-	FDrsArbitrationInputs nameInputs;
+	FArbitrationInputs nameInputs;
 	nameInputs.DeviceName = &quest2Name;
 	TestTrue(TEXT("Second optional condition is enough"), nameRule.Evaluate(nameInputs));
 	nameInputs.DeviceName = &picoName;
 	TestFalse(TEXT("No optional condition met"), nameRule.Evaluate(nameInputs));
-	TestFalse(TEXT("Unknown device name"), nameRule.Evaluate(FDrsArbitrationInputs()));
+	TestFalse(TEXT("Unknown device name"), nameRule.Evaluate(FArbitrationInputs()));
 
 	// Runtime rule.
 	const FDrsArbitrationRule runtimeRule = FDrsArbitrationRule::ParseFromConfig(
 		TEXT("(Configuration=Meta,Conditions=((ConditionType=RequiredTrue,Criteria=XrRuntime,Value=\"Oculus\")))"));
 	const FString oculusRuntime = Drs::XrArbiter::RuntimeTypeToString(EDrsXrRuntimeType::Oculus);
 	const FString steamRuntime = Drs::XrArbiter::RuntimeTypeToString(EDrsXrRuntimeType::SteamVR);
-	FDrsArbitrationInputs runtimeInputs;
+	FArbitrationInputs runtimeInputs;
 	runtimeInputs.XrRuntime = &oculusRuntime;
 	TestTrue(TEXT("Oculus runtime"), runtimeRule.Evaluate(runtimeInputs));
 	runtimeInputs.XrRuntime = &steamRuntime;
