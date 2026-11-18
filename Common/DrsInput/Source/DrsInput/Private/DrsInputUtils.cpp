@@ -2,9 +2,9 @@
 
 #include "DrsInput/DrsInputUtils.h"
 
-#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
-#include "DrsInput/Contexts/DrsEnhancedPlayerInput.h"
-#include "DrsInput/Contexts/DrsInputContextSubsystem.h"
+#include "DrsInput/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsEnhancedPlayerInput.h"
+#include "DrsInput/DrsInputContextSubsystem.h"
 #include "DrsInput/DrsInputLog.h"
 #include "DrsInput/DrsInputMappingContext.h"
 

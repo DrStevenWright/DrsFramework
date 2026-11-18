@@ -2,7 +2,7 @@
 
 #include "DrsInput/MotionController/DrsMotionControllerInputComponent.h"
 
-#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsEnhancedInputComponent.h"
 #include "DrsInput/DrsInputMappingContext.h"
 
 #include "GameFramework/Pawn.h"

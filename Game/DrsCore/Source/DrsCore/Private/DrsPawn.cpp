@@ -5,7 +5,7 @@
 #include "DrsCore/DrsCore.h"
 
 #include "DrsBase/DrsLog.h"
-#include "DrsInput/Contexts/DrsEnhancedInputComponent.h"
+#include "DrsInput/DrsEnhancedInputComponent.h"
 #include "DrsInput/DrsInputMappingContext.h"
 #include "DrsInput/DrsInputUtils.h"
 #include "DrsInput/MotionController/DrsMotionControllerInputComponent.h"

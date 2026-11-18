@@ -20,7 +20,7 @@ DrsInput only works fully when the host project's config uses its classes. These
 
 ## Conventions
 
-- **Layout:** `Public/DrsInput/` has the module-wide headers, with `MotionController/` and `Contexts/` for those areas; their `.cpp` files mirror them in `Private/`. See "Source layout" in `Docs/CodingConventions.md`.
+- **Layout:** `Public/DrsInput/` has the module-wide headers, with `MotionController/` for the motion controller area; its `.cpp` files mirror it in `Private/`. See "Source layout" in `Docs/CodingConventions.md`.
 - **Triggers and modifiers live in `Private/`.** They are found through reflection, so they don't need exports.
 - **Add and remove contexts through the `Drs::Input` helpers (`DrsInputUtils.h`),** not by calling Enhanced Input's local player subsystem directly. The helpers record the reasons each context was added for in the local player's `UDrsInputContextSubsystem` (so they are per player, and independent of any pawn or input component), and release inputs that the change would otherwise leave stuck.
 - **Hands are `EDrsHand` and `EDrsHandMask`** from `DrsBase`, never `EControllerHand`.

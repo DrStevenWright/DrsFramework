@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsInput/Contexts/DrsInputContextSubsystem.h"
+#include "DrsInput/DrsInputContextSubsystem.h"
 
 #include "DrsInput/DrsInputLog.h"
 
