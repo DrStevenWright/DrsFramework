@@ -8,7 +8,7 @@
 
 DRSXRPLATFORM_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrPlatform, Log, All);
 
-class FDrsXrDeviceInfo;
+namespace Drs::XrPlatform { class FXrDeviceInfo; }
 
 /**
  * Owns the XR device state. Loads at PostConfigInit, so that the device info can register as an OpenXR extension
@@ -21,12 +21,12 @@ public:
 	virtual void ShutdownModule() override;
 
 	/** The device info, or null on servers and in commandlets. */
-	FDrsXrDeviceInfo* GetDeviceInfo() const { return DeviceInfo.Get(); }
+	Drs::XrPlatform::FXrDeviceInfo* GetDeviceInfo() const { return DeviceInfo.Get(); }
 
 	static FDrsXrPlatformModule* Get();
 
 private:
 	void OnPostEngineInit();
 
-	TSharedPtr<FDrsXrDeviceInfo> DeviceInfo;
+	TSharedPtr<Drs::XrPlatform::FXrDeviceInfo> DeviceInfo;
 };

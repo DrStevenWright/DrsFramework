@@ -2,9 +2,9 @@
 
 #include "DrsXrPlatform/DrsXrControllerType.h"
 
+#include "DrsBase/DrsLog.h"
 #include "DrsXrPlatform/DrsXrPlatform.h"
 
-#include "DrsBase/DrsLog.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrControllerType)
 
 namespace

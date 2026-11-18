@@ -27,7 +27,7 @@ Decides which vendor XR plugin's modules load, so that competing vendor plugins 
   - Commandlets load every type, so everything cooks. Dedicated servers load none.
 - Phases that pass before the type is known are queued and loaded as soon as it is.
 - **Config:** the rules are in `Config/Game.ini` under `[/Script/DrsXrArbiter.DrsXrArbiterSettings]`. The arbiter reads them through `GConfig` because it decides before `UDrsXrArbiterSettings` loads; the class only makes them editable in Project Settings.
-- **`GetXrPluginType()` detects the running vendor** from its loaded modules (`OculusXRHMD`, `PICOOpenXRHMD`), so it is right whether the arbiter or the engine loaded the plugin, and None without one. `GetArbitratedXrPluginType()` is the arbiter's own choice. `FDrsXrConfiguration` records how the plugin came to be in use (arbitrated, forced or loaded as normal) and checks the last two against the hardware the rules expect.
+- **`GetXrPluginType()` detects the running vendor** from its loaded modules (`OculusXRHMD`, `PICOOpenXRHMD`), so it is right whether the arbiter or the engine loaded the plugin, and None without one. `GetArbitratedXrPluginType()` is the arbiter's own choice. `FXrConfiguration` records how the plugin came to be in use (arbitrated, forced or loaded as normal) and checks the last two against the hardware the rules expect.
 - **Shared early state:** `Drs::XrArbiter` also holds the selected runtime type and flags (set by `DrsXrRuntime`) and `IsNonVrMode()`. The UENUMs (`EDrsXrPluginType`, `EDrsXrRuntimeType`) live here so that every module can use them.
 - It may use `DrsBase` (e.g. `DRS_LOG`; see `Base/CLAUDE.md` for why that is safe this early). It may use UObject types (the settings and UENUMs), but must not touch `GEngine` or subsystems before `PostConfigInit`.
 
@@ -43,16 +43,16 @@ Selects the OpenXR runtime **before OpenXR creates its instance**, by setting `X
 ## DrsXrPlatform: device state and API
 
 - **Higher layers call `UDrsXrPlatformLibrary`** instead of the engine's XR APIs, so vendor and runtime details stay in this plugin. It is a static library: there is no XR subsystem.
-- **The state lives in the module** (`FDrsXrPlatformModule::GetDeviceInfo()`), not a subsystem, because `FDrsXrDeviceInfo` must register as an OpenXR extension plugin at `PostConfigInit`, before engine subsystems exist. That is also why the module loads at `PostConfigInit`. There is no device info on servers or in commandlets; the library returns defaults there.
-- `FDrsXrDeviceInfo` tracks the worn state (`XR_EXT_user_presence`, else the session state), the system menu (several frames in `VISIBLE`), focus, display refresh rate (`XR_FB_display_refresh_rate`) and controller modes. `FDrsXrDelegates` broadcasts the changes.
-- `FDrsXrControllerMonitor` decides each hand's mode from its interaction profile, falling back to joint tracking. It is public and takes an `IDrsXrControllerSource`, so the tests drive it without a headset.
-- Vendor hand tracking comes from an `IDrsXrHandTrackingProvider` modular feature, registered by an arbitrated vendor module.
+- **The state lives in the module** (`FDrsXrPlatformModule::GetDeviceInfo()`), not a subsystem, because `FXrDeviceInfo` must register as an OpenXR extension plugin at `PostConfigInit`, before engine subsystems exist. That is also why the module loads at `PostConfigInit`. There is no device info on servers or in commandlets; the library returns defaults there.
+- `FXrDeviceInfo` tracks the worn state (`XR_EXT_user_presence`, else the session state), the system menu (several frames in `VISIBLE`), focus, display refresh rate (`XR_FB_display_refresh_rate`) and controller modes. `FXrDelegates` broadcasts the changes.
+- `FXrControllerMonitor` decides each hand's mode from its interaction profile, falling back to joint tracking. It is public and takes an `IXrControllerSource`, so the tests drive it without a headset.
+- Vendor hand tracking comes from an `IXrHandTrackingProvider` modular feature, registered by an arbitrated vendor module.
 - `SetFloorTrackingOrigin()` asks for OpenXR `LOCAL_FLOOR`, which the runtime may replace with `LOCAL`.
 - Config: `Config/Input.ini` sets the OpenXRHandTracking source names that `GetMotionControllerSource` relies on.
 
 ## DrsXrMixedReality: passthrough
 
-`UDrsXrPassthroughSubsystem` (game instance) turns passthrough on and off through requests and suspensions; `FDrsXrPassthroughBackend` switches the OpenXR environment blend mode. Passthrough is compiled in only on Android (`DRS_PASSTHROUGH_SUPPORTED`) and needs `xr.OpenXRInvertAlpha` and `r.Mobile.PropagateAlpha`. It is suspended while the `UDrsViewFadeLibrary` fade is opaque, and blending uses the fade's holdout.
+`UDrsXrPassthroughSubsystem` (game instance) turns passthrough on and off through requests and suspensions; `FXrPassthroughBackend` switches the OpenXR environment blend mode. Passthrough is compiled in only on Android (`DRS_PASSTHROUGH_SUPPORTED`) and needs `xr.OpenXRInvertAlpha` and `r.Mobile.PropagateAlpha`. It is suspended while the `UDrsViewFadeLibrary` fade is opaque, and blending uses the fade's holdout.
 
 ## Tests
 

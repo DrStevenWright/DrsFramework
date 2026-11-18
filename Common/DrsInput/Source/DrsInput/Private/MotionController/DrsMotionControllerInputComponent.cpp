@@ -4,11 +4,14 @@
 
 #include "DrsInput/DrsEnhancedInputComponent.h"
 #include "DrsInput/DrsInputMappingContext.h"
-
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsMotionControllerInputComponent)
+
+using Drs::Input::FMotionControllerHandKeys;
+using Drs::Input::FMotionInputKey;
 
 void UDrsMotionControllerInputComponent::EndPlay(const EEndPlayReason::Type endPlayReason)
 {
@@ -35,8 +38,8 @@ void UDrsMotionControllerInputComponent::AddInputBindings(UDrsEnhancedInputCompo
 	}
 
 	// NOTE: If multiple input triggers are used on an action, we get a "cancelled" event rather than a "completed" one,
-	// so both are treated as releases. Otherwise an input could get stuck in a pressed state.
-	const FDrsMotionControllerHandKeys& keys = Drs::MotionControllerKeys::Get(Hand);
+	// so both are treated as releases. Otherwise, an input could get stuck in a pressed state.
+	const FMotionControllerHandKeys& keys = Drs::Input::GetMotionControllerKeysForHand(Hand);
 
 	BindButton(inputComponent, context, keys.Menu);
 	BindButton(inputComponent, context, keys.Grip);
@@ -68,38 +71,38 @@ void UDrsMotionControllerInputComponent::RemoveInputBindings(UDrsEnhancedInputCo
 	ReleaseAllForwardedKeys();
 }
 
-void UDrsMotionControllerInputComponent::BindButton(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FDrsMotionInputKey& key)
+void UDrsMotionControllerInputComponent::BindButton(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FMotionInputKey& key)
 {
-	const FDrsMotionInputKey* keyPtr = &key; // Keys have static storage duration, so the pointer stays valid.
+	const FMotionInputKey* keyPtr = &key; // Keys have static storage duration, so the pointer stays valid.
 	inputComponent->BindActionID(context, key.ActionID, ETriggerEvent::Started, this, &UDrsMotionControllerInputComponent::OnButtonStarted, keyPtr);
 	inputComponent->BindActionID(context, key.ActionID, ETriggerEvent::Completed, this, &UDrsMotionControllerInputComponent::OnInputEnded, keyPtr);
 	inputComponent->BindActionID(context, key.ActionID, ETriggerEvent::Canceled, this, &UDrsMotionControllerInputComponent::OnInputEnded, keyPtr);
 }
 
-void UDrsMotionControllerInputComponent::BindAxis(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FDrsMotionInputKey& key)
+void UDrsMotionControllerInputComponent::BindAxis(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FMotionInputKey& key)
 {
-	const FDrsMotionInputKey* keyPtr = &key;
+	const FMotionInputKey* keyPtr = &key;
 	inputComponent->BindActionID(context, key.ActionID, ETriggerEvent::Triggered, this, &UDrsMotionControllerInputComponent::OnAxisTriggered, keyPtr);
 	inputComponent->BindActionID(context, key.ActionID, ETriggerEvent::Completed, this, &UDrsMotionControllerInputComponent::OnInputEnded, keyPtr);
 	inputComponent->BindActionID(context, key.ActionID, ETriggerEvent::Canceled, this, &UDrsMotionControllerInputComponent::OnInputEnded, keyPtr);
 }
 
-void UDrsMotionControllerInputComponent::OnButtonStarted(const FDrsMotionInputKey* key)
+void UDrsMotionControllerInputComponent::OnButtonStarted(const FMotionInputKey* key)
 {
 	ForwardKeyPressed(*key, 1.0f);
 }
 
-void UDrsMotionControllerInputComponent::OnInputEnded(const FDrsMotionInputKey* key)
+void UDrsMotionControllerInputComponent::OnInputEnded(const FMotionInputKey* key)
 {
 	ForwardKeyReleased(*key);
 }
 
-void UDrsMotionControllerInputComponent::OnAxisTriggered(const FInputActionValue& value, const FDrsMotionInputKey* key)
+void UDrsMotionControllerInputComponent::OnAxisTriggered(const FInputActionValue& value, const FMotionInputKey* key)
 {
 	ForwardKeyPressed(*key, value.Get<float>());
 }
 
-void UDrsMotionControllerInputComponent::ForwardKeyPressed(const FDrsMotionInputKey& key, float value)
+void UDrsMotionControllerInputComponent::ForwardKeyPressed(const FMotionInputKey& key, float value)
 {
 	if (!ShouldForwardKey(key, value))
 	{
@@ -114,7 +117,7 @@ void UDrsMotionControllerInputComponent::ForwardKeyPressed(const FDrsMotionInput
 	}
 }
 
-void UDrsMotionControllerInputComponent::ForwardKeyReleased(const FDrsMotionInputKey& key)
+void UDrsMotionControllerInputComponent::ForwardKeyReleased(const FMotionInputKey& key)
 {
 	if (ForwardedKeys.Remove(key.InputKey) > 0)
 	{

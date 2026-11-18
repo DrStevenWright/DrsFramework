@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
-
 #include "Engine/DeveloperSettings.h"
+
 #include "DrsXrPlatformEditorSettings.generated.h"
 
 /** Your editor preferences for DRS's XR support. They apply to you only, not to the project. */

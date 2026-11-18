@@ -3,6 +3,7 @@
 #include "DrsBase/DrsHand.h"
 
 #include "InputCoreTypes.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsHand)
 
 TOptional<EDrsHand> Drs::ToHand(EControllerHand controllerHand)

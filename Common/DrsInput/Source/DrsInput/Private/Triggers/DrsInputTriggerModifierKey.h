@@ -6,6 +6,7 @@
 
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
+
 #include "DrsInputTriggerModifierKey.generated.h"
 
 UENUM(BlueprintType)

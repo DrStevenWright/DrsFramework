@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 
+#include "Components/SkeletalMeshComponent.h"
 #include "DrsBase/DrsHand.h"
 
-#include "Components/SkeletalMeshComponent.h"
 #include "DrsHandMeshComponent.generated.h"
 
 /**

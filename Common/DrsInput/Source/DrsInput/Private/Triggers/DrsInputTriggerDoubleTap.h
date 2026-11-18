@@ -6,6 +6,7 @@
 
 #include "EnhancedPlayerInput.h"
 #include "InputTriggers.h"
+
 #include "DrsInputTriggerDoubleTap.generated.h"
 
 /**

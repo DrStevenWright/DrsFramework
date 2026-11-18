@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 
-#include "DrsXrPlatform/DrsXrControllerType.h"
-
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
-
+#include "DrsXrPlatform/DrsXrControllerType.h"
 #include "HeadMountedDisplayTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "DrsXrPlatformLibrary.generated.h"
 
 class UMotionControllerComponent;
-struct FDrsXrConfiguration;
+namespace Drs::XrPlatform { struct FXrConfiguration; }
 
 /** Cross-vendor foveated rendering levels. */
 UENUM(BlueprintType)
@@ -69,10 +68,10 @@ public:
 	static EDrsXrRuntimeType GetXrRuntimeType();
 
 	/** The current runtime and plugin configuration, for validation. */
-	static FDrsXrConfiguration GetXrConfiguration();
+	static Drs::XrPlatform::FXrConfiguration GetXrConfiguration();
 
 	/** Whether the selected runtime or vendor plugin has a behaviour or limitation. */
-	static bool HasXrProperty(EDrsXrPlatformProperty property);
+	static bool HasXrProperty(Drs::XrArbiter::EXrPlatformProperty property);
 
 	/** Whether the app has XR focus: the HMD is enabled and worn, and the system menu is closed. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")

@@ -4,11 +4,11 @@
 
 #include "DrsInput/DrsInputAction.h"
 #include "DrsInput/DrsInputLog.h"
-#include UE_INLINE_GENERATED_CPP_BY_NAME(DrsInputMappingContext)
-
 #if WITH_EDITOR
 #include "Editor.h"
 #endif
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(DrsInputMappingContext)
 
 void UDrsInputMappingContext::PostInitProperties()
 {

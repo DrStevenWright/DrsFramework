@@ -2,20 +2,19 @@
 
 #include "DrsXrRuntimeUtils.h"
 
-#include "DrsXrRuntime/DrsXrRuntime.h"
-
 #include "DrsBase/DrsLog.h"
-
+#include "DrsXrRuntime/DrsXrRuntime.h"
 #include "HAL/PlatformMisc.h"
 #include "Internationalization/Regex.h"
 #include "Misc/Paths.h"
-
 #if PLATFORM_WINDOWS
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include "Windows/MinWindows.h"
 #include <tlhelp32.h>
 #include "Windows/HideWindowsPlatformTypes.h"
 #endif
+
+using Drs::XrArbiter::EXrPlatformProperty;
 
 namespace Drs::XrRuntime
 {
@@ -163,19 +162,19 @@ namespace Drs::XrRuntime
 
 	FRuntimeCandidate SteamVrRuntime()
 	{
-		return { EDrsXrRuntimeType::SteamVR, Drs::XrArbiter::ToRuntimeFlag(EDrsXrPlatformProperty::NonVrNotSupported), &FindSteamVrRuntimeJson,
+		return { EDrsXrRuntimeType::SteamVR, Drs::XrArbiter::ToRuntimeFlag(EXrPlatformProperty::NonVrNotSupported), &FindSteamVrRuntimeJson,
 			[] { return IsProcessRunning(TEXT("vrserver.exe")) || IsProcessRunning(TEXT("vrmonitor.exe")); } };
 	}
 
 	FRuntimeCandidate PicoStreamingRuntime()
 	{
-		return { EDrsXrRuntimeType::Pico, Drs::XrArbiter::ToRuntimeFlag(EDrsXrPlatformProperty::ControllerLosesFocus),
+		return { EDrsXrRuntimeType::Pico, Drs::XrArbiter::ToRuntimeFlag(EXrPlatformProperty::ControllerLosesFocus),
 			[] { return FindPicoRuntimeJson(TEXT("Business Streaming")); }, [] { return IsProcessRunning(TEXT("Business Streaming.exe")); } };
 	}
 
 	FRuntimeCandidate PicoConnectRuntime()
 	{
-		return { EDrsXrRuntimeType::Pico, Drs::XrArbiter::ToRuntimeFlag(EDrsXrPlatformProperty::ControllerLosesFocus),
+		return { EDrsXrRuntimeType::Pico, Drs::XrArbiter::ToRuntimeFlag(EXrPlatformProperty::ControllerLosesFocus),
 			[] { return FindPicoRuntimeJson(TEXT("PICO Connect")); }, [] { return IsProcessRunning(TEXT("PICO Connect.exe")); } };
 	}
 

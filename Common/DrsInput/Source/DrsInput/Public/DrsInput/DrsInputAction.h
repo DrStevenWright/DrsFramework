@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 
 #include "DrsBase/DrsHand.h"
-
 #include "InputAction.h"
+
 #include "DrsInputAction.generated.h"
 
 /** Custom class for input actions used by Drs. */

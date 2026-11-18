@@ -2,15 +2,16 @@
 
 #include "DrsXrMixedReality/DrsXrPassthroughSubsystem.h"
 
-#include "DrsXrPassthroughBackend.h"
-
 #include "DrsBase/DrsLog.h"
 #include "DrsGraphicsUtils/DrsViewFadeLibrary.h"
-
+#include "DrsXrPassthroughBackend.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPassthroughSubsystem)
+
+using Drs::XrMixedReality::FXrPassthroughBackend;
 
 namespace
 {
@@ -54,7 +55,7 @@ void UDrsXrPassthroughSubsystem::Deinitialize()
 
 bool UDrsXrPassthroughSubsystem::IsPassthroughSupported() const
 {
-	const FDrsXrPassthroughBackend* backend = GetDrsXrPassthroughBackend();
+	const FXrPassthroughBackend* backend = Drs::XrMixedReality::GetPassthroughBackend();
 	return backend && backend->IsSupported();
 }
 
@@ -128,7 +129,7 @@ float UDrsXrPassthroughSubsystem::GetPassthroughBlend() const
 
 void UDrsXrPassthroughSubsystem::UpdatePassthroughState()
 {
-	if (FDrsXrPassthroughBackend* backend = GetDrsXrPassthroughBackend())
+	if (FXrPassthroughBackend* backend = Drs::XrMixedReality::GetPassthroughBackend())
 	{
 		backend->SetPassthroughVisible(IsPassthroughRequested() && !IsPassthroughSuspended());
 	}

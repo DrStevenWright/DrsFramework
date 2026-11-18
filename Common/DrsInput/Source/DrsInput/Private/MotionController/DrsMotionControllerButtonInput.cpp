@@ -2,38 +2,41 @@
 
 #include "DrsInput/MotionController/DrsMotionControllerButtonInput.h"
 
-void FDrsMotionControllerButtonInput::Update(float deltaTime)
+namespace Drs::Input
 {
-	TimeInCurrentState += deltaTime;
+	void FMotionControllerButtonInput::Update(float deltaTime)
+	{
+		TimeInCurrentState += deltaTime;
 	
-	if (bPressRegistered)
-	{
-		if (!bIsDown)
+		if (bPressRegistered)
 		{
-			bIsDown = true;
-			bEverPressed = true;
-			TimeInCurrentState = 0.0f;
-		}
+			if (!bIsDown)
+			{
+				bIsDown = true;
+				bEverPressed = true;
+				TimeInCurrentState = 0.0f;
+			}
 
-		bPressRegistered = false;
-	}
-	else if (bReleaseRegistered)
-	{
-		if (bIsDown)
+			bPressRegistered = false;
+		}
+		else if (bReleaseRegistered)
 		{
-			bIsDown = false;
-			TimeInCurrentState = 0.0f;
+			if (bIsDown)
+			{
+				bIsDown = false;
+				TimeInCurrentState = 0.0f;
+			}
+
+			bReleaseRegistered = false;
 		}
-
-		bReleaseRegistered = false;
 	}
-}
 
-void FDrsMotionControllerButtonInput::Reset()
-{
-	bPressRegistered	= false;
-	bReleaseRegistered	= false;
-	bIsDown				= false;
-	bEverPressed		= false;
-	TimeInCurrentState	= 0.0f;
+	void FMotionControllerButtonInput::Reset()
+	{
+		bPressRegistered	= false;
+		bReleaseRegistered	= false;
+		bIsDown				= false;
+		bEverPressed		= false;
+		TimeInCurrentState	= 0.0f;
+	}
 }

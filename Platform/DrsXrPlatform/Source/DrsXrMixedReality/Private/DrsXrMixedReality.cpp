@@ -2,8 +2,9 @@
 
 #include "DrsXrMixedReality/DrsXrPassthroughSubsystem.h"
 #include "DrsXrPassthroughBackend.h"
-
 #include "Modules/ModuleManager.h"
+
+using Drs::XrMixedReality::FXrPassthroughBackend;
 
 DEFINE_LOG_CATEGORY(LogDrsXrMixedReality);
 
@@ -15,7 +16,7 @@ namespace
 	public:
 		virtual void StartupModule() override
 		{
-			PassthroughBackend = MakeUnique<FDrsXrPassthroughBackend>();
+			PassthroughBackend = MakeUnique<FXrPassthroughBackend>();
 		}
 
 		virtual void ShutdownModule() override
@@ -23,16 +24,16 @@ namespace
 			PassthroughBackend.Reset();
 		}
 
-		FDrsXrPassthroughBackend* GetPassthroughBackend() const { return PassthroughBackend.Get(); }
+		FXrPassthroughBackend* GetPassthroughBackend() const { return PassthroughBackend.Get(); }
 
 	private:
-		TUniquePtr<FDrsXrPassthroughBackend> PassthroughBackend;
+		TUniquePtr<FXrPassthroughBackend> PassthroughBackend;
 	};
 }
 
 IMPLEMENT_MODULE(FDrsXrMixedRealityModule, DrsXrMixedReality)
 
-FDrsXrPassthroughBackend* GetDrsXrPassthroughBackend()
+FXrPassthroughBackend* Drs::XrMixedReality::GetPassthroughBackend()
 {
 	const FDrsXrMixedRealityModule* module = FModuleManager::GetModulePtr<FDrsXrMixedRealityModule>(TEXT("DrsXrMixedReality"));
 	return module ? module->GetPassthroughBackend() : nullptr;

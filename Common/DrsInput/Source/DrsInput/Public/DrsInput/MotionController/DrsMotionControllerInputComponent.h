@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 
+#include "Components/ActorComponent.h"
+#include "DrsBase/DrsHand.h"
 #include "DrsInput/MotionController/DrsMotionControllerKeys.h"
 
-#include "DrsBase/DrsHand.h"
-
-#include "Components/ActorComponent.h"
 #include "DrsMotionControllerInputComponent.generated.h"
 
 class APlayerController;
@@ -17,7 +16,7 @@ class UDrsInputMappingContext;
 struct FInputActionValue;
 
 /**
- * Forwards one hand's motion controller input as device-agnostic input keys (see FDrsMotionControllerHandKeys).
+ * Forwards one hand's motion controller input as device-agnostic input keys (see FMotionControllerHandKeys).
  *
  * A global input mapping context binds every supported device's physical inputs to input actions with the matching action
  * IDs. This component binds to those actions and re-issues them as simulated key events on the player controller, so that
@@ -65,22 +64,22 @@ protected:
 	 * @param key	The device-agnostic key that would be pressed.
 	 * @param value	The value that would be forwarded (1 for buttons).
 	 */
-	virtual bool ShouldForwardKey(const FDrsMotionInputKey& key, float value) const { return true; }
+	virtual bool ShouldForwardKey(const Drs::Input::FMotionInputKey& key, float value) const { return true; }
 
 	/** Forwards a press, or an analogue update, on the key (subject to ShouldForwardKey). */
-	void ForwardKeyPressed(const FDrsMotionInputKey& key, float value);
+	void ForwardKeyPressed(const Drs::Input::FMotionInputKey& key, float value);
 
 	/** Forwards a release on the key, if the key is currently being forwarded as pressed. */
-	void ForwardKeyReleased(const FDrsMotionInputKey& key);
+	void ForwardKeyReleased(const Drs::Input::FMotionInputKey& key);
 
 private:
 
-	void OnButtonStarted(const FDrsMotionInputKey* key);
-	void OnInputEnded(const FDrsMotionInputKey* key);
-	void OnAxisTriggered(const FInputActionValue& value, const FDrsMotionInputKey* key);
+	void OnButtonStarted(const Drs::Input::FMotionInputKey* key);
+	void OnInputEnded(const Drs::Input::FMotionInputKey* key);
+	void OnAxisTriggered(const FInputActionValue& value, const Drs::Input::FMotionInputKey* key);
 
-	void BindButton(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FDrsMotionInputKey& key);
-	void BindAxis(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const FDrsMotionInputKey& key);
+	void BindButton(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const Drs::Input::FMotionInputKey& key);
+	void BindAxis(UDrsEnhancedInputComponent* inputComponent, const UDrsInputMappingContext* context, const Drs::Input::FMotionInputKey& key);
 
 	// Hand this component forwards input for.
 	UPROPERTY(EditAnywhere, BlueprintGetter = GetHand, Category = "DRS|Input")

@@ -1,7 +1,5 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
-#include "DrsBaseTestTypes.h"
-
 #include "DrsBase/DrsBase.h"
 #include "DrsBase/DrsHand.h"
 #include "DrsBase/DrsLog.h"
@@ -9,10 +7,13 @@
 #include "DrsBase/DrsVersion.h"
 #include "DrsBase/DrsVotableState.h"
 #include "DrsBaseBlueprint/DrsHandLibrary.h"
-
+#include "DrsBaseTestTypes.h"
 #include "InputCoreTypes.h"
 #include "Misc/AutomationTest.h"
 #include "Modules/ModuleManager.h"
+
+using Drs::TVotableState;
+using Drs::BaseTests::EPlainVoter;
 
 IMPLEMENT_MODULE(FDefaultModuleImpl, DrsBaseTests)
 
@@ -42,7 +43,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsBaseVotableStateTest, "Drs.Base.VotableStat
 
 bool FDrsBaseVotableStateTest::RunTest(const FString& parameters)
 {
-	TDrsVotableState<FName> nameState;
+	TVotableState<FName> nameState;
 	TestEqual(TEXT("No votes string"), nameState.GetVotesString(), FString(TEXT("...")));
 	TestTrue(TEXT("First vote changes the state"), nameState.CastVote(TEXT("A")));
 	TestFalse(TEXT("Second vote doesn't change the state"), nameState.CastVote(NAME_None));
@@ -55,15 +56,15 @@ bool FDrsBaseVotableStateTest::RunTest(const FString& parameters)
 	TestFalse(TEXT("No votes left"), nameState.IsVoted());
 	TestFalse(TEXT("Withdrawing with no votes doesn't change the state"), nameState.WithdrawVote(TEXT("A")));
 
-	TDrsVotableState<EDrsBaseTestVoter> enumState;
+	TVotableState<EDrsBaseTestVoter> enumState;
 	enumState.CastVote(EDrsBaseTestVoter::Second);
 	TestEqual(TEXT("UENUM votes string"), enumState.GetVotesString(), FString(TEXT("Second")));
 
-	TDrsVotableState<EDrsBaseTestPlainVoter> plainEnumState;
-	plainEnumState.CastVote(EDrsBaseTestPlainVoter::Second);
+	TVotableState<EPlainVoter> plainEnumState;
+	plainEnumState.CastVote(EPlainVoter::Second);
 	TestEqual(TEXT("Plain enum votes string"), plainEnumState.GetVotesString(), FString(TEXT("1")));
 
-	TDrsVotableState<int32> intState;
+	TVotableState<int32> intState;
 	intState.CastVote(7);
 	TestEqual(TEXT("Integer votes string"), intState.GetVotesString(), FString(TEXT("7")));
 	return true;

@@ -2,26 +2,29 @@
 
 #include "DrsInput/MotionController/DrsMotionControllerVectorInput.h"
 
-void FDrsMotionControllerVectorInput::Update(float deltaTime)
+namespace Drs::Input
 {
-	Magnitude = Vector.Size();
-	
-	const bool isIdle = (Magnitude <= IdleThreshold);
-	if (isIdle != bIdle)
+	void FMotionControllerVectorInput::Update(float deltaTime)
 	{
-		bIdle = isIdle;
+		Magnitude = Vector.Size();
+	
+		const bool isIdle = (Magnitude <= IdleThreshold);
+		if (isIdle != bIdle)
+		{
+			bIdle = isIdle;
+			IdleTime = 0.0f;
+		}
+		else if (bIdle)
+		{
+			IdleTime += deltaTime;
+		}
+	}
+
+	void FMotionControllerVectorInput::Reset()
+	{
+		Vector = FVector2D::ZeroVector;
+		Magnitude = 0.0f;
+		bIdle = false;
 		IdleTime = 0.0f;
 	}
-	else if (bIdle)
-	{
-		IdleTime += deltaTime;
-	}
-}
-
-void FDrsMotionControllerVectorInput::Reset()
-{
-	Vector = FVector2D::ZeroVector;
-	Magnitude = 0.0f;
-	bIdle = false;
-	IdleTime = 0.0f;
 }

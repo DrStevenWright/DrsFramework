@@ -15,7 +15,7 @@ namespace Drs::XrRuntime
 	struct FRuntimeCandidate
 	{
 		EDrsXrRuntimeType Type = EDrsXrRuntimeType::None;
-		/** EDrsXrPlatformProperty flags (see Drs::XrArbiter::ToRuntimeFlag). */
+		/** EXrPlatformProperty flags (see Drs::XrArbiter::ToRuntimeFlag). */
 		uint32 Flags = 0;
 		/** Returns the runtime's manifest path, or an empty string when it is not installed. */
 		FString (*FindRuntimeJson)() = nullptr;

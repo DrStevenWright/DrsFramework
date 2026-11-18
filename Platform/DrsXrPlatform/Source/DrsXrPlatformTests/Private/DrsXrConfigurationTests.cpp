@@ -1,16 +1,18 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
 #include "DrsXrPlatform/DrsXrConfiguration.h"
-
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
+using Drs::XrPlatform::EXrPluginSource;
+using Drs::XrPlatform::FXrConfiguration;
+
 namespace
 {
-	FDrsXrConfiguration MakeConfiguration(EDrsXrPluginType selected, EDrsXrPluginSource source, EDrsXrPluginType expected, EDrsXrRuntimeType runtime)
+	FXrConfiguration MakeConfiguration(EDrsXrPluginType selected, EXrPluginSource source, EDrsXrPluginType expected, EDrsXrRuntimeType runtime)
 	{
-		FDrsXrConfiguration configuration;
+		FXrConfiguration configuration;
 		configuration.XrSelectedPlugin = selected;
 		configuration.XrPluginSource = source;
 		configuration.XrExpectedPlugin = expected;
@@ -25,7 +27,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsXrConfigurationValidityTest, "Drs.XrPlatfor
 bool FDrsXrConfigurationValidityTest::RunTest(const FString& parameters)
 {
 	using EPlugin = EDrsXrPluginType;
-	using ESource = EDrsXrPluginSource;
+	using ESource = EXrPluginSource;
 	using ERuntime = EDrsXrRuntimeType;
 
 	TestTrue(TEXT("No vendor plugin (plain OpenXR)"), MakeConfiguration(EPlugin::None, ESource::None, EPlugin::Meta, ERuntime::Oculus).IsValid());

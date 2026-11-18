@@ -2,12 +2,13 @@
 
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
 
-#include "DrsXrArbiter/DrsXrArbiter.h"
-
 #include "DrsBase/DrsLog.h"
-
+#include "DrsXrArbiter/DrsXrArbiter.h"
 #include "Misc/ConfigCacheIni.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrArbiterTypes)
+
+using Drs::XrArbiter::FArbitrationInputs;
 
 namespace
 {
@@ -53,7 +54,7 @@ namespace
 	}
 }
 
-TOptional<bool> FDrsArbitrationCondition::Evaluate(const FDrsArbitrationInputs& inputs) const
+TOptional<bool> FDrsArbitrationCondition::Evaluate(const FArbitrationInputs& inputs) const
 {
 	const FString* property = nullptr;
 	switch (Criteria)
@@ -75,7 +76,7 @@ TOptional<bool> FDrsArbitrationCondition::Evaluate(const FDrsArbitrationInputs& 
 	return property->Contains(Value);
 }
 
-bool FDrsArbitrationRule::Evaluate(const FDrsArbitrationInputs& inputs) const
+bool FDrsArbitrationRule::Evaluate(const FArbitrationInputs& inputs) const
 {
 	if (!IsValid())
 	{

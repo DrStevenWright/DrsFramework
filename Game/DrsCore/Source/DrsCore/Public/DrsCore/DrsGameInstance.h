@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Engine/GameInstance.h"
+
 #include "DrsGameInstance.generated.h"
 
 /** Framework game instance, one per running game (client or server). Lives across map changes; not replicated. */

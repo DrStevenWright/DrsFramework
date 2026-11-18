@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "DrsXrArbiterTypes.generated.h"
 
 /** Whether the vendor plugin types may be selected in this build. */
@@ -42,19 +43,19 @@ enum class EDrsXrRuntimeType : uint8
 	SteamVR,
 };
 
-/** Behaviours or limitations of the selected runtime or vendor plugin. */
-enum class EDrsXrPlatformProperty : uint32
-{
-	/** Causes stability issues if selected while no HMD is connected. */
-	NonVrNotSupported = 0,
-	/** The motion controller transform becomes unstable while the app is out of XR focus (e.g. the system menu is open). */
-	ControllerLosesFocus,
-};
-
 namespace Drs::XrArbiter
 {
+	/** Behaviours or limitations of the selected runtime or vendor plugin. */
+	enum class EXrPlatformProperty : uint32
+	{
+		/** Causes stability issues if selected while no HMD is connected. */
+		NonVrNotSupported = 0,
+		/** The motion controller transform becomes unstable while the app is out of XR focus (e.g. the system menu is open). */
+		ControllerLosesFocus,
+	};
+
 	/** The runtime flag bit for a platform property. */
-	constexpr uint32 ToRuntimeFlag(EDrsXrPlatformProperty property) { return 1u << static_cast<uint32>(property); }
+	constexpr uint32 ToRuntimeFlag(EXrPlatformProperty property) { return 1u << static_cast<uint32>(property); }
 }
 
 /** How an arbitration condition is evaluated. */
@@ -89,15 +90,18 @@ enum class EDrsArbitrationCriteria : uint8
 	Invalid UMETA(Hidden, DisplayName = "Not set")
 };
 
-/** The device properties an arbitration rule is evaluated against. Null means unknown. */
-struct FDrsArbitrationInputs
+namespace Drs::XrArbiter
 {
-	const FString* DeviceName = nullptr;
-	const FString* XrRuntime = nullptr;
-	const FString* DeviceMake = nullptr;
-	const FString* DeviceModel = nullptr;
-	const FString* GpuFamily = nullptr;
-};
+	/** The device properties an arbitration rule is evaluated against. Null means unknown. */
+	struct FArbitrationInputs
+	{
+		const FString* DeviceName = nullptr;
+		const FString* XrRuntime = nullptr;
+		const FString* DeviceMake = nullptr;
+		const FString* DeviceModel = nullptr;
+		const FString* GpuFamily = nullptr;
+	};
+}
 
 /** One condition of an arbitration rule. */
 USTRUCT(BlueprintType)
@@ -117,7 +121,7 @@ struct DRSXRARBITER_API FDrsArbitrationCondition
 	bool IsValid() const { return ConditionType != EDrsArbitrationConditionType::Invalid && Criteria != EDrsArbitrationCriteria::Invalid && !Value.IsEmpty(); }
 
 	/** Whether the tested property contains Value. Unset when that property is unknown. */
-	TOptional<bool> Evaluate(const FDrsArbitrationInputs& inputs) const;
+	TOptional<bool> Evaluate(const Drs::XrArbiter::FArbitrationInputs& inputs) const;
 
 	/** Parses "ConditionType=...,Criteria=...,Value=..." (the inner text of one condition in config). */
 	static FDrsArbitrationCondition ParseFromConfig(const FString& conditionString);
@@ -137,7 +141,7 @@ struct DRSXRARBITER_API FDrsArbitrationRule
 
 	bool IsValid() const { return Configuration != EDrsXrPluginType::None && !Conditions.IsEmpty(); }
 
-	bool Evaluate(const FDrsArbitrationInputs& inputs) const;
+	bool Evaluate(const Drs::XrArbiter::FArbitrationInputs& inputs) const;
 
 	/**
 	 * Parses one rule from its config text, "(Configuration=Meta,Conditions=((...),(...)))". The arbiter reads config
