@@ -38,6 +38,12 @@ Run the tests through the host project. They are UE Automation tests named `Drs.
 UnrealEditor-Cmd.exe <host>.uproject -ExecCmds="Automation RunTests Drs; Quit" -unattended -nullrhi -nosplash
 ```
 
+Check which desktop OpenXR runtime DRS selects on this machine (from the host project's root, after building the Editor target; no headset needed). It starts the project with `-game`, prints the DRS XR log lines and closes it; with `-Expect` it exits 1 on a different selection. See `Platform/DrsXrPlatform/CLAUDE.md` for what to expect:
+
+```
+powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/CheckXrRuntime.ps1 -Expect SteamVR
+```
+
 ## Tests
 
 Tests use `IMPLEMENT_SIMPLE_AUTOMATION_TEST` with `EditorContext | ProductFilter`, inside `#if WITH_DEV_AUTOMATION_TESTS`, and are named `Drs.<Plugin>.<Area>`. Automation Specs (`BEGIN_DEFINE_SPEC`, same flags and naming) are also fine, for many small cases with shared setup; `DrsXrPlatformTests` has one. They live in a `DeveloperTool` module whose name ends in `Tests`, inside the plugin they test; `Base/DrsBase/Source/DrsBaseTests` is the example to follow.
@@ -51,7 +57,7 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 | External | `Platform/External/` | Private vendor plugin forks (MetaXR, Pico) as submodules. Only Platform code may use them, and they must not depend on any Drs module. Clones without access won't fetch them. |
 | Base | `Base/` | `DrsBase`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), object, enum, votable state and delegate helpers, and the hand enums `EDrsHand` and `EDrsHandMask`; `DrsBaseTests` |
 | Common | `Common/` | Plugins that need only the engine and `DrsBase` and don't depend on each other, such as `DrsUtilities` (modules `DrsMathUtils`, `DrsGraphicsUtils` with the view fade) |
-| Platform | `Platform/` | `DrsXrPlatform`: XR platform API over OpenXR (`UDrsXrPlatformLibrary`), the vendor plugin arbiter (`DrsXrArbiter`), desktop runtime selection (`DrsXrRuntime`), Meta hand tracking and passthrough. |
+| Platform | `Platform/` | `DrsXrPlatform`: XR platform API over OpenXR (`UDrsXrPlatformLibrary`), the XR arbiter (`DrsXrArbiter`, which selects the desktop OpenXR runtime and the vendor plugin), Meta hand tracking and passthrough. |
 | GameSupport | `GameSupport/` | The fundamental game systems built on the layers below: `DrsXrGame` (tracked hand meshes), `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` (empty for now). Plugins here may depend on each other, as long as the graph is acyclic. |
 | Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn, GameInstance) and the place where otherwise independent GameSupport plugins talk to each other |
 

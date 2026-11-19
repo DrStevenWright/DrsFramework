@@ -9,7 +9,7 @@
 
 #include "DrsXrPlatformEditorSettings.generated.h"
 
-/** Your editor preferences for DRS's XR support. They apply to you only, not to the project. */
+/** Local user's editor preferences pertaining to DRS's platform-level XR support. */
 UCLASS(Config = EditorSettings, DisplayName = "XR Platform")
 class DRSXRPLATFORMEDITOR_API UDrsXrPlatformEditorSettings : public UDeveloperSettings
 {
@@ -18,15 +18,15 @@ class DRSXRPLATFORMEDITOR_API UDrsXrPlatformEditorSettings : public UDeveloperSe
 public:
 	UDrsXrPlatformEditorSettings()
 	{
-		// Editor Preferences > DRS > XR Platform. The Editor container comes from Config = EditorSettings.
+		// Editor Preferences > DRS > XR Platform.
 		CategoryName = TEXT("DRS");
 	}
 
 	/**
-	 * If using the XR arbiter to select between different installed XR vendor plugins, then this option allows you to
-	 * override what plugin is loaded in the editor, for example in case you need to edit the plugin settings.
-	 * 'None' leaves the choice to the project override and the arbitration rules.
+	 * If the XR arbiter selects between several installed vendor XR plugins, this option overrides which plugin loads
+	 * in the editor. For example, use this if you need to edit the plugin settings without first connecting hardware of
+	 * the corresponding type. None leaves the choice to the project override and the hardware.
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "XR Plugin Arbiter", DisplayName = "Editor Override", meta = (ConfigRestartRequired = true))
-	EDrsXrPluginType XrArbiterEditorOverride = EDrsXrPluginType::None;
+	UPROPERTY(Config, EditAnywhere, Category = "XR Vendor Plugin", DisplayName = "Editor Override", meta = (ConfigRestartRequired = true, GetOptions = "DrsXrArbiter.DrsXrArbiterSettings.GetXrPluginOptions"))
+	FName XrArbiterEditorOverride;
 };

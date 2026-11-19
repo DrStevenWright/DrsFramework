@@ -4,6 +4,7 @@
 
 #include "Dom/JsonObject.h"
 #include "DrsBase/DrsLog.h"
+#include "DrsXrRuntimeSelection.h"
 #include "Engine/Engine.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "IHeadMountedDisplayModule.h"
@@ -20,45 +21,34 @@
 #endif
 #if PLATFORM_ANDROID
 #include "Android/AndroidPlatformMisc.h"
+#include <sys/system_properties.h>
 #endif
-
-using Drs::XrArbiter::FArbitrationInputs;
 
 DEFINE_LOG_CATEGORY(LogDrsXrArbiter);
 
 namespace
 {
+	// The settings live in the plugin's own config file (Config = DrsXrPlatform): the plugin's DefaultDrsXrPlatform.ini, then
+	// the project's, which wins. A plugin's Config/Game.ini would instead be applied over the project's DefaultGame.ini.
+	const TCHAR* SettingsConfigName = TEXT("DrsXrPlatform");
 	const TCHAR* ProjectSettingsSection = TEXT("/Script/DrsXrArbiter.DrsXrArbiterSettings");
+	const TCHAR* RuntimeSettingsSection = TEXT("/Script/DrsXrArbiter.DrsXrRuntimeSettings");
 	const TCHAR* XrArbiterProjectOverrideProperty = TEXT("XrArbiterProjectOverride");
-	const TCHAR* MobileArbitrationRulesProperty = TEXT("MobileDeviceArbitrationRules");
-	const TCHAR* TetheredArbitrationRulesProperty = TEXT("TetheredDeviceArbitrationRules");
+	const TCHAR* VendorsProperty = TEXT("Vendors");
+	const TCHAR* RuntimesProperty = TEXT("Runtimes");
+	const TCHAR* RuntimePriorityProperty = TEXT("RuntimePriority");
 	const TCHAR* EditorSettingsSection = TEXT("/Script/DrsXrPlatformEditor.DrsXrPlatformEditorSettings");
 	const TCHAR* XrArbiterEditorOverrideProperty = TEXT("XrArbiterEditorOverride");
 	const TCHAR* ArbitratedLoadingPhaseKey = TEXT("ArbitratedLoadingPhase");
 	const TCHAR* ArbitratedXrPluginKey = TEXT("ArbitratedXrPlugin");
 
-	/** A module that is loaded whenever a vendor's plugin is running, arbitrated or not. Used to detect the vendor. */
-	const TPair<EDrsXrPluginType, const TCHAR*> VendorMarkerModules[] =
-	{
-		{ EDrsXrPluginType::Meta, TEXT("OculusXRHMD") },
-		{ EDrsXrPluginType::Pico, TEXT("PICOOpenXRHMD") },
-	};
-
-	const TPair<EDrsXrPluginType, const TCHAR*> PluginTypeNames[] =
-	{
-		{ EDrsXrPluginType::None, TEXT("None") },
-		{ EDrsXrPluginType::Meta, TEXT("Meta") },
-		{ EDrsXrPluginType::Pico, TEXT("Pico") },
-	};
-
-	// Shared state. The plugin type is decided once, at or after PostConfigInit.
-	TOptional<EDrsXrPluginType> CurrentPluginType;
-	TSet<EDrsXrPluginType> ArbitratedPluginTypes; // The types whose modules are integrated with the arbiter.
-	bool bLoadAllPluginTypes = false; // Commandlets load every plugin type's modules, so that everything cooks.
+	// Shared state. The vendor is decided once, at or after PostConfigInit.
+	TOptional<FName> CurrentPluginType;
+	TSet<FName> ArbitratedPluginTypes; // The vendors whose modules are integrated with the arbiter.
+	bool bLoadAllPluginTypes = false; // Commandlets load every vendor's modules, so that everything cooks.
 	ELoadingPhase::Type CurrentLoadingPhase = ELoadingPhase::EarliestPossible;
-	EDrsXrRuntimeType SelectedRuntimeType = PLATFORM_ANDROID ? EDrsXrRuntimeType::Android : EDrsXrRuntimeType::None;
-	EDrsXrRuntimeType ExpectedRuntimeType = PLATFORM_ANDROID ? EDrsXrRuntimeType::Android : EDrsXrRuntimeType::None;
-	uint32 SelectedRuntimeFlags = 0;
+	FName SelectedRuntime = PLATFORM_ANDROID ? FName(TEXT("Android")) : NAME_None;
+	FName SelectedRuntimeVendor;
 
 	bool IsArbitrationDecided() { return CurrentPluginType.IsSet() || bLoadAllPluginTypes; }
 
@@ -74,151 +64,152 @@ namespace
 		return ELoadingPhase::FromString(*token);
 	}
 
-	/** Reads a plugin type from config. Only a type other than None counts as set. */
-	bool GetPluginTypeFromConfig(const TCHAR* section, const TCHAR* property, const FString& filename, const TCHAR* sourceName, EDrsXrPluginType& outPluginType)
+	/** A vendor name from config or the command line. "None" (or empty) is None; an unknown vendor is logged but kept. */
+	FName ParseVendorName(const FString& value, const TCHAR* sourceName)
+	{
+		const FString trimmed = value.TrimStartAndEnd().TrimQuotes();
+		if (trimmed.IsEmpty() || trimmed.Equals(TEXT("None"), ESearchCase::IgnoreCase))
+		{
+			return NAME_None;
+		}
+		const FName vendorId(*trimmed);
+		DRS_CLOG(Drs::XrArbiter::FindVendor(vendorId) == nullptr, LogDrsXrArbiter, Warning, "%s names the vendor '%s', which is not in the vendor table.", sourceName, *trimmed);
+		return vendorId;
+	}
+
+	/** The config file that holds the arbiter's settings. */
+	FString GetSettingsFilename()
+	{
+		return GConfig ? GConfig->GetConfigFilename(SettingsConfigName) : FString();
+	}
+
+	/** Reads a vendor from config. Only a vendor other than None counts as set. */
+	bool GetPluginTypeFromConfig(const TCHAR* section, const TCHAR* property, const FString& filename, const TCHAR* sourceName, FName& outPluginType)
 	{
 		FString value;
 		if (GConfig && GConfig->GetString(section, property, value, filename))
 		{
-			DRS_LOG(LogDrsXrArbiter, Log, "Plugin type from %s: '%s'.", sourceName, *value);
-			const TOptional<EDrsXrPluginType> pluginType = Drs::XrArbiter::PluginTypeFromString(value);
-			if (pluginType.IsSet() && pluginType.GetValue() != EDrsXrPluginType::None)
+			const FName vendorId = ParseVendorName(value, sourceName);
+			if (!vendorId.IsNone())
 			{
-				outPluginType = pluginType.GetValue();
+				DRS_LOG(LogDrsXrArbiter, Log, "XR plugin from %s: '%s'.", sourceName, *vendorId.ToString());
+				outPluginType = vendorId;
 				return true;
 			}
 		}
 		return false;
 	}
 
-	bool GetPluginTypeFromCommandLine(EDrsXrPluginType& outPluginType)
+	bool GetPluginTypeFromCommandLine(FName& outPluginType)
 	{
 		FString argument;
-		if (FParse::Value(FCommandLine::Get(), TEXT("DrsXrPlugin="), argument))
+		if (FParse::Value(FCommandLine::Get(), TEXT("XrPlugin="), argument))
 		{
-			DRS_LOG(LogDrsXrArbiter, Log, "Plugin type from the command line: '%s'.", *argument);
-			const TOptional<EDrsXrPluginType> pluginType = Drs::XrArbiter::PluginTypeFromString(argument);
-			if (pluginType.IsSet()) // None may be given, to load no vendor modules.
-			{
-				outPluginType = pluginType.GetValue();
-				return true;
-			}
+			// None may be given, to load no vendor modules.
+			outPluginType = ParseVendorName(argument, TEXT("-XrPlugin="));
+			DRS_LOG(LogDrsXrArbiter, Log, "XR plugin from the command line: '%s'.", *outPluginType.ToString());
+			return true;
 		}
 		return false;
 	}
 
-	bool GetPluginTypeFromProjectOverride(EDrsXrPluginType& outPluginType)
+	bool GetPluginTypeFromProjectOverride(FName& outPluginType)
 	{
-		return GetPluginTypeFromConfig(ProjectSettingsSection, XrArbiterProjectOverrideProperty, GGameIni, TEXT("the project override"), outPluginType);
+		return GetPluginTypeFromConfig(ProjectSettingsSection, XrArbiterProjectOverrideProperty, GetSettingsFilename(), TEXT("The project override"), outPluginType);
 	}
 
-	bool GetPluginTypeFromEditorSettings(EDrsXrPluginType& outPluginType)
+	bool GetPluginTypeFromEditorSettings(FName& outPluginType)
 	{
 #if WITH_EDITOR
-		return GetPluginTypeFromConfig(EditorSettingsSection, XrArbiterEditorOverrideProperty, GEditorSettingsIni, TEXT("the editor settings"), outPluginType);
+		return GetPluginTypeFromConfig(EditorSettingsSection, XrArbiterEditorOverrideProperty, GEditorSettingsIni, TEXT("The editor setting"), outPluginType);
 #else
 		return false;
 #endif
 	}
 
-	bool GetPluginTypeFromRules(const TCHAR* property, const FArbitrationInputs& inputs, EDrsXrPluginType& outPluginType)
+	bool GetPluginTypeFromIdentities(const TArray<FString>& identities, FName& outPluginType)
 	{
-		for (const FDrsArbitrationRule& rule : FDrsArbitrationRule::ParseFromConfig(ProjectSettingsSection, property, GGameIni))
-		{
-			if (rule.Evaluate(inputs))
-			{
-				outPluginType = rule.Configuration;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	bool GetPluginTypeFromAndroidDeviceProperties(EDrsXrPluginType& outPluginType)
-	{
-#if PLATFORM_ANDROID
-		// The device name is not available on Android, so the rules use other device properties.
-		const FString deviceMake = FAndroidMisc::GetDeviceMake();
-		const FString deviceModel = FAndroidMisc::GetDeviceModel();
-		const FString gpuFamily = FAndroidMisc::GetGPUFamily();
-		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the plugin type for device make '%s', model '%s', GPU '%s'.", *deviceMake, *deviceModel, *gpuFamily);
-
-		FArbitrationInputs inputs;
-		inputs.DeviceMake = &deviceMake;
-		inputs.DeviceModel = &deviceModel;
-		inputs.GpuFamily = &gpuFamily;
-		return GetPluginTypeFromRules(MobileArbitrationRulesProperty, inputs, outPluginType);
-#else
-		return false;
-#endif
-	}
-
-	bool GetPluginTypeFromDeviceName(const FString& deviceName, EDrsXrPluginType& outPluginType)
-	{
-		FArbitrationInputs inputs;
-		inputs.DeviceName = &deviceName;
-		return GetPluginTypeFromRules(TetheredArbitrationRulesProperty, inputs, outPluginType);
-	}
-
-	bool GetPluginTypeFromXrRuntime(EDrsXrRuntimeType runtimeType, EDrsXrPluginType& outPluginType)
-	{
-		// On desktop the selected runtime usually says which device to expect. Multi-vendor runtimes such as SteamVR have
-		// no rule, so they fall back to the expected runtime, then to the device name.
-		if (runtimeType == EDrsXrRuntimeType::None || CurrentLoadingPhase != ELoadingPhase::PostConfigInit)
+		const FName vendorId = Drs::XrArbiter::MatchVendor(Drs::XrArbiter::GetVendors(), identities);
+		if (vendorId.IsNone())
 		{
 			return false;
 		}
-
-		const FString runtimeName = Drs::XrArbiter::RuntimeTypeToString(runtimeType);
-		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the plugin type from the XR runtime '%s'.", *runtimeName);
-
-		FArbitrationInputs inputs;
-		inputs.XrRuntime = &runtimeName;
-		if (GetPluginTypeFromRules(TetheredArbitrationRulesProperty, inputs, outPluginType))
-		{
-			return true;
-		}
-
-		const EDrsXrRuntimeType expectedRuntimeType = Drs::XrArbiter::GetExpectedXrRuntimeType();
-		return expectedRuntimeType != runtimeType && GetPluginTypeFromXrRuntime(expectedRuntimeType, outPluginType);
+		outPluginType = vendorId;
+		return true;
 	}
 
-	bool GetPluginTypeFromConnectedDevice(EDrsXrPluginType& outPluginType)
+#if PLATFORM_ANDROID
+	FString GetAndroidSystemProperty(const char* name)
+	{
+		char value[PROP_VALUE_MAX] = {};
+		__system_property_get(name, value);
+		return UTF8_TO_TCHAR(value);
+	}
+#endif
+
+	bool GetPluginTypeFromAndroidDevice(FName& outPluginType)
+	{
+#if PLATFORM_ANDROID
+		// Quest reports brand "oculus" and manufacturer "Oculus". There is no device name on Android before the HMD is up.
+		const FString brand = GetAndroidSystemProperty("ro.product.brand");
+		const FString manufacturer = FAndroidMisc::GetDeviceMake();
+		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the XR plugin for device brand '%s', manufacturer '%s'.", *brand, *manufacturer);
+		return GetPluginTypeFromIdentities({ brand, manufacturer }, outPluginType);
+#else
+		return false;
+#endif
+	}
+
+	bool GetPluginTypeFromXrRuntime(FName& outPluginType)
+	{
+		// On desktop the selected runtime usually implies the vendor. Multi-vendor runtimes such as SteamVR name none, so
+		// they fall back to the device name.
+		const FName vendorId = Drs::XrArbiter::GetXrRuntimeVendor();
+		if (vendorId.IsNone())
+		{
+			return false;
+		}
+		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the XR plugin '%s' from the OpenXR runtime '%s'.", *vendorId.ToString(), *Drs::XrArbiter::GetXrRuntimeType().ToString());
+		outPluginType = vendorId;
+		return true;
+	}
+
+	bool GetPluginTypeFromConnectedDevice(FName& outPluginType)
 	{
 		// The device name is only known once the HMD module has initialised, which commits the engine to OpenXR before
 		// the chosen plugin's modules can register their OpenXR extensions. This only affects tethered sessions over
-		// multi-vendor runtimes (e.g. SteamVR) whose device could not be hinted another way.
+		// multi-vendor runtimes (e.g. SteamVR).
 		if (!IHeadMountedDisplayModule::IsAvailable() || CurrentLoadingPhase <= ELoadingPhase::PostConfigInit)
 		{
 			return false;
 		}
 
 		const FString deviceName = IHeadMountedDisplayModule::Get().GetDeviceSystemName();
-		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the plugin type for the device '%s'.", *deviceName);
-		return GetPluginTypeFromDeviceName(deviceName, outPluginType);
+		DRS_LOG(LogDrsXrArbiter, Log, "Choosing the XR plugin for the device '%s'.", *deviceName);
+		return GetPluginTypeFromIdentities({ deviceName }, outPluginType);
 	}
 
-	EDrsXrPluginType ChoosePluginTypeForMobileDevice()
+	FName ChoosePluginTypeForMobileDevice()
 	{
-		EDrsXrPluginType pluginType = EDrsXrPluginType::None;
-		if (GetPluginTypeFromProjectOverride(pluginType) || GetPluginTypeFromAndroidDeviceProperties(pluginType))
+		FName pluginType;
+		if (GetPluginTypeFromProjectOverride(pluginType) || GetPluginTypeFromAndroidDevice(pluginType))
 		{
 			return pluginType;
 		}
-		return EDrsXrPluginType::None;
+		return NAME_None;
 	}
 
-	TOptional<EDrsXrPluginType> ChoosePluginTypeForTetheredDevice()
+	TOptional<FName> ChoosePluginTypeForTetheredDevice()
 	{
 		if (Drs::XrArbiter::IsNonVrMode())
 		{
-			return EDrsXrPluginType::None;
+			return FName();
 		}
 
-		EDrsXrPluginType pluginType = EDrsXrPluginType::None;
+		FName pluginType;
 		if (GetPluginTypeFromCommandLine(pluginType)
 			|| GetPluginTypeFromProjectOverride(pluginType)
-			|| GetPluginTypeFromXrRuntime(Drs::XrArbiter::GetXrRuntimeType(), pluginType)
+			|| GetPluginTypeFromXrRuntime(pluginType)
 			|| GetPluginTypeFromConnectedDevice(pluginType))
 		{
 			return pluginType;
@@ -227,17 +218,17 @@ namespace
 		return {}; // Not enough information yet; there may be more at a later loading phase.
 	}
 
-	EDrsXrPluginType ChoosePluginTypeForEditor()
+	FName ChoosePluginTypeForEditor()
 	{
-		EDrsXrPluginType pluginType = EDrsXrPluginType::None;
+		FName pluginType;
 		if (GetPluginTypeFromEditorSettings(pluginType)
 			|| GetPluginTypeFromProjectOverride(pluginType)
-			|| GetPluginTypeFromXrRuntime(Drs::XrArbiter::GetXrRuntimeType(), pluginType)
+			|| GetPluginTypeFromXrRuntime(pluginType)
 			|| GetPluginTypeFromConnectedDevice(pluginType))
 		{
 			return pluginType;
 		}
-		return EDrsXrPluginType::None;
+		return NAME_None;
 	}
 
 	struct FArbitratedModule
@@ -247,14 +238,18 @@ namespace
 	};
 
 	/**
-	 * Loads the modules of the selected vendor plugin type. Opted-in modules have LoadingPhase None in their descriptor,
-	 * their real phase in ArbitratedLoadingPhase, and their type in ArbitratedXrPlugin (on the module or the plugin).
+	 * Selects the desktop OpenXR runtime at startup, then loads the modules of the selected vendor plugin type. Opted-in
+	 * modules have LoadingPhase None in their descriptor, their real phase in ArbitratedLoadingPhase, and their type in
+	 * ArbitratedXrPlugin (on the module or the plugin).
 	 */
 	class FDrsXrArbiterModule : public IModuleInterface
 	{
 	public:
 		virtual void StartupModule() override
 		{
+			// Before OpenXR creates its instance at PostConfigInit. Runtime and plugin are chosen independently.
+			Drs::XrRuntime::SelectRuntime();
+
 			BuildConfigurations();
 			if (Configurations.IsEmpty())
 			{
@@ -312,15 +307,15 @@ namespace
 				return;
 			}
 
-			// The plugin's type applies to its modules that don't name their own.
-			TOptional<EDrsXrPluginType> pluginTypeForPlugin;
+			// The plugin's vendor applies to its modules that don't name their own.
+			const FString& pluginName = plugin.GetName();
+			FName pluginTypeForPlugin;
 			FString pluginTypeName;
 			if (descriptorObject->TryGetStringField(ArbitratedXrPluginKey, pluginTypeName))
 			{
-				pluginTypeForPlugin = Drs::XrArbiter::PluginTypeFromString(pluginTypeName);
+				pluginTypeForPlugin = ParseVendorName(pluginTypeName, *pluginName);
 			}
 
-			const FString& pluginName = plugin.GetName();
 			int32 arbitratedModuleCount = 0;
 			for (const TSharedPtr<FJsonValue>& moduleValue : *moduleValues)
 			{
@@ -353,24 +348,20 @@ namespace
 					continue;
 				}
 
-				TOptional<EDrsXrPluginType> pluginType = pluginTypeForPlugin;
+				FName pluginType = pluginTypeForPlugin;
 				if ((*moduleObject)->TryGetStringField(ArbitratedXrPluginKey, pluginTypeName))
 				{
-					pluginType = Drs::XrArbiter::PluginTypeFromString(pluginTypeName);
+					pluginType = ParseVendorName(pluginTypeName, *pluginName);
 				}
-				if (!pluginType.IsSet())
+				if (pluginType.IsNone())
 				{
-					DRS_LOG(LogDrsXrArbiter, Error, "Arbitrated module %s::%s has no valid plugin type. Set %s on the module or its plugin.", *pluginName, *moduleName, ArbitratedXrPluginKey);
+					DRS_LOG(LogDrsXrArbiter, Error, "Arbitrated module %s::%s has no vendor. Set %s on the module or its plugin.", *pluginName, *moduleName, ArbitratedXrPluginKey);
 					continue;
 				}
-				if (!Drs::XrArbiter::IsXrPluginTypeEnabled(pluginType.GetValue()))
-				{
-					continue; // Never loaded, not even for cooking.
-				}
 
-				DRS_LOG(LogDrsXrArbiter, Verbose, "Arbitrating %s::%s (%s, %s).", *pluginName, *moduleName, ToString(loadingPhase), *Drs::XrArbiter::PluginTypeToString(pluginType.GetValue()));
-				Configurations.FindOrAdd(pluginType.GetValue()).Add({ FName(*moduleName), loadingPhase });
-				ArbitratedPluginTypes.Add(pluginType.GetValue());
+				DRS_LOG(LogDrsXrArbiter, Verbose, "Arbitrating %s::%s (%s, %s).", *pluginName, *moduleName, ToString(loadingPhase), *pluginType.ToString());
+				Configurations.FindOrAdd(pluginType).Add({ FName(*moduleName), loadingPhase });
+				ArbitratedPluginTypes.Add(pluginType);
 				++arbitratedModuleCount;
 			}
 
@@ -411,7 +402,7 @@ namespace
 
 			if (IsRunningCommandlet())
 			{
-				DRS_LOG(LogDrsXrArbiter, Log, "Selecting every plugin type for the commandlet.");
+				DRS_LOG(LogDrsXrArbiter, Log, "Selecting every vendor XR plugin for the commandlet.");
 				bLoadAllPluginTypes = true;
 				return;
 			}
@@ -431,23 +422,17 @@ namespace
 				return;
 			}
 
-			if (!Drs::XrArbiter::IsXrPluginTypeEnabled(CurrentPluginType.GetValue()))
-			{
-				CurrentPluginType = EDrsXrPluginType::None;
-			}
-
-			const EDrsXrPluginType pluginType = CurrentPluginType.GetValue();
-			const FString pluginTypeName = Drs::XrArbiter::PluginTypeToString(pluginType);
-			DRS_LOG(LogDrsXrArbiter, Log, "Selected the XR plugin type '%s'.", *pluginTypeName);
-			UE_CLOG(pluginType != EDrsXrPluginType::None && !Configurations.Contains(pluginType), LogDrsXrArbiter, Log, TEXT("No arbitrated modules found for the plugin type '%s'."), *pluginTypeName);
+			const FName pluginType = CurrentPluginType.GetValue();
+			DRS_LOG(LogDrsXrArbiter, Log, "Selected the XR plugin '%s'.", *pluginType.ToString());
+			DRS_CLOG(!pluginType.IsNone() && !Configurations.Contains(pluginType), LogDrsXrArbiter, Log, "No arbitrated modules found for the XR plugin '%s'.", *pluginType.ToString());
 		}
 
 		void LoadModules(ELoadingPhase::Type loadingPhase)
 		{
 			TSet<FName> modulesToLoad;
-			for (const TPair<EDrsXrPluginType, TArray<FArbitratedModule>>& configuration : Configurations)
+			for (const TPair<FName, TArray<FArbitratedModule>>& configuration : Configurations)
 			{
-				if (bLoadAllPluginTypes || configuration.Key == CurrentPluginType.Get(EDrsXrPluginType::None))
+				if (bLoadAllPluginTypes || configuration.Key == CurrentPluginType.Get(NAME_None))
 				{
 					for (const FArbitratedModule& module : configuration.Value)
 					{
@@ -481,7 +466,7 @@ namespace
 			}
 		}
 
-		TMap<EDrsXrPluginType, TArray<FArbitratedModule>> Configurations;
+		TMap<FName, TArray<FArbitratedModule>> Configurations;
 		TArray<ELoadingPhase::Type> PendingLoadingPhases;
 		FDelegateHandle LoadingPhaseCompleteHandle;
 	};
@@ -491,32 +476,34 @@ IMPLEMENT_MODULE(FDrsXrArbiterModule, DrsXrArbiter)
 
 namespace Drs::XrArbiter
 {
-	EDrsXrPluginType GetXrPluginType()
+	const FName AndroidRuntime(TEXT("Android"));
+
+	FName GetXrPluginType()
 	{
 		// Detect the running vendor plugin, whether the arbiter loaded it or the engine did.
-		for (const TPair<EDrsXrPluginType, const TCHAR*>& marker : VendorMarkerModules)
+		for (const FDrsXrVendor& vendor : GetVendors())
 		{
-			if (FModuleManager::Get().IsModuleLoaded(marker.Value))
+			if (!vendor.MarkerModule.IsNone() && FModuleManager::Get().IsModuleLoaded(vendor.MarkerModule))
 			{
-				return marker.Key;
+				return vendor.Id;
 			}
 		}
-		return EDrsXrPluginType::None;
+		return NAME_None;
 	}
 
-	EDrsXrPluginType GetArbitratedXrPluginType()
+	FName GetArbitratedXrPluginType()
 	{
-		return CurrentPluginType.Get(EDrsXrPluginType::None);
+		return CurrentPluginType.Get(NAME_None);
 	}
 
-	bool IsXrPluginTypeArbitrated(EDrsXrPluginType pluginType)
+	bool IsXrPluginTypeArbitrated(FName vendorId)
 	{
-		return ArbitratedPluginTypes.Contains(pluginType);
+		return ArbitratedPluginTypes.Contains(vendorId);
 	}
 
-	EDrsXrPluginType GetXrPluginOverride(EDrsXrPluginOverrideType& outOverrideType)
+	FName GetXrPluginOverride(EDrsXrPluginOverrideType& outOverrideType)
 	{
-		EDrsXrPluginType pluginType = EDrsXrPluginType::None;
+		FName pluginType;
 		if (GIsEditor && GetPluginTypeFromEditorSettings(pluginType))
 		{
 			outOverrideType = EDrsXrPluginOverrideType::EditorSettings;
@@ -533,97 +520,75 @@ namespace Drs::XrArbiter
 		{
 			outOverrideType = EDrsXrPluginOverrideType::None;
 		}
-
-		return IsXrPluginTypeEnabled(pluginType) ? pluginType : EDrsXrPluginType::None;
+		return pluginType;
 	}
 
-	EDrsXrPluginType GetExpectedXrPluginType(const FString& deviceName)
+	FName GetExpectedXrPluginType(const FString& deviceName)
 	{
-		// Only the device rules, not the runtime: the runtime selection itself follows any override.
-		EDrsXrPluginType pluginType = EDrsXrPluginType::None;
+		// Only the hardware, not the runtime or any override.
+		FName pluginType;
 #if PLATFORM_ANDROID
-		GetPluginTypeFromAndroidDeviceProperties(pluginType);
+		GetPluginTypeFromAndroidDevice(pluginType);
 #else
 		// The caller passes the name, because the HMD module used during arbitration may be unavailable later (e.g. in PIE).
-		GetPluginTypeFromDeviceName(deviceName, pluginType);
+		GetPluginTypeFromIdentities({ deviceName }, pluginType);
 #endif
 		return pluginType;
 	}
 
-	bool IsXrPluginTypeEnabled(EDrsXrPluginType pluginType)
+	const TArray<FDrsXrVendor>& GetVendors()
 	{
-		switch (pluginType)
+		// Read once: GetXrPluginType is called often, and config changes need a restart anyway.
+		static const TArray<FDrsXrVendor> vendors = []
 		{
-		case EDrsXrPluginType::Meta:
-			return DRS_ENABLE_META_XR;
-		case EDrsXrPluginType::Pico:
-			return DRS_ENABLE_PICO_XR;
-		default:
-			return true;
-		}
-	}
-
-	FString PluginTypeToString(EDrsXrPluginType pluginType)
-	{
-		for (const TPair<EDrsXrPluginType, const TCHAR*>& name : PluginTypeNames)
-		{
-			if (name.Key == pluginType)
+			TArray<FString> entries;
+			if (GConfig)
 			{
-				return name.Value;
+				GConfig->GetArray(ProjectSettingsSection, VendorsProperty, entries, GetSettingsFilename());
 			}
-		}
-		return TEXT("Invalid");
+			return ParseVendors(entries);
+		}();
+		return vendors;
 	}
 
-	TOptional<EDrsXrPluginType> PluginTypeFromString(const FString& pluginTypeString)
+	const FDrsXrVendor* FindVendor(FName vendorId)
 	{
-		for (const TPair<EDrsXrPluginType, const TCHAR*>& name : PluginTypeNames)
+		return GetVendors().FindByPredicate([vendorId](const FDrsXrVendor& vendor) { return vendor.Id == vendorId; });
+	}
+
+	TArray<FDrsXrRuntime> GetPrioritisedRuntimes()
+	{
+		TArray<FString> runtimeEntries;
+		TArray<FString> priorityEntries;
+		if (GConfig)
 		{
-			if (pluginTypeString == name.Value)
-			{
-				return name.Key;
-			}
+			const FString filename = GetSettingsFilename();
+			GConfig->GetArray(RuntimeSettingsSection, RuntimesProperty, runtimeEntries, filename);
+			GConfig->GetArray(RuntimeSettingsSection, RuntimePriorityProperty, priorityEntries, filename);
 		}
-		DRS_LOG(LogDrsXrArbiter, Error, "Unknown XR plugin type '%s'.", *pluginTypeString);
-		return {};
-	}
 
-	void SetXrRuntime(EDrsXrRuntimeType runtimeType, uint32 runtimeFlags)
-	{
-		SelectedRuntimeType = runtimeType;
-		SelectedRuntimeFlags = runtimeFlags;
-	}
-
-	EDrsXrRuntimeType GetXrRuntimeType()
-	{
-		return SelectedRuntimeType;
-	}
-
-	uint32 GetXrRuntimeFlags()
-	{
-		return SelectedRuntimeFlags;
-	}
-
-	void SetExpectedXrRuntimeType(EDrsXrRuntimeType runtimeType)
-	{
-		ExpectedRuntimeType = runtimeType;
-	}
-
-	EDrsXrRuntimeType GetExpectedXrRuntimeType()
-	{
-		return ExpectedRuntimeType;
-	}
-
-	FString RuntimeTypeToString(EDrsXrRuntimeType runtimeType)
-	{
-		switch (runtimeType)
+		TArray<FName> priority;
+		for (const FString& entry : priorityEntries)
 		{
-		case EDrsXrRuntimeType::Android: return TEXT("Android");
-		case EDrsXrRuntimeType::Oculus: return TEXT("Oculus");
-		case EDrsXrRuntimeType::Pico: return TEXT("Pico");
-		case EDrsXrRuntimeType::SteamVR: return TEXT("SteamVR");
-		default: return TEXT("None");
+			priority.Emplace(*entry.TrimStartAndEnd().TrimQuotes());
 		}
+		return OrderRuntimes(ParseRuntimes(runtimeEntries), priority);
+	}
+
+	void SetXrRuntime(FName runtimeName, FName vendorId)
+	{
+		SelectedRuntime = runtimeName;
+		SelectedRuntimeVendor = vendorId;
+	}
+
+	FName GetXrRuntimeType()
+	{
+		return SelectedRuntime;
+	}
+
+	FName GetXrRuntimeVendor()
+	{
+		return SelectedRuntimeVendor;
 	}
 
 	bool IsNonVrMode()
@@ -633,7 +598,7 @@ namespace Drs::XrArbiter
 		// In the editor the answer changes as VR Preview starts and stops, so it is never cached there.
 		if (!isNonVrMode.IsSet() || GIsEditor)
 		{
-			if (FString(FCommandLine::Get()).Contains(TEXT("noHMD")))
+			if (FParse::Param(FCommandLine::Get(), TEXT("noHMD")))
 			{
 				isNonVrMode = true;
 			}

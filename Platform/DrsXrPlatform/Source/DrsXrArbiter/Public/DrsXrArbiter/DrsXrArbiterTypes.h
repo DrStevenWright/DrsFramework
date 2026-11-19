@@ -6,21 +6,8 @@
 
 #include "DrsXrArbiterTypes.generated.h"
 
-/** Whether the vendor plugin types may be selected in this build. */
+/** Whether MetaXR code may be compiled in this build. */
 #define DRS_ENABLE_META_XR ((PLATFORM_WINDOWS || PLATFORM_ANDROID) && !UE_SERVER)
-#define DRS_ENABLE_PICO_XR ((PLATFORM_WINDOWS || PLATFORM_ANDROID) && !UE_SERVER)
-
-/**
- * A vendor XR plugin type. The arbiter loads the modules tagged with the selected type (see DrsXrPlatform/CLAUDE.md).
- * When adding a type, also name it in DrsXrArbiterTypes.cpp.
- */
-UENUM(BlueprintType)
-enum class EDrsXrPluginType : uint8
-{
-	None = 0,
-	Meta,
-	Pico,
-};
 
 /** How the plugin type was forced, if it was. */
 UENUM(BlueprintType)
@@ -32,123 +19,86 @@ enum class EDrsXrPluginOverrideType : uint8
 	CommandLine,
 };
 
-/** The OpenXR runtime in use. On desktop DrsXrRuntime selects it; on Android the device provides it. */
-UENUM(BlueprintType)
-enum class EDrsXrRuntimeType : uint8
-{
-	None = 0,
-	Android,
-	Oculus,
-	Pico,
-	SteamVR,
-};
-
-namespace Drs::XrArbiter
-{
-	/** Behaviours or limitations of the selected runtime or vendor plugin. */
-	enum class EXrPlatformProperty : uint32
-	{
-		/** Causes stability issues if selected while no HMD is connected. */
-		NonVrNotSupported = 0,
-		/** The motion controller transform becomes unstable while the app is out of XR focus (e.g. the system menu is open). */
-		ControllerLosesFocus,
-	};
-
-	/** The runtime flag bit for a platform property. */
-	constexpr uint32 ToRuntimeFlag(EXrPlatformProperty property) { return 1u << static_cast<uint32>(property); }
-}
-
-/** How an arbitration condition is evaluated. */
-UENUM()
-enum class EDrsArbitrationConditionType : uint8
-{
-	/** All RequiredTrue conditions must be satisfied. */
-	RequiredTrue,
-	/** At least one optional condition must hold: an OptionalTrue that is satisfied, or an OptionalFalse that is not. */
-	OptionalTrue,
-	/** All RequiredFalse conditions must not be satisfied. */
-	RequiredFalse,
-	/** See OptionalTrue. */
-	OptionalFalse,
-	Invalid UMETA(Hidden, DisplayName = "Not set")
-};
-
-/** The property an arbitration condition tests. */
-UENUM()
-enum class EDrsArbitrationCriteria : uint8
-{
-	/** (Tethered only) HMD system name, or part of it. */
-	DeviceName,
-	/** (Standalone only) Device make, or part of it. */
-	DeviceMake,
-	/** (Standalone only) Device model, or part of it. */
-	DeviceModel,
-	/** (Standalone only) GPU family, or part of it (e.g. "Adreno (TM) 650"). */
-	GpuFamily,
-	/** (Tethered only) Active OpenXR runtime. */
-	XrRuntime,
-	Invalid UMETA(Hidden, DisplayName = "Not set")
-};
-
-namespace Drs::XrArbiter
-{
-	/** The device properties an arbitration rule is evaluated against. Null means unknown. */
-	struct FArbitrationInputs
-	{
-		const FString* DeviceName = nullptr;
-		const FString* XrRuntime = nullptr;
-		const FString* DeviceMake = nullptr;
-		const FString* DeviceModel = nullptr;
-		const FString* GpuFamily = nullptr;
-	};
-}
-
-/** One condition of an arbitration rule. */
+/** A vendor XR plugin, such as Meta or Pico, and the words that identify its hardware. */
 USTRUCT(BlueprintType)
-struct DRSXRARBITER_API FDrsArbitrationCondition
+struct DRSXRARBITER_API FDrsXrVendor
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arbitration")
-	EDrsArbitrationConditionType ConditionType = EDrsArbitrationConditionType::Invalid;
+	/** The vendor's name, as used in plugin descriptors (ArbitratedXrPlugin), overrides and on the command line. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DRS|XR Platform")
+	FName Id;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arbitration")
-	EDrsArbitrationCriteria Criteria = EDrsArbitrationCriteria::Invalid;
+	/** Words that identify the vendor's hardware in a device name, brand or manufacturer. Not case-sensitive. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DRS|XR Platform")
+	TArray<FString> Keywords;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arbitration")
-	FString Value;
+	/** A module that is loaded whenever the vendor's plugin is running, used to tell which vendor plugin is in use. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DRS|XR Platform")
+	FName MarkerModule;
 
-	bool IsValid() const { return ConditionType != EDrsArbitrationConditionType::Invalid && Criteria != EDrsArbitrationCriteria::Invalid && !Value.IsEmpty(); }
-
-	/** Whether the tested property contains Value. Unset when that property is unknown. */
-	TOptional<bool> Evaluate(const Drs::XrArbiter::FArbitrationInputs& inputs) const;
-
-	/** Parses "ConditionType=...,Criteria=...,Value=..." (the inner text of one condition in config). */
-	static FDrsArbitrationCondition ParseFromConfig(const FString& conditionString);
+	bool IsValid() const { return !Id.IsNone(); }
 };
 
-/** The conditions under which the arbiter selects a plugin type. */
-USTRUCT(BlueprintType)
-struct DRSXRARBITER_API FDrsArbitrationRule
+/** A way to find an OpenXR runtime's manifest file on Windows. */
+UENUM()
+enum class EDrsXrManifestLocator : uint8
+{
+	/** Path is relative to the folder in the environment variable Name. */
+	EnvironmentVariable,
+	/** Path is relative to the folder of the program that handles the URI protocol Name. */
+	UriHandler,
+	/** Path is relative to each of Steam's library folders. */
+	SteamLibrary,
+	/** Path is relative to Program Files. */
+	ProgramFiles,
+	/** Path is a manifest file name, looked for among the runtimes registered with the OpenXR loader. */
+	RegisteredRuntime,
+	Invalid UMETA(Hidden, DisplayName = "Not set")
+};
+
+/** One place to look for an OpenXR runtime's manifest. */
+USTRUCT()
+struct DRSXRARBITER_API FDrsXrManifestLocator
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arbitration")
-	EDrsXrPluginType Configuration = EDrsXrPluginType::None;
+	/** How to find the folder that Path is relative to. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	EDrsXrManifestLocator Locator = EDrsXrManifestLocator::Invalid;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arbitration")
-	TArray<FDrsArbitrationCondition> Conditions;
+	/** The environment variable or URI protocol, for the locators that need one. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	FString Name;
 
-	bool IsValid() const { return Configuration != EDrsXrPluginType::None && !Conditions.IsEmpty(); }
+	/** The manifest's path, or its file name for RegisteredRuntime. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	FString Path;
 
-	bool Evaluate(const Drs::XrArbiter::FArbitrationInputs& inputs) const;
+	bool IsValid() const { return Locator != EDrsXrManifestLocator::Invalid && !Path.IsEmpty(); }
+};
 
-	/**
-	 * Parses one rule from its config text, "(Configuration=Meta,Conditions=((...),(...)))". The arbiter reads config
-	 * directly because it decides before the settings object is loaded.
-	 */
-	static FDrsArbitrationRule ParseFromConfig(const FString& ruleString);
+/** A desktop OpenXR runtime that can be selected at startup. */
+USTRUCT()
+struct DRSXRARBITER_API FDrsXrRuntime
+{
+	GENERATED_BODY()
 
-	/** Reads and parses every valid rule in an array property of a config section. */
-	static TArray<FDrsArbitrationRule> ParseFromConfig(const TCHAR* section, const TCHAR* property, const FString& filename);
+	/** The runtime's name, as used in the runtime priority and in logs. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	FName Name;
+
+	/** The vendor whose hardware the runtime implies. None for a runtime that serves several vendors, such as SteamVR. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	FName Vendor;
+
+	/** Where to look for the runtime's manifest, tried in order. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	TArray<FDrsXrManifestLocator> Manifest;
+
+	/** Program file names. If any of them is running, the runtime is running and is selected over installed ones. */
+	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
+	TArray<FString> RunningProcesses;
+
+	bool IsValid() const { return !Name.IsNone() && !Manifest.IsEmpty(); }
 };
