@@ -1,6 +1,6 @@
 # Coding conventions
 
-These conventions apply to DrsFramework and to every project built on it, including [DrsProject](https://github.com/DrStevenWright/DrsProject) and [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject). They live here because every project includes the framework as a submodule at `Plugins/DrsFramework`.
+These conventions apply to DrsFramework and to every project built on it, including [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject). They live here because every project includes the framework as a submodule at `Plugins/DrsFramework`.
 
 Anything not covered below follows [Epic's coding standard](https://dev.epicgames.com/documentation/en-us/unreal-engine/epic-cplusplus-coding-standard-for-unreal-engine): type prefixes (`U`, `A`, `F`, `T`, `E`, `I`, `S`), PascalCase for types, functions and member variables, and the engine's formatting style.
 

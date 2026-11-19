@@ -1,6 +1,6 @@
 # Git workflow
 
-These rules apply to DrsFramework and to every project built on it, including [DrsProject](https://github.com/DrStevenWright/DrsProject) and [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject). Like [`CodingConventions.md`](CodingConventions.md), they live here because every project includes the framework as a submodule at `Plugins/DrsFramework`.
+These rules apply to DrsFramework and to every project built on it, including [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject). Like [`CodingConventions.md`](CodingConventions.md), they live here because every project includes the framework as a submodule at `Plugins/DrsFramework`.
 
 All names follow [Conventional Commits](https://www.conventionalcommits.org/).
 

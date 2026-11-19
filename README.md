@@ -35,8 +35,7 @@ cd DrsTestProject
 powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/Bootstrap.ps1 -Build
 ```
 
-Projects: [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject) (development and tests),
-[DrsProject](https://github.com/DrStevenWright/DrsProject) (minimal starter).
+Host project: [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject) (development and tests).
 
 ## Checking the layer rules
 
