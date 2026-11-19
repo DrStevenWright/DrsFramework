@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-DrsFramework is an XR framework for Unreal Engine 5.8, built as a set of layered plugins. It targets Meta Quest (over Link and standalone Android), with Pico as a cross-platform test case. It never builds on its own: a host project includes it as a git submodule at `Plugins/DrsFramework`. Development and tests happen in [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject); [DrsProject](https://github.com/DrStevenWright/DrsProject) is the minimal starter.
+DrsFramework is an XR framework for Unreal Engine 5.8, built as a set of layered plugins. It targets Meta Quest (over Link and standalone Android), with Pico as a cross-platform test case. It never builds on its own: a host project includes it as a git submodule at `Plugins/DrsFramework`. Development and tests happen in [DrsTestProject](https://github.com/DrStevenWright/DrsTestProject).
 
 `DrsCore` is the entry point. Its `.uplugin` lists every other framework plugin, so a project only enables `DrsCore`. **When you add a plugin, also add it to `Game/DrsCore/DrsCore.uplugin`.**
 
