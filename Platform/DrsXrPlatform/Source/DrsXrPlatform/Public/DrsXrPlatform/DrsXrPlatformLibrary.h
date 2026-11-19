@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 
-#include "DrsXrArbiter/DrsXrArbiterTypes.h"
 #include "DrsXrPlatform/DrsXrControllerType.h"
 #include "HeadMountedDisplayTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -100,7 +99,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|HMD")
 	static bool IsHmdTracking();
 
-	/** Whether the HMD is worn: XR_EXT_user_presence where supported, otherwise inferred from the OpenXR session state. */
+	/** Whether the HMD is worn. On devices that can't sense it, this is a best guess from whether the app is in use. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|HMD")
 	static bool IsHmdWorn();
 
@@ -116,8 +115,8 @@ public:
 	static void SetupHmd();
 
 	/**
-	 * Puts the tracking-space origin on the floor, centred where the user started (OpenXR LOCAL_FLOOR; the runtime falls
-	 * back to LOCAL if unsupported). Returns false when no XR system is active.
+	 * Puts the tracking-space origin on the floor, centred where the user started. Devices that can't find the floor keep
+	 * the origin at head height. Returns false when no XR system is active.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DRS|XR Platform|HMD")
 	static bool SetFloorTrackingOrigin();
@@ -144,7 +143,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
 	static bool GetGripPose(EControllerHand hand, FTransform& outWorldTransform);
 
-	/** The world-space aim pose of a hand (from the vendor's hand-tracking provider for tracked hands). */
+	/** The world-space aim pose of a hand: the pointing ray of its controller, or of the tracked hand. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
 	static bool GetAimPose(EControllerHand hand, FTransform& outWorldTransform);
 
@@ -183,11 +182,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Hand Tracking")
 	static bool IsHandTrackingActive(EControllerHand hand = EControllerHand::AnyHand);
 
-	/** Whether the vendor's hand-tracking provider gives an aim pose for tracked hands. */
+	/** Whether the device gives a dedicated pointing ray for tracked hands. Without one, Get Aim Pose may be less stable for tracked hands. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Hand Tracking")
 	static bool HasTrackedHandAimPose();
 
-	/** The raw world-space hand joints from OpenXR, if available. While a hand is not tracked, its last pose. */
+	/** The world-space joints of a tracked hand, if available. While a hand is not tracked, its last pose. */
 	UFUNCTION(BlueprintCallable, Category = "DRS|XR Platform|Hand Tracking")
 	static bool GetHandTrackingData(EControllerHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii);
 
@@ -207,7 +206,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Rendering")
 	static float GetDisplayFrequency();
 
-	/** GPU utilisation in percent (0-100), on Meta only. Returns false where it isn't available. */
+	/** GPU utilisation in percent (0-100). Returns false where the device doesn't report it. */
 	UFUNCTION(BlueprintCallable, Category = "DRS|XR Platform|Rendering")
 	static bool GetGpuUtilisation(float& outGpuUtilisation);
 

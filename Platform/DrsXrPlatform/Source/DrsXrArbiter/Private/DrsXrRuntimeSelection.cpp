@@ -233,7 +233,7 @@ namespace Drs::XrRuntime
 		}
 
 		// Without an HMD there is no runtime to choose. The vendor plugin override is not consulted: runtime and plugin are
-		// chosen independently, and FXrSelection::IsConsistent reports a mismatch.
+		// chosen independently, and FXrSelection::IsValid reports a mismatch.
 		if (FParse::Param(FCommandLine::Get(), TEXT("noHMD")))
 		{
 			DRS_LOG(LogDrsXrRuntime, Log, "-noHMD given; selecting no OpenXR runtime.");

@@ -22,7 +22,7 @@ namespace Drs::XrArbiter
 	};
 
 	/**
-	 * Encapsulates thew results of XR runtime selection and XR plugin arbitration for the purposes of validating against
+	 * Encapsulates the results of XR runtime selection and XR plugin arbitration for the purposes of validating against
 	 * each other and against the connected hardware.
 	 */
 	struct DRSXRARBITER_API FXrSelection

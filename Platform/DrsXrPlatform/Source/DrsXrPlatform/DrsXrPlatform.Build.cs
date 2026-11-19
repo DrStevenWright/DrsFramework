@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Steven Wright. Licensed under the MIT License.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class DrsXrPlatform : ModuleRules
@@ -8,7 +9,7 @@ public class DrsXrPlatform : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "HeadMountedDisplay", "InputCore", "DrsBase", "DrsXrArbiter" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DeveloperSettings", "Engine", "HeadMountedDisplay", "InputCore", "DrsBase", "DrsXrArbiter" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "OpenXRHMD", "OpenXRHandTracking", "Projects", "XRBase" });
 
@@ -19,10 +20,10 @@ public class DrsXrPlatform : ModuleRules
 			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
 		}
 
-		// MetaXR (External), for Meta-only queries such as GPU utilisation. Building without it is a planned follow-up.
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Android)
+		// DRS's Android manifest entries, for any vendor (today the Meta Quest hand-tracking and FrameSync entries).
+		if (Target.Platform == UnrealTargetPlatform.Android)
 		{
-			PrivateDependencyModuleNames.AddRange(new string[] { "OculusXRHMD" });
+			AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "DrsXrPlatform_UPL.xml"));
 		}
 	}
 }

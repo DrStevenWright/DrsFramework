@@ -28,12 +28,6 @@
 			"PlatformAllowList": [ "Win64", "Android" ]
 		},
 		{
-			"Name": "DrsXrHandTrackingMeta",
-			"Type": "ClientOnly",
-			"LoadingPhase": "PostConfigInit",
-			"PlatformAllowList": [ "Win64", "Android" ]
-		},
-		{
 			"Name": "DrsXrMixedReality",
 			"Type": "Runtime",
 			"LoadingPhase": "PostConfigInit",
@@ -73,10 +67,6 @@
 		},
 		{
 			"Name": "AndroidDeviceProfileSelector",
-			"Enabled": true
-		},
-		{
-			"Name": "OculusXR",
 			"Enabled": true
 		}
 	]

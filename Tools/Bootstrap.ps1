@@ -5,8 +5,8 @@
 
 .DESCRIPTION
     Run from a project that has DrsFramework at Plugins/DrsFramework. The script:
-      1. Runs 'git submodule update --init --recursive' in the project (this also fetches the vendor
-         submodules in Platform/External, if you have access to them).
+      1. Runs 'git submodule update --init --recursive' in the project (this also fetches any vendor
+         plugin submodules the project has, if you have access to them).
       2. Finds the engine from the project's EngineAssociation (a launcher version such as "5.8",
          or a registered source build GUID), unless -EngineDir is given.
       3. Generates IDE project files.

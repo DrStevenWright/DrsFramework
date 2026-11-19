@@ -35,11 +35,11 @@ A scope is optional. Use one when the change sits in one area.
 | `locomotion` | `GameSupport/DrsLocomotion` |
 | `spawning` | `GameSupport/DrsSpawning` |
 | `core` | `Game/DrsCore` |
-| `metaxr` | The `Platform/External/MetaXR` submodule |
 | `base`, `common`, `platform`, `gamesupport`, `game` | Several plugins in one layer |
 | `deps` | Module and plugin dependencies across the framework |
 | `tools` | `Tools/` (`CheckLayers.ps1`, `CheckNaming.ps1`, `Bootstrap.ps1`, `LayerRules.json`) |
 | `config`, `content` | Host projects: `Config/` and `Content/` |
+| `metaxr` | Host projects: the `Plugins/MetaXR` submodule |
 
 Leave the scope out for changes that span layers. When you add a plugin, add its scope here.
 
