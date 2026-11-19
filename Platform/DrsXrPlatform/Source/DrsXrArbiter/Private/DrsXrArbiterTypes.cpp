@@ -4,215 +4,172 @@
 
 #include "DrsBase/DrsLog.h"
 #include "DrsXrArbiter/DrsXrArbiter.h"
-#include "Misc/ConfigCacheIni.h"
+#include "DrsXrArbiter/DrsXrConfigText.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrArbiterTypes)
 
-using Drs::XrArbiter::FArbitrationInputs;
-
 namespace
 {
-	EDrsArbitrationCriteria CriteriaFromString(const FString& criteriaString)
+	using Drs::XrArbiter::FConfigText;
+
+	const TPair<const TCHAR*, EDrsXrManifestLocator> LocatorNames[] =
 	{
-		static const TPair<const TCHAR*, EDrsArbitrationCriteria> names[] =
+		{ TEXT("EnvironmentVariable"), EDrsXrManifestLocator::EnvironmentVariable },
+		{ TEXT("UriHandler"), EDrsXrManifestLocator::UriHandler },
+		{ TEXT("SteamLibrary"), EDrsXrManifestLocator::SteamLibrary },
+		{ TEXT("ProgramFiles"), EDrsXrManifestLocator::ProgramFiles },
+		{ TEXT("RegisteredRuntime"), EDrsXrManifestLocator::RegisteredRuntime },
+	};
+
+	/** The enum's value for a name in a table; reflection isn't available when the tables are read. */
+	template <typename TEnum, int32 Count>
+	TOptional<TEnum> FromName(const TPair<const TCHAR*, TEnum> (&names)[Count], const FString& name)
+	{
+		for (const TPair<const TCHAR*, TEnum>& entry : names)
 		{
-			{ TEXT("DeviceName"), EDrsArbitrationCriteria::DeviceName },
-			{ TEXT("DeviceMake"), EDrsArbitrationCriteria::DeviceMake },
-			{ TEXT("DeviceModel"), EDrsArbitrationCriteria::DeviceModel },
-			{ TEXT("GpuFamily"), EDrsArbitrationCriteria::GpuFamily },
-			{ TEXT("XrRuntime"), EDrsArbitrationCriteria::XrRuntime },
-		};
-		for (const TPair<const TCHAR*, EDrsArbitrationCriteria>& name : names)
-		{
-			if (criteriaString == name.Key)
+			if (name.Equals(entry.Key, ESearchCase::IgnoreCase))
 			{
-				return name.Value;
+				return entry.Value;
 			}
 		}
-		DRS_LOG(LogDrsXrArbiter, Error, "Unknown arbitration criteria '%s'.", *criteriaString);
-		return EDrsArbitrationCriteria::Invalid;
-	}
-
-	EDrsArbitrationConditionType ConditionTypeFromString(const FString& conditionString)
-	{
-		static const TPair<const TCHAR*, EDrsArbitrationConditionType> names[] =
-		{
-			{ TEXT("RequiredTrue"), EDrsArbitrationConditionType::RequiredTrue },
-			{ TEXT("RequiredFalse"), EDrsArbitrationConditionType::RequiredFalse },
-			{ TEXT("OptionalTrue"), EDrsArbitrationConditionType::OptionalTrue },
-			{ TEXT("OptionalFalse"), EDrsArbitrationConditionType::OptionalFalse },
-		};
-		for (const TPair<const TCHAR*, EDrsArbitrationConditionType>& name : names)
-		{
-			if (conditionString == name.Key)
-			{
-				return name.Value;
-			}
-		}
-		DRS_LOG(LogDrsXrArbiter, Error, "Unknown arbitration condition type '%s'.", *conditionString);
-		return EDrsArbitrationConditionType::Invalid;
-	}
-}
-
-TOptional<bool> FDrsArbitrationCondition::Evaluate(const FArbitrationInputs& inputs) const
-{
-	const FString* property = nullptr;
-	switch (Criteria)
-	{
-	case EDrsArbitrationCriteria::DeviceName: property = inputs.DeviceName; break;
-	case EDrsArbitrationCriteria::DeviceMake: property = inputs.DeviceMake; break;
-	case EDrsArbitrationCriteria::DeviceModel: property = inputs.DeviceModel; break;
-	case EDrsArbitrationCriteria::GpuFamily: property = inputs.GpuFamily; break;
-	case EDrsArbitrationCriteria::XrRuntime: property = inputs.XrRuntime; break;
-	default:
-		DRS_LOG(LogDrsXrArbiter, Warning, "Unhandled arbitration criteria %d.", static_cast<int32>(Criteria));
 		return {};
 	}
 
-	if (property == nullptr)
+	FDrsXrManifestLocator ParseLocator(const FConfigText& text)
 	{
-		return {};
+		FDrsXrManifestLocator locator;
+		const FString locatorName = text.GetString(TEXT("Locator"));
+		locator.Locator = FromName(LocatorNames, locatorName).Get(EDrsXrManifestLocator::Invalid);
+		DRS_CLOG(locator.Locator == EDrsXrManifestLocator::Invalid, LogDrsXrArbiter, Warning, "Unknown manifest locator '%s'.", *locatorName);
+		locator.Name = text.GetString(TEXT("Name"));
+		locator.Path = text.GetString(TEXT("Path"));
+		return locator;
 	}
-	return property->Contains(Value);
 }
 
-bool FDrsArbitrationRule::Evaluate(const FArbitrationInputs& inputs) const
+namespace Drs::XrArbiter
 {
-	if (!IsValid())
+	TArray<FDrsXrVendor> ParseVendors(const TArray<FString>& entries)
 	{
-		return false;
-	}
-
-	bool hasRequiredCondition = false;
-	bool areRequiredConditionsSatisfied = true;
-	bool hasOptionalCondition = false;
-	bool isOptionalConditionSatisfied = false;
-
-	for (const FDrsArbitrationCondition& condition : Conditions)
-	{
-		const TOptional<bool> result = condition.Evaluate(inputs);
-		switch (condition.ConditionType)
+		TArray<FDrsXrVendor> vendors;
+		for (const FString& entry : entries)
 		{
-		case EDrsArbitrationConditionType::RequiredTrue:
-			hasRequiredCondition = true;
-			areRequiredConditionsSatisfied &= result.Get(false);
-			break;
-		case EDrsArbitrationConditionType::RequiredFalse:
-			hasRequiredCondition = true;
-			areRequiredConditionsSatisfied &= !result.Get(true);
-			break;
-		case EDrsArbitrationConditionType::OptionalTrue:
-			hasOptionalCondition = true;
-			isOptionalConditionSatisfied |= result.Get(false);
-			break;
-		case EDrsArbitrationConditionType::OptionalFalse:
-			hasOptionalCondition = true;
-			isOptionalConditionSatisfied |= !result.Get(true);
-			break;
-		default:
-			DRS_LOG(LogDrsXrArbiter, Warning, "Unhandled arbitration condition type %d.", static_cast<int32>(condition.ConditionType));
-			break;
-		}
-	}
-
-	if (hasRequiredCondition && hasOptionalCondition)
-	{
-		return areRequiredConditionsSatisfied && isOptionalConditionSatisfied;
-	}
-	return hasRequiredCondition ? areRequiredConditionsSatisfied : isOptionalConditionSatisfied;
-}
-
-FDrsArbitrationCondition FDrsArbitrationCondition::ParseFromConfig(const FString& conditionString)
-{
-	FDrsArbitrationCondition condition;
-
-	TArray<FString> propertyStrings;
-	conditionString.ParseIntoArray(propertyStrings, TEXT(","), true);
-	for (const FString& propertyString : propertyStrings)
-	{
-		FString propertyName;
-		FString propertyValue;
-		if (!propertyString.Split(TEXT("="), &propertyName, &propertyValue))
-		{
-			continue;
-		}
-		propertyName.TrimStartAndEndInline();
-		propertyValue.TrimStartAndEndInline();
-
-		if (propertyName == TEXT("ConditionType"))
-		{
-			condition.ConditionType = ConditionTypeFromString(propertyValue);
-		}
-		else if (propertyName == TEXT("Criteria"))
-		{
-			condition.Criteria = CriteriaFromString(propertyValue);
-		}
-		else if (propertyName == TEXT("Value"))
-		{
-			condition.Value = propertyValue.TrimQuotes();
-		}
-	}
-
-	return condition;
-}
-
-FDrsArbitrationRule FDrsArbitrationRule::ParseFromConfig(const FString& ruleString)
-{
-	FDrsArbitrationRule rule;
-
-	FString propertyString;
-	FString trailingString;
-	if (ruleString.Split(TEXT("Configuration="), nullptr, &propertyString))
-	{
-		// The type name ends at the next ',' or ')'.
-		int32 endIndex = 0;
-		while (endIndex < propertyString.Len() &&propertyString[endIndex] != TEXT(',') && propertyString[endIndex] != TEXT(')'))
-		{
-			++endIndex;
-		}
-		propertyString.LeftInline(endIndex);
-		const TOptional<EDrsXrPluginType> pluginType = Drs::XrArbiter::PluginTypeFromString(propertyString.TrimStartAndEnd());
-		if (pluginType.IsSet())
-		{
-			rule.Configuration = pluginType.GetValue();
-		}
-	}
-
-	if (ruleString.Split(TEXT("Conditions=(("), nullptr, &propertyString))
-	{
-		propertyString.Split(TEXT("))"), &propertyString, &trailingString);
-
-		TArray<FString> conditionStrings;
-		propertyString.ParseIntoArray(conditionStrings, TEXT("),("), true);
-		for (const FString& conditionString : conditionStrings)
-		{
-			const FDrsArbitrationCondition condition = FDrsArbitrationCondition::ParseFromConfig(conditionString);
-			if (condition.IsValid())
+			const TOptional<FConfigText> text = FConfigText::Parse(entry);
+			if (!text.IsSet())
 			{
-				rule.Conditions.Add(condition);
+				continue;
+			}
+
+			FDrsXrVendor vendor;
+			vendor.Id = text->GetName(TEXT("Id"));
+			vendor.Keywords = text->GetStrings(TEXT("Keywords"));
+			vendor.MarkerModule = text->GetName(TEXT("MarkerModule"));
+			if (vendor.IsValid())
+			{
+				vendors.Add(MoveTemp(vendor));
+			}
+			else
+			{
+				DRS_LOG(LogDrsXrArbiter, Warning, "Skipping the vendor entry '%s', which has no Id.", *entry);
 			}
 		}
+		return vendors;
 	}
 
-	return rule;
-}
-
-TArray<FDrsArbitrationRule> FDrsArbitrationRule::ParseFromConfig(const TCHAR* section, const TCHAR* property, const FString& filename)
-{
-	TArray<FDrsArbitrationRule> rules;
-
-	TArray<FString> ruleStrings;
-	if (GConfig && GConfig->GetArray(section, property, ruleStrings, filename))
+	FName MatchVendor(const TArray<FDrsXrVendor>& vendors, const TArray<FString>& identities)
 	{
-		for (const FString& ruleString : ruleStrings)
+		for (const FDrsXrVendor& vendor : vendors)
 		{
-			FDrsArbitrationRule rule = ParseFromConfig(ruleString);
-			if (rule.IsValid())
+			for (const FString& keyword : vendor.Keywords)
 			{
-				rules.Add(MoveTemp(rule));
+				for (const FString& identity : identities)
+				{
+					if (!keyword.IsEmpty() && identity.Contains(keyword, ESearchCase::IgnoreCase))
+					{
+						return vendor.Id;
+					}
+				}
 			}
 		}
+		return NAME_None;
 	}
 
-	return rules;
+	TArray<FDrsXrRuntime> ParseRuntimes(const TArray<FString>& entries)
+	{
+		TArray<FDrsXrRuntime> runtimes;
+		for (const FString& entry : entries)
+		{
+			const TOptional<FConfigText> text = FConfigText::Parse(entry);
+			if (!text.IsSet())
+			{
+				continue;
+			}
+
+			FDrsXrRuntime runtime;
+			runtime.Name = text->GetName(TEXT("Name"));
+			runtime.Vendor = text->GetName(TEXT("Vendor"));
+			for (const FConfigText& locatorText : text->GetItems(TEXT("Manifest")))
+			{
+				FDrsXrManifestLocator locator = ParseLocator(locatorText);
+				if (locator.IsValid())
+				{
+					runtime.Manifest.Add(MoveTemp(locator));
+				}
+			}
+			runtime.RunningProcesses = text->GetStrings(TEXT("RunningProcesses"));
+			if (runtime.IsValid())
+			{
+				runtimes.Add(MoveTemp(runtime));
+			}
+			else
+			{
+				DRS_LOG(LogDrsXrArbiter, Warning, "Skipping the runtime entry '%s', which needs a Name and a valid Manifest.", *entry);
+			}
+		}
+		return runtimes;
+	}
+
+	TArray<FDrsXrRuntime> OrderRuntimes(const TArray<FDrsXrRuntime>& runtimes, const TArray<FName>& priority)
+	{
+		TArray<FDrsXrRuntime> ordered;
+		for (const FName runtimeName : priority)
+		{
+			const FDrsXrRuntime* runtime = runtimes.FindByPredicate([runtimeName](const FDrsXrRuntime& candidate) { return candidate.Name == runtimeName; });
+			if (runtime == nullptr)
+			{
+				DRS_LOG(LogDrsXrArbiter, Warning, "The runtime priority names '%s', which is not in the runtime table.", *runtimeName.ToString());
+			}
+			else if (!ordered.ContainsByPredicate([runtimeName](const FDrsXrRuntime& candidate) { return candidate.Name == runtimeName; }))
+			{
+				ordered.Add(*runtime);
+			}
+		}
+		return ordered;
+	}
+
+	const FDrsXrRuntime* ChooseRuntime(const TArray<FDrsXrRuntime>& runtimes,
+		TFunctionRef<FString(const FDrsXrRuntime&)> findManifest, TFunctionRef<bool(const FDrsXrRuntime&)> isRunning, FString& outManifest)
+	{
+		const FDrsXrRuntime* selected = nullptr;
+		outManifest.Empty();
+		for (const FDrsXrRuntime& runtime : runtimes)
+		{
+			const FString manifest = findManifest(runtime);
+			if (manifest.IsEmpty())
+			{
+				continue;
+			}
+			if (isRunning(runtime))
+			{
+				outManifest = manifest;
+				return &runtime;
+			}
+			if (selected == nullptr)
+			{
+				selected = &runtime;
+				outManifest = manifest;
+			}
+		}
+		return selected;
+	}
 }

@@ -6,8 +6,8 @@
 #include "DeviceProfiles/DeviceProfileManager.h"
 #include "DrsBase/DrsLog.h"
 #include "DrsXrArbiter/DrsXrArbiter.h"
+#include "DrsXrArbiter/DrsXrSelection.h"
 #include "DrsXrDeviceInfo.h"
-#include "DrsXrPlatform/DrsXrConfiguration.h"
 #include "DrsXrPlatform/DrsXrPlatform.h"
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
@@ -19,6 +19,7 @@
 #include "ISpectatorScreenController.h"
 #include "IXRTrackingSystem.h"
 #include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "MotionControllerComponent.h"
 #include "OpenXRHandTrackingSettings.h"
 #include "StereoRendering.h"
@@ -31,12 +32,12 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPlatformLibrary)
 
-using Drs::XrArbiter::EXrPlatformProperty;
-using Drs::XrPlatform::FXrConfiguration;
+using Drs::XrArbiter::FXrSelection;
 using Drs::XrPlatform::FXrDeviceInfo;
 
 namespace
 {
+	const FName MetaVendor(TEXT("Meta")); // The vendor ID of MetaXR in the arbiter's vendor table.
 	const FName OpenXrMotionControllerName(TEXT("OpenXR")); // The engine's OpenXR motion controller device.
 	bool bTrackingOriginRequested = false;
 
@@ -82,45 +83,14 @@ bool UDrsXrPlatformLibrary::IsNonVrMode()
 	return Drs::XrArbiter::IsNonVrMode();
 }
 
-EDrsXrPluginType UDrsXrPlatformLibrary::GetXrPluginType()
+FName UDrsXrPlatformLibrary::GetXrPluginType()
 {
 	return Drs::XrArbiter::GetXrPluginType();
 }
 
-bool UDrsXrPlatformLibrary::IsMetaXrMode()
+FName UDrsXrPlatformLibrary::GetXrRuntimeType()
 {
-	return GetXrPluginType() == EDrsXrPluginType::Meta;
-}
-
-bool UDrsXrPlatformLibrary::IsPicoXrMode()
-{
-	return GetXrPluginType() == EDrsXrPluginType::Pico;
-}
-
-EDrsXrRuntimeType UDrsXrPlatformLibrary::GetXrRuntimeType()
-{
-	return IsRunningDedicatedServer() ? EDrsXrRuntimeType::None : Drs::XrArbiter::GetXrRuntimeType();
-}
-
-FXrConfiguration UDrsXrPlatformLibrary::GetXrConfiguration()
-{
-	return FXrConfiguration::Get();
-}
-
-bool UDrsXrPlatformLibrary::HasXrProperty(EXrPlatformProperty property)
-{
-	if (Drs::XrArbiter::GetXrRuntimeFlags() & Drs::XrArbiter::ToRuntimeFlag(property))
-	{
-		return true;
-	}
-
-	switch (property)
-	{
-	case EXrPlatformProperty::ControllerLosesFocus:
-		return IsPicoXrMode();
-	default:
-		return false;
-	}
+	return IsRunningDedicatedServer() ? NAME_None : Drs::XrArbiter::GetXrRuntimeType();
 }
 
 bool UDrsXrPlatformLibrary::HasXrFocus()
@@ -139,10 +109,7 @@ bool UDrsXrPlatformLibrary::IsSystemMenuOpen()
 
 FName UDrsXrPlatformLibrary::GetHmdDeviceName()
 {
-	const FName name = UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName();
-	static const FName badMetaDeviceName(TEXT("OculusXRHMD"));
-	ensureMsgf(name != badMetaDeviceName, TEXT("Invalid HMD device name. Make sure OculusXRHMD implements GetHMDName."));
-	return name;
+	return UHeadMountedDisplayFunctionLibrary::GetHMDDeviceName();
 }
 
 FString UDrsXrPlatformLibrary::GetDeviceProfileName()
@@ -201,7 +168,7 @@ void UDrsXrPlatformLibrary::SetupHmd()
 		return;
 	}
 
-	if (FString(FCommandLine::Get()).Contains(TEXT("noHMD")))
+	if (FParse::Param(FCommandLine::Get(), TEXT("noHMD")))
 	{
 		DRS_LOG(LogDrsXrPlatform, Log, "HMD disabled by -noHMD.");
 		EnableHmd(false);
@@ -245,7 +212,11 @@ void UDrsXrPlatformLibrary::SetupHmd()
 				DRS_LOG(LogDrsXrPlatform, Log, "Enabling stereo rendering.");
 				stereoRendering->EnableStereo();
 			}
+			
 			SetFloorTrackingOrigin();
+
+			// Validate compatibility of selected OpenXR runtime and loaded vendor XR plugins.
+			(void)FXrSelection::Get().Validate();
 		}
 	}
 
@@ -465,7 +436,7 @@ bool UDrsXrPlatformLibrary::GetGpuUtilisation(float& outGpuUtilisation)
 	bool isGpuAvailable = false;
 	outGpuUtilisation = 0.0f;
 #if DRS_ENABLE_META_XR
-	if (IsMetaXrMode())
+	if (GetXrPluginType() == MetaVendor)
 	{
 		// The XR_META_performance_metrics counter, in percent.
 		UOculusXRFunctionLibrary::GetGPUUtilization(isGpuAvailable, outGpuUtilisation);

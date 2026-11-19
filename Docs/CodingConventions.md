@@ -34,10 +34,10 @@ Names the editor derives from identifiers (such as "Drs Pawn" in class pickers) 
 
 ### Prefixes
 
-- Use the `Drs` prefix for plugins, modules, log categories, repos and projects: `DrsCore`, `FDrsXrRuntimeModule`, `LogDrsXrPlatform`.
+- Use the `Drs` prefix for plugins, modules, log categories, repos and projects: `DrsCore`, `FDrsXrArbiterModule`, `LogDrsXrPlatform`.
 - **Prefix reflected types** (`UCLASS`, `USTRUCT`, `UENUM`, including `UINTERFACE`): `ADrsPawn`, `UDrsInputAction`, `EDrsHand`. Their names are global and UHT can't put them in a namespace, so the prefix is what keeps them from clashing with an engine or project type, which fails at load. This matters most for names that copy the engine's own pattern, such as `UInputTrigger…`.
-- **Plain C++ types don't need the prefix.** Put them in a `Drs` namespace, nested one level by area (`Drs::Input`, `Drs::XrPlatform`), and keep Epic's letter prefix: `Drs::Input::FMotionInputKey` rather than `FDrsMotionInputKey`. This includes the free functions that belong with them (`Drs::Input::GetMotionControllerKeysForHand`). Module classes (`FDrsXrRuntimeModule`) are the exception and keep the prefix, because they appear in logs and crash stacks.
-- **Using namespaces:** don't put `using` declarations or directives at global scope in a header, because they leak into every file that includes it. Inside a header, write the namespace out (`Drs::XrPlatform::FXrConfiguration`), or define the code inside its own namespace block. In a `.cpp`, either put the implementation inside the namespace block, or list `using` declarations for the types you need straight after the includes (`using Drs::XrPlatform::FXrConfiguration;`). Prefer declarations to `using namespace`, so each file shows what it depends on.
+- **Plain C++ types don't need the prefix.** Put them in a `Drs` namespace, nested one level by area (`Drs::Input`, `Drs::XrPlatform`), and keep Epic's letter prefix: `Drs::Input::FMotionInputKey` rather than `FDrsMotionInputKey`. This includes the free functions that belong with them (`Drs::Input::GetMotionControllerKeysForHand`). Module classes (`FDrsXrArbiterModule`) are the exception and keep the prefix, because they appear in logs and crash stacks.
+- **Using namespaces:** don't put `using` declarations or directives at global scope in a header, because they leak into every file that includes it. Inside a header, write the namespace out (`Drs::XrArbiter::FXrSelection`), or define the code inside its own namespace block. In a `.cpp`, either put the implementation inside the namespace block, or list `using` declarations for the types you need straight after the includes (`using Drs::XrArbiter::FXrSelection;`). Prefer declarations to `using namespace`, so each file shows what it depends on.
 - Use `DRS_` only for macros: `DRS_LOG`, `DRS_LOG_GLOBAL`.
 - Put free functions and constants in the `Drs` namespace, nested by area where useful: `Drs::GetDebugName`, `Drs::Math::ToYawOnly`, `Drs::XrRuntime::FindOculusRuntimeJson`.
 
@@ -125,9 +125,9 @@ Each module's `Source/<Module>/` has a `Public/` and a `Private/` folder.
 - **Use the same category for a feature's properties and functions**, so the Details panel and the palette agree.
 - **Use a sub-category such as `DRS|Input|Advanced` or `DRS|Input|Debug`** for items most users don't need, together with `AdvancedDisplay` for properties.
 - **`UDeveloperSettings` classes** set `CategoryName = TEXT("DRS")` in their constructor, so that every page is grouped under DRS. Don't override `GetCategoryName()` or `GetContainerName()`: the editor container comes from `Config = EditorSettings`.
-  - Give the class a `DisplayName` of the feature alone (`"Input"`, `"XR Plugin Arbiter"`). Don't add DRS: the editor already shows the page as "DRS - Input".
+  - Give the class a `DisplayName` of the feature alone (`"Input"`, `"XR Vendor Plugins"`). Don't add DRS: the editor already shows the page as "DRS - Input".
   - `SectionName` is only the page's internal ID. It defaults to the class name and is never displayed, so leave it out unless code needs to open the page by ID.
-  - Give the properties of a settings class `Category = NoCategory`: the page is already the scope, and `NoCategory` shows them without a group header. Don't leave `Category` off, because UHT then uses the class name and the editor shows a "Drs Input Settings" group. Use a real category only for a group that is distinct from the rest of the page, for example `"XR Plugin Arbiter"` on the one arbiter option in the editor settings.
+  - Give the properties of a settings class `Category = NoCategory`: the page is already the scope, and `NoCategory` shows them without a group header. Don't leave `Category` off, because UHT then uses the class name and the editor shows a "Drs Input Settings" group. Use a real category only for a group that is distinct from the rest of the page, for example `"XR Vendor Plugin"` on the one arbiter option in the editor settings.
 - **`ClassGroup = (DRS)` on components is separate** (it controls the Add Component menu). Set both.
 - Vendor plugins in `Platform/External/` keep their own categories.
 
@@ -143,7 +143,7 @@ Comments on `UCLASS`, `USTRUCT`, `UENUM` (and its values), `UPROPERTY` and `UFUN
 ## Logging
 
 - Each module declares its own `LogDrs<Module>` category in its public module header (`DECLARE_LOG_CATEGORY_EXTERN`) and defines it in the module's `.cpp`.
-- That `.cpp` also holds `IMPLEMENT_MODULE`. Use `FDefaultModuleImpl` unless the module has real startup or shutdown logic (as `DrsXrRuntime` does); don't add a module class just to log that the module started or shut down.
+- That `.cpp` also holds `IMPLEMENT_MODULE`. Use `FDefaultModuleImpl` unless the module has real startup or shutdown logic (as `DrsXrArbiter` does); don't add a module class just to log that the module started or shut down.
 - Log with `DRS_LOG(Category, Verbosity, "...", ...)`. It is `UE_LOG` that applies `TEXT()` to the format itself, so pass a plain string literal: `DRS_LOG(LogDrsCore, Log, "No HMD (%d)", value);`. It adds no prefix, so write messages that make sense on their own.
 - `DRS_CLOG(Condition, Category, Verbosity, "...", ...)` is the same for `UE_CLOG`.
 - `DRS_LOG_ONCE` and `DRS_CLOG_ONCE` take the same arguments and log only the first time that call site is reached (for `DRS_CLOG_ONCE`, the first time its condition is true). They are thread-safe. Use them for messages in per-frame or per-call code that would otherwise flood the log.

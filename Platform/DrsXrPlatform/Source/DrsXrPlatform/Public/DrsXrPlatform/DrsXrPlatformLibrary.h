@@ -12,7 +12,6 @@
 #include "DrsXrPlatformLibrary.generated.h"
 
 class UMotionControllerComponent;
-namespace Drs::XrPlatform { struct FXrConfiguration; }
 
 /** Cross-vendor foveated rendering levels. */
 UENUM(BlueprintType)
@@ -51,27 +50,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform", meta = (BlueprintThreadSafe))
 	static bool IsNonVrMode();
 
-	/** The vendor XR plugin type the arbiter selected. */
+	/** The vendor XR plugin in use, such as Meta or Pico, or None for plain OpenXR. Compare it with a vendor's ID. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")
-	static EDrsXrPluginType GetXrPluginType();
+	static FName GetXrPluginType();
 
-	/** Whether the arbiter selected the Meta XR plugin. */
+	/** The OpenXR runtime in use, such as SteamVR or Oculus, or Android on standalone devices. None if DRS selected none. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")
-	static bool IsMetaXrMode();
-
-	/** Whether the arbiter selected the Pico XR plugin. */
-	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")
-	static bool IsPicoXrMode();
-
-	/** The OpenXR runtime in use (e.g. Oculus, SteamVR, Pico, or Android on standalone devices). */
-	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")
-	static EDrsXrRuntimeType GetXrRuntimeType();
-
-	/** The current runtime and plugin configuration, for validation. */
-	static Drs::XrPlatform::FXrConfiguration GetXrConfiguration();
-
-	/** Whether the selected runtime or vendor plugin has a behaviour or limitation. */
-	static bool HasXrProperty(Drs::XrArbiter::EXrPlatformProperty property);
+	static FName GetXrRuntimeType();
 
 	/** Whether the app has XR focus: the HMD is enabled and worn, and the system menu is closed. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")

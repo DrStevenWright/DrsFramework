@@ -9,8 +9,8 @@
 
 #include "DrsXrArbiterSettings.generated.h"
 
-/** Project settings for how DRS chooses which vendor XR plugin (such as Meta or Pico) the project loads. */
-UCLASS(Config = Game, DefaultConfig, DisplayName = "XR Plugin Arbiter")
+/** Project settings for how the XR arbiter chooses which vendor XR plugin (such as Meta or Pico) loads. Restart to apply changes. */
+UCLASS(Config = DrsXrPlatform, DefaultConfig, DisplayName = "XR Vendor Plugins")
 class DRSXRARBITER_API UDrsXrArbiterSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -18,22 +18,22 @@ class DRSXRARBITER_API UDrsXrArbiterSettings : public UDeveloperSettings
 public:
 	UDrsXrArbiterSettings()
 	{
-		// Project Settings > DRS > XR Plugin Arbiter.
+		// Project Settings > DRS > XR Vendor Plugins.
 		CategoryName = TEXT("DRS");
 	}
 
 	/**
-	 * Forces the XR plugin type for this project, overriding the rules. Use it only where the hardware is known and fixed,
-	 * not for projects that run on devices from several vendors.
+	 * Forces the XR plugin for this project, whatever the hardware. Use it only where the hardware is known and fixed,
+	 * not for projects that run on devices from several vendors. None leaves the choice to the hardware.
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = NoCategory, DisplayName = "XR Plugin Arbiter - Project Override")
-	EDrsXrPluginType XrArbiterProjectOverride = EDrsXrPluginType::None;
+	UPROPERTY(Config, EditAnywhere, Category = NoCategory, DisplayName = "Project Override", meta = (GetOptions = "GetXrPluginOptions"))
+	FName XrArbiterProjectOverride;
 
-	/** Rules that pick the plugin type on standalone (Android) devices. */
-	UPROPERTY(Config, EditAnywhere, Category = NoCategory)
-	TArray<FDrsArbitrationRule> MobileDeviceArbitrationRules;
+	/** The vendor XR plugins, and the words that identify their hardware. The first vendor that matches the hardware is chosen. */
+	UPROPERTY(Config, EditAnywhere, Category = NoCategory, meta = (TitleProperty = "Id"))
+	TArray<FDrsXrVendor> Vendors;
 
-	/** Rules that pick the plugin type for tethered (Windows) devices. */
-	UPROPERTY(Config, EditAnywhere, Category = NoCategory)
-	TArray<FDrsArbitrationRule> TetheredDeviceArbitrationRules;
+	/** None, then each vendor's ID: the options for the project override and the editor override (UDrsXrPlatformEditorSettings). */
+	UFUNCTION()
+	static TArray<FString> GetXrPluginOptions();
 };

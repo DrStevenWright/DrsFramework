@@ -2,7 +2,7 @@
 
 The framework's boundary with the XR runtime and the vendor SDKs. Modules here may depend on Base, Common, engine XR modules (`HeadMountedDisplay`, `XRBase`, `OpenXR`) and `External/`.
 
-**Belongs here:** everything that knows which XR system, runtime or vendor is in use: device and tracking queries, tracking-space setup, runtime selection and vendor-specific code. Today: `DrsXrPlatform` (see its own CLAUDE.md), including the vendor plugin arbiter and passthrough.
+**Belongs here:** everything that knows which XR system, runtime or vendor is in use: device and tracking queries, tracking-space setup, runtime selection and vendor-specific code. Today: `DrsXrPlatform` (see its own CLAUDE.md), including the XR arbiter (runtime and vendor plugin selection) and passthrough.
 
 **Doesn't belong here:** gameplay. Components, pawns and per-world services go in `GameSupport/` or `Game/`, and call into this layer.
 
