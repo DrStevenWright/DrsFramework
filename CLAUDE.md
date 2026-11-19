@@ -10,6 +10,8 @@ DrsFramework is an XR framework for Unreal Engine 5.8, built as a set of layered
 
 The framework must not depend on any host project or on the host's dev-only plugins (`Plugins/Dev/` in DrsTestProject, e.g. MCP tooling).
 
+**No vendor plugins in this repo.** Vendor XR plugins (such as the private MetaXR fork) live in host projects, which enable them. The framework calls OpenXR directly and never links a vendor plugin; the XR arbiter starts an integrated vendor plugin's modules only when they fit the device (see `Platform/DrsXrPlatform/CLAUDE.md`).
+
 ## Commands
 
 Check the layer rules (run from this repo's root; exits 1 on a violation). Run it after any change to a `.Build.cs` or `.uplugin` dependency:
@@ -54,15 +56,14 @@ From lowest to highest. A module may depend only on lower layers. `Tools/CheckLa
 
 | Layer | Folder | Contents |
 |---|---|---|
-| External | `Platform/External/` | Private vendor plugin forks (MetaXR, Pico) as submodules. Only Platform code may use them, and they must not depend on any Drs module. Clones without access won't fetch them. |
 | Base | `Base/` | `DrsBase`: logging (`LogDrs`, `DRS_LOG`), framework version (`DrsVersion.h`), object, enum, votable state and delegate helpers, and the hand enums `EDrsHand` and `EDrsHandMask`; `DrsBaseTests` |
 | Common | `Common/` | Plugins that need only the engine and `DrsBase` and don't depend on each other, such as `DrsUtilities` (modules `DrsMathUtils`, `DrsGraphicsUtils` with the view fade) |
-| Platform | `Platform/` | `DrsXrPlatform`: XR platform API over OpenXR (`UDrsXrPlatformLibrary`), the XR arbiter (`DrsXrArbiter`, which selects the desktop OpenXR runtime and the vendor plugin), Meta hand tracking and passthrough. |
+| Platform | `Platform/` | `DrsXrPlatform`: XR platform API over OpenXR (`UDrsXrPlatformLibrary`), the XR arbiter (`DrsXrArbiter`, which selects the desktop OpenXR runtime and the vendor plugin), OpenXR hand extensions and passthrough. |
 | GameSupport | `GameSupport/` | The fundamental game systems built on the layers below: `DrsXrGame` (tracked hand meshes), `DrsInteraction`, `DrsLocomotion`, `DrsSpawning` (empty for now). Plugins here may depend on each other, as long as the graph is acyclic. |
 | Game | `Game/` | `DrsCore`: game classes (GameMode/State, PlayerController/State, Pawn, GameInstance) and the place where otherwise independent GameSupport plugins talk to each other |
 
 The checker also enforces these rules:
-- Same-layer dependencies follow the layer's `SameLayer` policy: `Plugin` (the default) allows them between modules of the same plugin, `Any` allows any (External, since vendor plugins keep their own module structure, and GameSupport, whose features build on each other), and `None` allows none. Common uses `Plugin`, so its modules may depend on each other within a plugin, but its plugins can't depend on each other. Anything else must be listed in `AllowedSameLayer` (format `"A -> B"`); an entry the policy already allows is an error. The module graph and the plugin graph (`.uplugin` dependencies plus cross-plugin module dependencies) must both have no cycles.
+- Same-layer dependencies follow the layer's `SameLayer` policy: `Plugin` (the default) allows them between modules of the same plugin, `Any` allows any (GameSupport, whose features build on each other), and `None` allows none. Common uses `Plugin`, so its modules may depend on each other within a plugin, but its plugins can't depend on each other. Anything else must be listed in `AllowedSameLayer` (format `"A -> B"`); an entry the policy already allows is an error. The module graph and the plugin graph (`.uplugin` dependencies plus cross-plugin module dependencies) must both have no cycles.
 - A layer's `MaxPlugins` limits its plugin count: Base is the single plugin `DrsBase`.
 - A module that uses another framework plugin's module must list that plugin in its own `.uplugin`.
 - A `.uplugin` must not list a plugin from a higher layer.

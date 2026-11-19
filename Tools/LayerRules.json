@@ -1,8 +1,7 @@
 {
 	"Comment": "Layer order from lowest to highest. A module may depend on modules in lower layers, and on same-layer modules as the layer's SameLayer policy allows. Paths are relative to the DrsFramework root; the longest matching path wins. The module graph must have no cycles.",
-	"SameLayerComment": "SameLayer is 'Plugin' (the default: modules may depend on modules in their own plugin), 'Any' (any same-layer module; used for External, whose vendor plugins keep their own module structure, and for GameSupport, whose features build on each other) or 'None' (no same-layer dependencies). AllowedSameLayer lists the exceptions, as 'A -> B'. MaxPlugins optionally limits how many plugins a layer may hold (Base is a single plugin, DrsBase).",
+	"SameLayerComment": "SameLayer is 'Plugin' (the default: modules may depend on modules in their own plugin), 'Any' (any same-layer module; used for GameSupport, whose features build on each other) or 'None' (no same-layer dependencies). AllowedSameLayer lists the exceptions, as 'A -> B'. MaxPlugins optionally limits how many plugins a layer may hold (Base is a single plugin, DrsBase).",
 	"Layers": [
-		{ "Name": "External", "Path": "Platform/External", "SameLayer": "Any" },
 		{ "Name": "Base", "Path": "Base", "MaxPlugins": 1 },
 		{ "Name": "Common", "Path": "Common" },
 		{ "Name": "Platform", "Path": "Platform" },

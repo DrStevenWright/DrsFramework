@@ -9,20 +9,24 @@
 DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
 
 /**
- * The XR arbiter: it selects the desktop OpenXR runtime and the vendor XR plugin, independently, and holds the early XR
- * state that DrsXrPlatform reads. Loads at EarliestPossible (Win64 and Android).
+ * The XR arbiter: it selects the desktop OpenXR runtime and the appropriate vendor XR plugin, if any are enabled.
+ * Loads at EarliestPossible (Win64 and Android).
  *
  * THE OPENXR RUNTIME (Windows only)
  * At startup, before OpenXR creates its instance, it picks a runtime from the runtime table
- * ([/Script/DrsXrArbiter.DrsXrRuntimeSettings]) and points XR_RUNTIME_JSON at it. A running runtime wins; otherwise the
- * first installed one in RuntimePriority. Under -noHMD none is selected. On Android the device provides the runtime.
+ * (Runtimes in [/Script/DrsXrArbiter.DrsXrArbiterSettings]) and points XR_RUNTIME_JSON at it. A running runtime wins; otherwise the
+ * first installed one in RuntimePriority. Under -noHMD none are selected. On Android, the device provides the runtime.
  *
  * THE VENDOR PLUGIN
- * Vendor XR plugins (Meta, Pico, ...) each hook into OpenXR at startup and can conflict when several are enabled. The
- * arbiter lets them all be enabled in one project and starts only the modules of the vendor that fits the device. It is
- * optional: a vendor plugin that is not integrated simply loads as normal, and with nothing integrated the arbiter starts
- * no vendor modules itself. Today no vendor plugin is integrated: the MetaXR fork loads as normal. GetXrPluginType() reports the running
- * vendor either way.
+ * Vendor XR plugins (MetaXR, PicoOpenXR, ...) each hook into OpenXR at startup and can conflict when several are enabled.
+ * The arbiter lets them all be enabled in one project and starts only the modules of the vendor that fits the device.
+ * It is optional: a vendor plugin that is not integrated simply loads as normal, and with nothing integrated the arbiter
+ * starts no vendor modules itself. GetXrPluginType() reports the running vendor plugin either way.
+ *
+ * A vendor is not one plugin: any number of plugins can name the same vendor, and the arbiter starts all of their
+ * arbitrated modules when it selects that vendor, and none of them otherwise. For example, PicoOpenXR and PicoEnterprise
+ * can both name Pico, so that both start only on Pico hardware. A plugin can even split its modules between vendors,
+ * since the vendor can be set per module.
  *
  * INTEGRATING A VENDOR PLUGIN
  * 1. In the vendor's .uplugin, for each module to arbitrate:
@@ -45,9 +49,11 @@ DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
  * 3. Add the vendor to the vendor table, [/Script/DrsXrArbiter.DrsXrArbiterSettings] Vendors in DefaultDrsXrPlatform.ini
  *    (the plugin's, or a project's to add it for that project only): its Id, the keywords that identify its hardware
  *    (matched against the device name, or on Android the brand and manufacturer), and its marker module. If it has a
- *    desktop runtime of its own, add that to [/Script/DrsXrArbiter.DrsXrRuntimeSettings] with Vendor set to the Id, and
- *    list it in RuntimePriority.
- * 4. Mark each change in the vendor plugin as a local patch (the fork uses "DRS:" comments, or a "DrsNote" key in
+ *    desktop runtime of its own, add that to Runtimes in the same section, with Vendor set to the Id, and
+ *    list it in RuntimePriority. A vendor whose modules come from several plugins still has one entry and one marker
+ *    module; pick a module that always starts with the vendor (such as its main HMD module). A further plugin for a
+ *    vendor already in the table needs only steps 1, 2 and 4.
+ * 4. Mark each change in the vendor plugin as a local patch (the fork uses "DRS:" comments, or a "DrsComment" key in
  *    JSON), so that it survives vendor upgrades.
  *
  * WHAT IT DOES NOT DO
@@ -98,7 +104,7 @@ namespace Drs::XrArbiter
 	DRSXRARBITER_API TArray<FDrsXrRuntime> ParseRuntimes(const TArray<FString>& entries);
 	/** The runtimes named in the priority, in its order. Names with no runtime are logged and skipped. */
 	DRSXRARBITER_API TArray<FDrsXrRuntime> OrderRuntimes(const TArray<FDrsXrRuntime>& runtimes, const TArray<FName>& priority);
-	/** The runtimes from config (UDrsXrRuntimeSettings), in priority order. */
+	/** The runtimes from config (UDrsXrArbiterSettings), in priority order. */
 	DRSXRARBITER_API TArray<FDrsXrRuntime> GetPrioritisedRuntimes();
 
 	/**

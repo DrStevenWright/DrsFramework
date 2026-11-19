@@ -6,9 +6,6 @@
 
 #include "DrsXrArbiterTypes.generated.h"
 
-/** Whether MetaXR code may be compiled in this build. */
-#define DRS_ENABLE_META_XR ((PLATFORM_WINDOWS || PLATFORM_ANDROID) && !UE_SERVER)
-
 /** How the plugin type was forced, if it was. */
 UENUM(BlueprintType)
 enum class EDrsXrPluginOverrideType : uint8

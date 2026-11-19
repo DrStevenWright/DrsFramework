@@ -8,7 +8,7 @@ Targets: Meta Quest (Link and standalone Android), with Pico as a cross-platform
 ## Layers
 
 Each layer may depend only on the layers below it. Dependencies within a plugin are allowed
-unless the layer forbids them. Plugins in GameSupport and External may depend on each other; in
+unless the layer forbids them. Plugins in GameSupport may depend on each other; in
 Common they may not. Other same-layer dependencies must be listed in
 [`Tools/LayerRules.json`](Tools/LayerRules.json). The module and plugin graphs must be acyclic.
 
@@ -16,7 +16,7 @@ Common they may not. Other same-layer dependencies must be listed in
 |---|---|---|
 | Game | `Game/` | `DrsCore`: game classes (GameMode, GameState, PlayerState, PlayerController, Pawn, GameInstance) and communication between otherwise independent plugins |
 | GameSupport | `GameSupport/` | `DrsXrGame`, `DrsInteraction`, `DrsLocomotion`, `DrsSpawning`; these may depend on each other |
-| Platform | `Platform/` | `DrsXrPlatform`; vendor plugin forks in `Platform/External/` |
+| Platform | `Platform/` | `DrsXrPlatform` |
 | Common | `Common/` | Plugins that need only the engine and `DrsBase` and don't depend on each other, such as `DrsUtilities` (`DrsMathUtils`, `DrsGraphicsUtils`) |
 | Base | `Base/` | `DrsBase` (`DrsBase`, `DrsBaseTests`) |
 
@@ -46,4 +46,4 @@ powershell -ExecutionPolicy Bypass -File Tools/CheckLayers.ps1
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE). The vendor plugins in `Platform/External/` keep their own licences.
+MIT. See [LICENSE](LICENSE).

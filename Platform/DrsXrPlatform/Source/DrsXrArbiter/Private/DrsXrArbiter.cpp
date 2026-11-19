@@ -32,7 +32,6 @@ namespace
 	// the project's, which wins. A plugin's Config/Game.ini would instead be applied over the project's DefaultGame.ini.
 	const TCHAR* SettingsConfigName = TEXT("DrsXrPlatform");
 	const TCHAR* ProjectSettingsSection = TEXT("/Script/DrsXrArbiter.DrsXrArbiterSettings");
-	const TCHAR* RuntimeSettingsSection = TEXT("/Script/DrsXrArbiter.DrsXrRuntimeSettings");
 	const TCHAR* XrArbiterProjectOverrideProperty = TEXT("XrArbiterProjectOverride");
 	const TCHAR* VendorsProperty = TEXT("Vendors");
 	const TCHAR* RuntimesProperty = TEXT("Runtimes");
@@ -563,8 +562,8 @@ namespace Drs::XrArbiter
 		if (GConfig)
 		{
 			const FString filename = GetSettingsFilename();
-			GConfig->GetArray(RuntimeSettingsSection, RuntimesProperty, runtimeEntries, filename);
-			GConfig->GetArray(RuntimeSettingsSection, RuntimePriorityProperty, priorityEntries, filename);
+			GConfig->GetArray(ProjectSettingsSection, RuntimesProperty, runtimeEntries, filename);
+			GConfig->GetArray(ProjectSettingsSection, RuntimePriorityProperty, priorityEntries, filename);
 		}
 
 		TArray<FName> priority;

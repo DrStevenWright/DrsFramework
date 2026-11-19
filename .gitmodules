@@ -1,4 +1,0 @@
-[submodule "Platform/External/MetaXR"]
-	path = Platform/External/MetaXR
-	url = https://github.com/DrStevenWright/MetaXR.git
-	branch = drs

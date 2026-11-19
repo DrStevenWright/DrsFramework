@@ -7,7 +7,8 @@
 #include "DrsBase/DrsLog.h"
 #include "DrsXrArbiter/DrsXrArbiter.h"
 #include "DrsXrArbiter/DrsXrSelection.h"
-#include "DrsXrDeviceInfo.h"
+#include "DrsXrControllerExtensions.h"
+#include "DrsXrDeviceExtensions.h"
 #include "DrsXrPlatform/DrsXrPlatform.h"
 #include "Engine/Engine.h"
 #include "Features/IModularFeatures.h"
@@ -26,33 +27,38 @@
 #if WITH_EDITOR
 #include "Editor.h"
 #endif
-#if DRS_ENABLE_META_XR
-#include "OculusXRFunctionLibrary.h"
-#endif
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPlatformLibrary)
 
 using Drs::XrArbiter::FXrSelection;
-using Drs::XrPlatform::FXrDeviceInfo;
+using Drs::XrPlatform::FXrControllerExtensions;
+using Drs::XrPlatform::FXrDeviceExtensions;
 
 namespace
 {
-	const FName MetaVendor(TEXT("Meta")); // The vendor ID of MetaXR in the arbiter's vendor table.
 	const FName OpenXrMotionControllerName(TEXT("OpenXR")); // The engine's OpenXR motion controller device.
 	bool bTrackingOriginRequested = false;
 
-	FXrDeviceInfo* GetDeviceInfo()
+	FXrDeviceExtensions* GetDeviceExtensions()
 	{
 		const FDrsXrPlatformModule* module = FDrsXrPlatformModule::Get();
-		return module ? module->GetDeviceInfo() : nullptr;
+		return module ? module->GetDeviceExtensions() : nullptr;
 	}
 
-	/** Calls a device-info method, or returns the default where there is no device info (servers, commandlets). */
+	/** Calls a device-state method, or returns the default where there is no device state (servers, commandlets). */
 	template <typename FunctionType, typename ResultType>
-	ResultType QueryDeviceInfo(FunctionType&& function, ResultType defaultValue)
+	ResultType QueryDeviceExtensions(FunctionType&& function, ResultType defaultValue)
 	{
-		FXrDeviceInfo* deviceInfo = GetDeviceInfo();
-		return deviceInfo ? function(*deviceInfo) : defaultValue;
+		FXrDeviceExtensions* deviceExtensions = GetDeviceExtensions();
+		return deviceExtensions ? function(*deviceExtensions) : defaultValue;
+	}
+
+	/** Calls a hands-and-controllers method, or returns the default where there is no device state (servers, commandlets). */
+	template <typename FunctionType, typename ResultType>
+	ResultType QueryControllerExtensions(FunctionType&& function, ResultType defaultValue)
+	{
+		FXrDeviceExtensions* deviceExtensions = GetDeviceExtensions();
+		return deviceExtensions ? function(deviceExtensions->GetControllerExtensions()) : defaultValue;
 	}
 
 	void SetConsoleVariable(const TCHAR* name, int32 value)
@@ -95,12 +101,12 @@ FName UDrsXrPlatformLibrary::GetXrRuntimeType()
 
 bool UDrsXrPlatformLibrary::HasXrFocus()
 {
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.HasFocus(); }, false);
+	return QueryDeviceExtensions([](FXrDeviceExtensions& device) { return device.HasFocus(); }, false);
 }
 
 bool UDrsXrPlatformLibrary::IsSystemMenuOpen()
 {
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.IsSystemMenuOpen(); }, false);
+	return QueryDeviceExtensions([](FXrDeviceExtensions& device) { return device.IsSystemMenuOpen(); }, false);
 }
 
 //------------------------------------------------------------------
@@ -146,8 +152,9 @@ bool UDrsXrPlatformLibrary::IsHmdTracking()
 
 bool UDrsXrPlatformLibrary::IsHmdWorn()
 {
-	// Not GetHMDWornState(), which (at the time of writing) only reports whether a session is running.
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.IsHmdWorn(); }, false);
+	// Not GetHMDWornState(), which (at the time of writing) only reports whether a session is running. FXrDeviceExtensions uses
+	// XR_EXT_user_presence where supported, and otherwise infers it from the OpenXR session state.
+	return QueryDeviceExtensions([](FXrDeviceExtensions& device) { return device.IsHmdWorn(); }, false);
 }
 
 EHMDWornState::Type UDrsXrPlatformLibrary::GetHmdWornState()
@@ -225,6 +232,7 @@ void UDrsXrPlatformLibrary::SetupHmd()
 
 bool UDrsXrPlatformLibrary::SetFloorTrackingOrigin()
 {
+	// Asks for OpenXR LOCAL_FLOOR; the runtime falls back to LOCAL if it doesn't support it.
 	if (!IsXrSystemActive())
 	{
 		return false;
@@ -252,12 +260,12 @@ void UDrsXrPlatformLibrary::GetHmdDevicePose(UObject* worldContext, FRotator& ou
 
 FDrsXrControllerType UDrsXrPlatformLibrary::GetControllerType()
 {
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.GetControllerType(); }, FDrsXrControllerType());
+	return QueryControllerExtensions([](FXrControllerExtensions& controllers) { return controllers.GetControllerType(); }, FDrsXrControllerType());
 }
 
 bool UDrsXrPlatformLibrary::IsControllerPresent(EControllerHand hand)
 {
-	return QueryDeviceInfo([hand](FXrDeviceInfo& info) { return info.IsControllerPresent(hand); }, false);
+	return QueryControllerExtensions([hand](FXrControllerExtensions& controllers) { return controllers.IsControllerPresent(hand); }, false);
 }
 
 bool UDrsXrPlatformLibrary::GetGripPose(EControllerHand hand, FTransform& outWorldTransform)
@@ -267,10 +275,11 @@ bool UDrsXrPlatformLibrary::GetGripPose(EControllerHand hand, FTransform& outWor
 
 bool UDrsXrPlatformLibrary::GetAimPose(EControllerHand hand, FTransform& outWorldTransform)
 {
-	// The OpenXR aim pose doesn't suit tracked hands, so use the hand-tracking provider's.
+	// The OpenXR aim pose doesn't suit tracked hands, so use the runtime's hand aim (XR_FB_hand_tracking_aim, through
+	// FXrControllerExtensions) where it gives one, and the OpenXR aim pose otherwise.
 	if (IsHandTrackingActive(hand) && HasTrackedHandAimPose())
 	{
-		return QueryDeviceInfo([hand, &outWorldTransform](FXrDeviceInfo& info) { return info.GetTrackedHandAimPose(hand, outWorldTransform); }, false);
+		return QueryControllerExtensions([hand, &outWorldTransform](FXrControllerExtensions& controllers) { return controllers.GetTrackedHandAimPose(hand, outWorldTransform); }, false);
 	}
 	return GetMotionControllerPose(OpenXrMotionControllerName, GetAimSource(hand), outWorldTransform);
 }
@@ -357,7 +366,7 @@ ETrackingStatus UDrsXrPlatformLibrary::GetMotionControllerTrackingStatus(const U
 
 bool UDrsXrPlatformLibrary::IsPhysicalControllerActive(EControllerHand hand)
 {
-	return QueryDeviceInfo([hand](FXrDeviceInfo& info) { return info.IsPhysicalControllerActive(hand); }, false);
+	return QueryControllerExtensions([hand](FXrControllerExtensions& controllers) { return controllers.IsPhysicalControllerActive(hand); }, false);
 }
 
 //------------------------------------------------------------------
@@ -366,21 +375,23 @@ bool UDrsXrPlatformLibrary::IsPhysicalControllerActive(EControllerHand hand)
 
 bool UDrsXrPlatformLibrary::IsHandTrackingAvailable()
 {
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.IsHandTrackingAvailable(); }, false);
+	return QueryControllerExtensions([](FXrControllerExtensions& controllers) { return controllers.IsHandTrackingAvailable(); }, false);
 }
 
 bool UDrsXrPlatformLibrary::IsHandTrackingActive(EControllerHand hand)
 {
-	return QueryDeviceInfo([hand](FXrDeviceInfo& info) { return info.IsHandTrackingActive(hand); }, false);
+	return QueryControllerExtensions([hand](FXrControllerExtensions& controllers) { return controllers.IsHandTrackingActive(hand); }, false);
 }
 
 bool UDrsXrPlatformLibrary::HasTrackedHandAimPose()
 {
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.HasTrackedHandAimPose(); }, false);
+	// Whether the runtime gives XR_FB_hand_tracking_aim. Without it, GetAimPose gives the OpenXR aim pose for tracked hands.
+	return QueryControllerExtensions([](FXrControllerExtensions& controllers) { return controllers.HasTrackedHandAimPose(); }, false);
 }
 
 bool UDrsXrPlatformLibrary::GetHandTrackingData(EControllerHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii)
 {
+	// The raw joints from the engine's OpenXRHandTracking (XR_EXT_hand_tracking).
 	static const FName openXrHandTrackerName(TEXT("OpenXRHandTracking"));
 	for (const IHandTracker* handTracker : IModularFeatures::Get().GetModularFeatureImplementations<IHandTracker>(IHandTracker::GetModularFeatureName()))
 	{
@@ -423,28 +434,21 @@ void UDrsXrPlatformLibrary::SetFoveationLevel(EDrsXrFoveationLevel foveationLeve
 
 void UDrsXrPlatformLibrary::SetDisplayFrequency(float frequency)
 {
-	QueryDeviceInfo([frequency](FXrDeviceInfo& info) { return info.SetDisplayFrequency(frequency); }, false);
+	QueryDeviceExtensions([frequency](FXrDeviceExtensions& device) { return device.SetDisplayFrequency(frequency); }, false);
 }
 
 float UDrsXrPlatformLibrary::GetDisplayFrequency()
 {
-	return QueryDeviceInfo([](FXrDeviceInfo& info) { return info.GetDisplayFrequency(); }, 0.0f);
+	return QueryDeviceExtensions([](FXrDeviceExtensions& device) { return device.GetDisplayFrequency(); }, 0.0f);
 }
 
 bool UDrsXrPlatformLibrary::GetGpuUtilisation(float& outGpuUtilisation)
 {
-	bool isGpuAvailable = false;
+	// The XR_META_performance_metrics counter. Only standalone Quest reports it; Link and SteamVR give frame times only.
 	outGpuUtilisation = 0.0f;
-#if DRS_ENABLE_META_XR
-	if (GetXrPluginType() == MetaVendor)
-	{
-		// The XR_META_performance_metrics counter, in percent.
-		UOculusXRFunctionLibrary::GetGPUUtilization(isGpuAvailable, outGpuUtilisation);
-		return isGpuAvailable;
-	}
-#endif
-	DRS_LOG_ONCE(LogDrsXrPlatform, Warning, "GPU utilisation is not available on this platform.");
-	return isGpuAvailable;
+	const bool isAvailable = QueryDeviceExtensions([&outGpuUtilisation](FXrDeviceExtensions& device) { return device.GetGpuUtilisation(outGpuUtilisation); }, false);
+	DRS_CLOG_ONCE(!isAvailable, LogDrsXrPlatform, Log, "GPU utilisation is not available: the OpenXR runtime doesn't report it.");
+	return isAvailable;
 }
 
 void UDrsXrPlatformLibrary::SetSpectatorScreenMode(ESpectatorScreenMode screenMode)

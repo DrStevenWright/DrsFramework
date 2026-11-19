@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 Steven Wright. Licensed under the MIT License. -->
+<!--
+	DRS's Android manifest entries, for any vendor. Each entry is set from DRS settings or a framework decision, inside a
+	condition for the platform it applies to. addFeature and addPermission skip a name that already exists, so each entry
+	this file sets is removed first, in case the engine or a vendor plugin added it.
+
+	Meta Quest (Package for Meta Quest): the hand-tracking permission, feature and frequency, from UDrsXrPlatformSettings,
+	and FrameSync. The hand-tracking version is left to the system's default, so any version meta-data is removed. The engine already adds the hand-tracking permission and feature (not
+	required) and com.oculus.supportedDevices, so the first two are only changed here and the last is left alone.
+-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<init>
+		<setBoolFromProperty result="bPackageForMetaQuest" ini="Engine" section="/Script/AndroidRuntimeSettings.AndroidRuntimeSettings" property="bPackageForMetaQuest" default="false"/>
+		<setStringFromProperty result="HandTrackingSupport" ini="Engine" section="/Script/DrsXrPlatform.DrsXrPlatformSettings" property="HandTrackingSupport" default="ControllersAndHands"/>
+		<setStringFromProperty result="HandTrackingFrequency" ini="Engine" section="/Script/DrsXrPlatform.DrsXrPlatformSettings" property="HandTrackingFrequency" default="High"/>
+
+		<setBoolIsEqual result="bControllersOnly" arg1="$S(HandTrackingSupport)" arg2="ControllersOnly"/>
+		<setBoolIsEqual result="bHandsOnly" arg1="$S(HandTrackingSupport)" arg2="HandsOnly"/>
+		<setBoolIsEqual result="bHighFrequency" arg1="$S(HandTrackingFrequency)" arg2="High"/>
+	</init>
+
+	<androidManifestUpdates>
+		<if condition="bPackageForMetaQuest">
+			<true>
+				<!-- Remove the hand-tracking entries the engine adds, and the meta-data this file sets, then add them as configured. -->
+				<loopElements tag="uses-feature">
+					<setStringFromAttribute result="featureName" tag="$" name="android:name"/>
+					<setBoolIsEqual result="bIsHandTrackingFeature" arg1="$S(featureName)" arg2="oculus.software.handtracking"/>
+					<if condition="bIsHandTrackingFeature">
+						<true>
+							<removeElement tag="$"/>
+						</true>
+					</if>
+				</loopElements>
+				<loopElements tag="uses-permission">
+					<setStringFromAttribute result="permissionName" tag="$" name="android:name"/>
+					<setBoolIsEqual result="bIsHandTrackingPermission" arg1="$S(permissionName)" arg2="com.oculus.permission.HAND_TRACKING"/>
+					<if condition="bIsHandTrackingPermission">
+						<true>
+							<removeElement tag="$"/>
+						</true>
+					</if>
+				</loopElements>
+				<loopElements tag="meta-data">
+					<setStringFromAttribute result="metaDataName" tag="$" name="android:name"/>
+					<setBoolIsEqual result="bIsFrequency" arg1="$S(metaDataName)" arg2="com.oculus.handtracking.frequency"/>
+					<setBoolIsEqual result="bIsVersion" arg1="$S(metaDataName)" arg2="com.oculus.handtracking.version"/>
+					<setBoolIsEqual result="bIsFrameSync" arg1="$S(metaDataName)" arg2="com.oculus.enable_frame_sync"/>
+					<setBoolOr result="bIsOwnMetaData" arg1="$B(bIsFrequency)" arg2="$B(bIsVersion)"/>
+					<setBoolOr result="bIsOwnMetaData" arg1="$B(bIsOwnMetaData)" arg2="$B(bIsFrameSync)"/>
+					<if condition="bIsOwnMetaData">
+						<true>
+							<removeElement tag="$"/>
+						</true>
+					</if>
+				</loopElements>
+
+				<if condition="bControllersOnly">
+					<false>
+						<addPermission android:name="com.oculus.permission.HAND_TRACKING"/>
+						<addFeature android:name="oculus.software.handtracking" android:required="$B(bHandsOnly)"/>
+
+						<setElement result="frequency" value="meta-data"/>
+						<addAttribute tag="$frequency" name="android:name" value="com.oculus.handtracking.frequency"/>
+						<if condition="bHighFrequency">
+							<true>
+								<addAttribute tag="$frequency" name="android:value" value="HIGH"/>
+							</true>
+							<false>
+								<addAttribute tag="$frequency" name="android:value" value="LOW"/>
+							</false>
+						</if>
+						<addElement tag="application" name="frequency"/>
+					</false>
+				</if>
+
+				<!-- FrameSync is on by default from Horizon OS v203, but only for Store apps by one account, so set it for sideloaded builds too. -->
+				<setElement result="frameSync" value="meta-data"/>
+				<addAttribute tag="$frameSync" name="android:name" value="com.oculus.enable_frame_sync"/>
+				<addAttribute tag="$frameSync" name="android:value" value="true"/>
+				<addElement tag="application" name="frameSync"/>
+			</true>
+		</if>
+	</androidManifestUpdates>
+</root>
