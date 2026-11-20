@@ -94,6 +94,21 @@ namespace Drs::XrArbiter
 		return NAME_None;
 	}
 
+	FName MatchVendorFromProbe(const TArray<FDrsXrVendor>& vendors, const TOptional<FXrRuntimeProbe>& probe)
+	{
+		// No system means no headset: the Oculus runtime still creates an instance and names itself without one.
+		if (!probe.IsSet() || probe->SystemName.IsEmpty())
+		{
+			return NAME_None;
+		}
+		TArray<FString> identities = { probe->SystemName };
+		if (!probe->RuntimeName.IsEmpty())
+		{
+			identities.Add(probe->RuntimeName);
+		}
+		return MatchVendor(vendors, identities);
+	}
+
 	TArray<FDrsXrRuntime> ParseRuntimes(const TArray<FString>& entries)
 	{
 		TArray<FDrsXrRuntime> runtimes;

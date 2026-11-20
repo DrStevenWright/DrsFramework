@@ -63,6 +63,9 @@ DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
  *
  * Choosing the vendor: see DrsXrPlatform/CLAUDE.md. Overrides: the editor setting (UDrsXrPlatformEditorSettings), the
  * -XrPlugin=<Id> command line, and XrArbiterProjectOverride. Commandlets load every vendor, so everything cooks.
+ * When neither the runtime nor the device brand identifies the hardware (SteamVR, for one), a runtime probe reads the
+ * runtime and system names from a bare OpenXR instance before the engine creates its own, so the vendor's modules still
+ * get their extensions. A probe that finds no headset chooses no vendor.
  */
 namespace Drs::XrArbiter
 {
@@ -100,6 +103,23 @@ namespace Drs::XrArbiter
 	DRSXRARBITER_API TArray<FDrsXrVendor> ParseVendors(const TArray<FString>& entries);
 	/** The first vendor with a keyword found in any of the identities (not case-sensitive), or None. */
 	DRSXRARBITER_API FName MatchVendor(const TArray<FDrsXrVendor>& vendors, const TArray<FString>& identities);
+
+	/** What a bare OpenXR instance reports about the runtime (see ProbeXrRuntime in the module). */
+	struct FXrRuntimeProbe
+	{
+		/** The runtime's name, such as "Oculus" or "SteamVR/OpenXR". */
+		FString RuntimeName;
+		/** The system's name, such as "Meta Quest 3" or "SteamVR/OpenXR : oculus". Empty when no headset is connected. */
+		FString SystemName;
+		/** The system's vendor ID. Not used for matching: Meta's runtime reports a different one over Link. */
+		uint32 VendorId = 0;
+	};
+
+	/**
+	 * The first vendor with a keyword in the probe's system name or runtime name, or None. A probe that found no headset
+	 * (it failed, or got no system) gives None, whatever the runtime.
+	 */
+	DRSXRARBITER_API FName MatchVendorFromProbe(const TArray<FDrsXrVendor>& vendors, const TOptional<FXrRuntimeProbe>& probe);
 
 	/** Parses the runtime table from its config entries, skipping invalid ones. */
 	DRSXRARBITER_API TArray<FDrsXrRuntime> ParseRuntimes(const TArray<FString>& entries);

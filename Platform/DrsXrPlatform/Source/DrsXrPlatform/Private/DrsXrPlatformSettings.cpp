@@ -6,7 +6,7 @@
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(DrsXrPlatformSettings)
 
-EDrsXrHandTrackingSupport UDrsXrPlatformSettings::GetHandTrackingSupport()
+EDrsXrHandTrackingSupport UDrsXrPlatformSettings::ParseHandTrackingSupport()
 {
 	// The names match the enum's, as DefaultEngine.ini and DrsXrPlatform_UPL.xml use them.
 	FString value;

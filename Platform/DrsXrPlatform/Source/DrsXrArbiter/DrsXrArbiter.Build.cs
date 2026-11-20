@@ -12,6 +12,9 @@ public class DrsXrArbiter : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "DrsBase", "Engine", "HeadMountedDisplay", "Json", "Projects", "XRBase" });
 
+		// The OpenXR headers needed for the runtime probe.
+		AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenXR");
+
 		if (Target.Type == TargetType.Editor)
 		{
 			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
