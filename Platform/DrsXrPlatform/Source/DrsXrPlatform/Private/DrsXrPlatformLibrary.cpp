@@ -263,51 +263,51 @@ FDrsXrControllerType UDrsXrPlatformLibrary::GetControllerType()
 	return QueryControllerExtensions([](FXrControllerExtensions& controllers) { return controllers.GetControllerType(); }, FDrsXrControllerType());
 }
 
-bool UDrsXrPlatformLibrary::IsControllerPresent(EControllerHand hand)
+bool UDrsXrPlatformLibrary::IsControllerPresent(EDrsHandMask hands)
 {
-	return QueryControllerExtensions([hand](FXrControllerExtensions& controllers) { return controllers.IsControllerPresent(hand); }, false);
+	return QueryControllerExtensions([hands](FXrControllerExtensions& controllers) { return controllers.IsControllerPresent(hands); }, false);
 }
 
-bool UDrsXrPlatformLibrary::GetGripPose(EControllerHand hand, FTransform& outWorldTransform)
+bool UDrsXrPlatformLibrary::GetGripPose(EDrsHand hand, FTransform& outWorldTransform)
 {
 	return GetMotionControllerPose(OpenXrMotionControllerName, GetGripSource(hand), outWorldTransform);
 }
 
-bool UDrsXrPlatformLibrary::GetAimPose(EControllerHand hand, FTransform& outWorldTransform)
+bool UDrsXrPlatformLibrary::GetAimPose(EDrsHand hand, FTransform& outWorldTransform)
 {
 	// The OpenXR aim pose doesn't suit tracked hands, so use the runtime's hand aim (XR_FB_hand_tracking_aim, through
 	// FXrControllerExtensions) where it gives one, and the OpenXR aim pose otherwise.
-	if (IsHandTrackingActive(hand) && HasTrackedHandAimPose())
+	if (IsHandTrackingActive(Drs::ToMask(hand)) && HasTrackedHandAimPose())
 	{
 		return QueryControllerExtensions([hand, &outWorldTransform](FXrControllerExtensions& controllers) { return controllers.GetTrackedHandAimPose(hand, outWorldTransform); }, false);
 	}
 	return GetMotionControllerPose(OpenXrMotionControllerName, GetAimSource(hand), outWorldTransform);
 }
 
-bool UDrsXrPlatformLibrary::GetPalmPose(EControllerHand hand, FTransform& outWorldTransform)
+bool UDrsXrPlatformLibrary::GetPalmPose(EDrsHand hand, FTransform& outWorldTransform)
 {
 	return GetMotionControllerPose(OpenXrMotionControllerName, GetPalmSource(hand), outWorldTransform);
 }
 
-FName UDrsXrPlatformLibrary::GetGripSource(EControllerHand hand)
+FName UDrsXrPlatformLibrary::GetGripSource(EDrsHand hand)
 {
 	static const FName leftSource(TEXT("LeftGrip"));
 	static const FName rightSource(TEXT("RightGrip"));
-	return (hand == EControllerHand::Left) ? leftSource : rightSource;
+	return (hand == EDrsHand::Left) ? leftSource : rightSource;
 }
 
-FName UDrsXrPlatformLibrary::GetAimSource(EControllerHand hand)
+FName UDrsXrPlatformLibrary::GetAimSource(EDrsHand hand)
 {
 	static const FName leftSource(TEXT("LeftAim"));
 	static const FName rightSource(TEXT("RightAim"));
-	return (hand == EControllerHand::Left) ? leftSource : rightSource;
+	return (hand == EDrsHand::Left) ? leftSource : rightSource;
 }
 
-FName UDrsXrPlatformLibrary::GetPalmSource(EControllerHand hand)
+FName UDrsXrPlatformLibrary::GetPalmSource(EDrsHand hand)
 {
 	static const FName leftSource(TEXT("LeftPalm"));
 	static const FName rightSource(TEXT("RightPalm"));
-	return (hand == EControllerHand::Left) ? leftSource : rightSource;
+	return (hand == EDrsHand::Left) ? leftSource : rightSource;
 }
 
 bool UDrsXrPlatformLibrary::GetMotionControllerPose(FName deviceName, FName source, FTransform& outWorldTransform)
@@ -336,7 +336,7 @@ bool UDrsXrPlatformLibrary::GetMotionControllerPose(FName deviceName, FName sour
 	return false;
 }
 
-FName UDrsXrPlatformLibrary::GetMotionControllerSource(EControllerHand hand, bool isHandTracking)
+FName UDrsXrPlatformLibrary::GetMotionControllerSource(EDrsHand hand, bool isHandTracking)
 {
 	if (isHandTracking)
 	{
@@ -347,11 +347,11 @@ FName UDrsXrPlatformLibrary::GetMotionControllerSource(EControllerHand hand, boo
 		{
 			static const FName leftSource(TEXT("HandTrackingLeftWrist"));
 			static const FName rightSource(TEXT("HandTrackingRightWrist"));
-			return (hand == EControllerHand::Left) ? leftSource : rightSource;
+			return (hand == EDrsHand::Left) ? leftSource : rightSource;
 		}
 		static const FName leftSource(TEXT("LeftWrist"));
 		static const FName rightSource(TEXT("RightWrist"));
-		return (hand == EControllerHand::Left) ? leftSource : rightSource;
+		return (hand == EDrsHand::Left) ? leftSource : rightSource;
 	}
 
 	// Physical controllers follow the palm pose, which OpenXR intends for anchoring visuals to the user's hand.
@@ -364,9 +364,9 @@ ETrackingStatus UDrsXrPlatformLibrary::GetMotionControllerTrackingStatus(const U
 	return controller ? controller->CurrentTrackingStatus : ETrackingStatus::NotTracked;
 }
 
-bool UDrsXrPlatformLibrary::IsPhysicalControllerActive(EControllerHand hand)
+bool UDrsXrPlatformLibrary::IsPhysicalControllerActive(EDrsHandMask hands)
 {
-	return QueryControllerExtensions([hand](FXrControllerExtensions& controllers) { return controllers.IsPhysicalControllerActive(hand); }, false);
+	return QueryControllerExtensions([hands](FXrControllerExtensions& controllers) { return controllers.IsPhysicalControllerActive(hands); }, false);
 }
 
 //------------------------------------------------------------------
@@ -378,9 +378,9 @@ bool UDrsXrPlatformLibrary::IsHandTrackingAvailable()
 	return QueryControllerExtensions([](FXrControllerExtensions& controllers) { return controllers.IsHandTrackingAvailable(); }, false);
 }
 
-bool UDrsXrPlatformLibrary::IsHandTrackingActive(EControllerHand hand)
+bool UDrsXrPlatformLibrary::IsHandTrackingActive(EDrsHandMask hands)
 {
-	return QueryControllerExtensions([hand](FXrControllerExtensions& controllers) { return controllers.IsHandTrackingActive(hand); }, false);
+	return QueryControllerExtensions([hands](FXrControllerExtensions& controllers) { return controllers.IsHandTrackingActive(hands); }, false);
 }
 
 bool UDrsXrPlatformLibrary::HasTrackedHandAimPose()
@@ -389,7 +389,7 @@ bool UDrsXrPlatformLibrary::HasTrackedHandAimPose()
 	return QueryControllerExtensions([](FXrControllerExtensions& controllers) { return controllers.HasTrackedHandAimPose(); }, false);
 }
 
-bool UDrsXrPlatformLibrary::GetHandTrackingData(EControllerHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii)
+bool UDrsXrPlatformLibrary::GetHandTrackingData(EDrsHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii)
 {
 	// The raw joints from the engine's OpenXRHandTracking (XR_EXT_hand_tracking).
 	static const FName openXrHandTrackerName(TEXT("OpenXRHandTracking"));
@@ -398,7 +398,7 @@ bool UDrsXrPlatformLibrary::GetHandTrackingData(EControllerHand hand, TArray<FVe
 		if (handTracker && handTracker->GetHandTrackerDeviceTypeName() == openXrHandTrackerName)
 		{
 			bool isTracked = false;
-			return handTracker->IsHandTrackingStateValid() && handTracker->GetAllKeypointStates(hand, outPositions, outRotations, outRadii, isTracked);
+			return handTracker->IsHandTrackingStateValid() && handTracker->GetAllKeypointStates(Drs::ToControllerHand(hand), outPositions, outRotations, outRadii, isTracked);
 		}
 	}
 	return false;

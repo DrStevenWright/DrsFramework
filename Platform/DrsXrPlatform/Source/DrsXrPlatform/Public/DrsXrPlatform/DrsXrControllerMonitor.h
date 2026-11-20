@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 
+#include "DrsBase/DrsHand.h"
 #include "DrsXrPlatform/DrsXrControllerType.h"
-#include "InputCoreTypes.h"
 
 namespace Drs::XrPlatform
 {
@@ -19,10 +19,10 @@ namespace Drs::XrPlatform
 		virtual bool CanTrackHands() const = 0;
 
 		/** Whether a tracked hand's joints are tracked this frame. */
-		virtual bool IsTrackedHandJointTracked(EControllerHand hand) const = 0;
+		virtual bool IsTrackedHandJointTracked(EDrsHand hand) const = 0;
 
 		/** Whether the hand's physical controller grip pose is tracked this frame. */
-		virtual bool IsPhysicalControllerGripTracked(EControllerHand hand) const = 0;
+		virtual bool IsPhysicalControllerGripTracked(EDrsHand hand) const = 0;
 
 		/** Whether mixed controller modes are enabled for this session, so the hands may be in different modes. */
 		virtual bool AreMixedControllerModesEnabled() const = 0;
@@ -49,20 +49,24 @@ namespace Drs::XrPlatform
 		/** Call when the OpenXR session is destroyed. */
 		void Reset();
 
-		const FDrsXrControllerState& GetState(EControllerHand hand) const { return (hand == EControllerHand::Left) ? LeftState : RightState; }
-
-		/** Whether the hand has a controller: an active physical controller or a tracked hand that has been seen. */
-		bool IsControllerPresent(EControllerHand hand) const;
-
-		/** Whether either hand is in tracked-hand mode. */
-		bool IsAnyHandTracked() const { return LeftState.Mode == EDrsXrControllerMode::TrackedHand || RightState.Mode == EDrsXrControllerMode::TrackedHand; }
+		const FDrsXrControllerState& GetState(EDrsHand hand) const { return (hand == EDrsHand::Left) ? LeftState : RightState; }
 
 		/**
-		 * Whether the hand is driven by a physical controller: it has a physical controller profile and its grip has been
-		 * tracked since the profile appeared. It turns inactive once the profile has been gone for PhysicalControllerInactiveDelay.
-		 * This doesn't say whether the controller is powered: one put down for hand tracking turns inactive while still on.
+		 * Whether every hand in the mask has a controller: an active physical controller or a tracked hand that has been
+		 * seen. False for None.
 		 */
-		bool IsPhysicalControllerActive(EControllerHand hand) const { return GetPresence(hand).bPhysicalControllerActive; }
+		bool IsControllerPresent(EDrsHandMask hands) const;
+
+		/** Whether every hand in the mask is in tracked-hand mode. False for None. */
+		bool IsHandTracked(EDrsHandMask hands) const;
+
+		/**
+		 * Whether every hand in the mask is driven by a physical controller: it has a physical controller profile and its
+		 * grip has been tracked since the profile appeared. It turns inactive once the profile has been gone for
+		 * PhysicalControllerInactiveDelay. This doesn't say whether the controller is powered: one put down for hand tracking
+		 * turns inactive while still on. False for None.
+		 */
+		bool IsPhysicalControllerActive(EDrsHandMask hands) const;
 
 		/** How long a hand may lack a physical controller profile before its controller counts as inactive (seconds). Covers
 		 *  the empty profile Meta reports for up to about 480 ms while switching between controller and tracked hand. */
@@ -77,9 +81,9 @@ namespace Drs::XrPlatform
 		};
 
 		void SetProfile(FDrsXrControllerState& state, const TCHAR* handName, const FString& profile);
-		void UpdatePresence(const FDrsXrControllerState& state, FControllerPresence& presence, EControllerHand hand, const TCHAR* handName, float deltaTime);
-		const FControllerPresence& GetPresence(EControllerHand hand) const { return (hand == EControllerHand::Left) ? LeftPresence : RightPresence; }
-		TOptional<EDrsXrControllerMode> GetCandidateMode(const FDrsXrControllerState& state, EControllerHand hand) const;
+		void UpdatePresence(const FDrsXrControllerState& state, FControllerPresence& presence, EDrsHand hand, const TCHAR* handName, float deltaTime);
+		const FControllerPresence& GetPresence(EDrsHand hand) const { return (hand == EDrsHand::Left) ? LeftPresence : RightPresence; }
+		TOptional<EDrsXrControllerMode> GetCandidateMode(const FDrsXrControllerState& state, EDrsHand hand) const;
 
 		const IXrControllerSource& Source;
 		FDrsXrControllerState LeftState;

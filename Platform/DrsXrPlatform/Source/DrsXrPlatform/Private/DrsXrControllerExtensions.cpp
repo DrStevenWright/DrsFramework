@@ -121,7 +121,7 @@ namespace Drs::XrPlatform
 
 		if (ControllerMonitor.Update(deltaTime))
 		{
-			SetControllerStates(ControllerMonitor.GetState(EControllerHand::Left), ControllerMonitor.GetState(EControllerHand::Right));
+			SetControllerStates(ControllerMonitor.GetState(EDrsHand::Left), ControllerMonitor.GetState(EDrsHand::Right));
 		}
 	}
 
@@ -377,9 +377,9 @@ namespace Drs::XrPlatform
 		return IsHandTrackingAvailable() && HandTrackers[0] != XR_NULL_HANDLE;
 	}
 
-	bool FXrControllerExtensions::GetTrackedHandAimPose(EControllerHand hand, FTransform& outWorldTransform) const
+	bool FXrControllerExtensions::GetTrackedHandAimPose(EDrsHand hand, FTransform& outWorldTransform) const
 	{
-		const int32 handIndex = (hand == EControllerHand::Left) ? 0 : 1;
+		const int32 handIndex = (hand == EDrsHand::Left) ? 0 : 1;
 		const IXRTrackingSystem* trackingSystem = GEngine ? GEngine->XRSystem.Get() : nullptr;
 		if (trackingSystem == nullptr || !bIsAimValid[handIndex])
 		{
@@ -389,12 +389,7 @@ namespace Drs::XrPlatform
 		return true;
 	}
 
-	bool FXrControllerExtensions::IsHandTrackingActive(EControllerHand hand) const
-	{
-		return (hand == EControllerHand::AnyHand) ? ControllerMonitor.IsAnyHandTracked() : (ControllerMonitor.GetState(hand).Mode == EDrsXrControllerMode::TrackedHand);
-	}
-
-	bool FXrControllerExtensions::IsTrackedHandJointTracked(EControllerHand hand) const
+	bool FXrControllerExtensions::IsTrackedHandJointTracked(EDrsHand hand) const
 	{
 		const IHandTracker* handTracker = GetHandTracker();
 		if (handTracker == nullptr || !handTracker->IsHandTrackingStateValid())
@@ -405,10 +400,10 @@ namespace Drs::XrPlatform
 		// Not GetKeypointState(): it returns whether the hand has ever been tracked (the engine keeps returning the last
 		// pose), whereas the out parameter here says whether it is tracked this frame (XrHandJointLocationsEXT::isActive).
 		bool isTracked = false;
-		return handTracker->GetAllKeypointStates(hand, JointPositions, JointRotations, JointRadii, isTracked) && isTracked;
+		return handTracker->GetAllKeypointStates(Drs::ToControllerHand(hand), JointPositions, JointRotations, JointRadii, isTracked) && isTracked;
 	}
 
-	bool FXrControllerExtensions::IsPhysicalControllerGripTracked(EControllerHand hand) const
+	bool FXrControllerExtensions::IsPhysicalControllerGripTracked(EDrsHand hand) const
 	{
 		const IMotionController* motionController = GetMotionController();
 		return motionController && motionController->GetControllerTrackingStatus(0, UDrsXrPlatformLibrary::GetGripSource(hand)) == ETrackingStatus::Tracked;

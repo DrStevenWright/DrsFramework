@@ -26,8 +26,8 @@ namespace DrsXrControllerMonitorTest
 	public:
 
 		virtual bool CanTrackHands() const override { return bCanTrackHands; }
-		virtual bool IsTrackedHandJointTracked(EControllerHand hand) const override { return (hand == EControllerHand::Left) ? bLeftJointsTracked : bRightJointsTracked; }
-		virtual bool IsPhysicalControllerGripTracked(EControllerHand hand) const override { return (hand == EControllerHand::Left) ? bLeftGripTracked : bRightGripTracked; }
+		virtual bool IsTrackedHandJointTracked(EDrsHand hand) const override { return (hand == EDrsHand::Left) ? bLeftJointsTracked : bRightJointsTracked; }
+		virtual bool IsPhysicalControllerGripTracked(EDrsHand hand) const override { return (hand == EDrsHand::Left) ? bLeftGripTracked : bRightGripTracked; }
 		virtual bool AreMixedControllerModesEnabled() const override { return bMixedControllerModesEnabled; }
 		
 		void SetJointsTracked(bool isTracked) { bLeftJointsTracked = bRightJointsTracked = isTracked; }
@@ -57,8 +57,8 @@ BEGIN_DEFINE_SPEC(FDrsXrControllerMonitorSpec, TEXT("Drs.XrPlatform.ControllerMo
 
 	void TestModes(const FXrControllerMonitor& monitor, EMode left, EMode right)
 	{
-		TestTrue(TEXT("Left mode"), monitor.GetState(EControllerHand::Left).Mode == left);
-		TestTrue(TEXT("Right mode"), monitor.GetState(EControllerHand::Right).Mode == right);
+		TestTrue(TEXT("Left mode"), monitor.GetState(EDrsHand::Left).Mode == left);
+		TestTrue(TEXT("Right mode"), monitor.GetState(EDrsHand::Right).Mode == right);
 	}
 
 	void TestModes(const FXrControllerMonitor& monitor, EMode expected)
@@ -68,20 +68,20 @@ BEGIN_DEFINE_SPEC(FDrsXrControllerMonitorSpec, TEXT("Drs.XrPlatform.ControllerMo
 
 	void TestControllerProfiles(const FXrControllerMonitor& monitor, const FString& left, const FString& right)
 	{
-		TestEqual(TEXT("Left controller profile"), monitor.GetState(EControllerHand::Left).PhysicalControllerProfilePath, left);
-		TestEqual(TEXT("Right controller profile"), monitor.GetState(EControllerHand::Right).PhysicalControllerProfilePath, right);
+		TestEqual(TEXT("Left controller profile"), monitor.GetState(EDrsHand::Left).PhysicalControllerProfilePath, left);
+		TestEqual(TEXT("Right controller profile"), monitor.GetState(EDrsHand::Right).PhysicalControllerProfilePath, right);
 	}
 
 	void TestActive(const FXrControllerMonitor& monitor, bool isLeftActive, bool isRightActive)
 	{
-		TestEqual(TEXT("Left active"), monitor.IsPhysicalControllerActive(EControllerHand::Left), isLeftActive);
-		TestEqual(TEXT("Right active"), monitor.IsPhysicalControllerActive(EControllerHand::Right), isRightActive);
+		TestEqual(TEXT("Left active"), monitor.IsPhysicalControllerActive(EDrsHandMask::Left), isLeftActive);
+		TestEqual(TEXT("Right active"), monitor.IsPhysicalControllerActive(EDrsHandMask::Right), isRightActive);
 	}
 
 	void TestPresent(const FXrControllerMonitor& monitor, bool isLeftPresent, bool isRightPresent)
 	{
-		TestEqual(TEXT("Left present"), monitor.IsControllerPresent(EControllerHand::Left), isLeftPresent);
-		TestEqual(TEXT("Right present"), monitor.IsControllerPresent(EControllerHand::Right), isRightPresent);
+		TestEqual(TEXT("Left present"), monitor.IsControllerPresent(EDrsHandMask::Left), isLeftPresent);
+		TestEqual(TEXT("Right present"), monitor.IsControllerPresent(EDrsHandMask::Right), isRightPresent);
 	}
 
 END_DEFINE_SPEC(FDrsXrControllerMonitorSpec)
@@ -339,7 +339,7 @@ void FDrsXrControllerMonitorSpec::Define()
 
 			TestModes(monitor, EMode::PhysicalController);
 			TestControllerProfiles(monitor, NoProfile, NoProfile);
-			TestTrue(TEXT("No left profile"), monitor.GetState(EControllerHand::Left).ProfilePath.IsEmpty());
+			TestTrue(TEXT("No left profile"), monitor.GetState(EDrsHand::Left).ProfilePath.IsEmpty());
 			TestFalse(TEXT("No pending change"), monitor.Update(FrameTime));
 		});
 	});
@@ -512,6 +512,62 @@ void FDrsXrControllerMonitorSpec::Define()
 			monitor.Update(FrameTime);
 			TestModes(monitor, EMode::PhysicalController);
 			TestPresent(monitor, false, true);
+		});
+	});
+
+	Describe(TEXT("Hand masks"), [this]()
+	{
+		It(TEXT("reports a query only when every hand in the mask matches, and never for None"), [this]()
+		{
+			// Left on a controller, right tracked.
+			FFakeSource source;
+			source.bMixedControllerModesEnabled = true;
+			source.bLeftGripTracked = true;
+			source.bRightJointsTracked = true;
+			FXrControllerMonitor monitor(source);
+			monitor.SetProfiles(TouchProfile, HandProfile);
+			monitor.Update(FrameTime);
+
+			TestFalse(TEXT("Tracked: none"), monitor.IsHandTracked(EDrsHandMask::None));
+			TestFalse(TEXT("Tracked: left"), monitor.IsHandTracked(EDrsHandMask::Left));
+			TestTrue(TEXT("Tracked: right"), monitor.IsHandTracked(EDrsHandMask::Right));
+			TestFalse(TEXT("Tracked: both"), monitor.IsHandTracked(EDrsHandMask::Both));
+
+			TestFalse(TEXT("Active: none"), monitor.IsPhysicalControllerActive(EDrsHandMask::None));
+			TestTrue(TEXT("Active: left"), monitor.IsPhysicalControllerActive(EDrsHandMask::Left));
+			TestFalse(TEXT("Active: right"), monitor.IsPhysicalControllerActive(EDrsHandMask::Right));
+			TestFalse(TEXT("Active: both"), monitor.IsPhysicalControllerActive(EDrsHandMask::Both));
+
+			// Present covers both kinds of controller, so it holds for both hands.
+			TestFalse(TEXT("Present: none"), monitor.IsControllerPresent(EDrsHandMask::None));
+			TestTrue(TEXT("Present: both"), monitor.IsControllerPresent(EDrsHandMask::Both));
+		});
+
+		It(TEXT("reports Both when both hands match"), [this]()
+		{
+			FFakeSource source;
+			source.SetGripsTracked(true);
+			FXrControllerMonitor monitor(source);
+			monitor.SetProfiles(TouchProfile, TouchProfile);
+			monitor.Update(FrameTime);
+			TestTrue(TEXT("Active: both"), monitor.IsPhysicalControllerActive(EDrsHandMask::Both));
+			TestFalse(TEXT("Tracked: both"), monitor.IsHandTracked(EDrsHandMask::Both));
+
+			monitor.SetProfiles(HandProfile, HandProfile);
+			monitor.Update(FrameTime);
+			TestTrue(TEXT("Tracked: both"), monitor.IsHandTracked(EDrsHandMask::Both));
+		});
+
+		It(TEXT("reports nothing for Both when neither hand matches"), [this]()
+		{
+			FFakeSource source;
+			FXrControllerMonitor monitor(source);
+			monitor.SetProfiles(TouchProfile, TouchProfile);
+			monitor.Update(FrameTime);
+
+			TestFalse(TEXT("Tracked"), monitor.IsHandTracked(EDrsHandMask::Both));
+			TestFalse(TEXT("Active (grips not tracked)"), monitor.IsPhysicalControllerActive(EDrsHandMask::Both));
+			TestFalse(TEXT("Present"), monitor.IsControllerPresent(EDrsHandMask::Both));
 		});
 	});
 }

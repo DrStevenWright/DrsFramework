@@ -13,6 +13,17 @@ namespace Drs::XrPlatform
 		{
 			return StaticEnum<EDrsXrControllerMode>()->GetNameStringByValue(static_cast<int64>(mode));
 		}
+
+		/** Whether the predicate holds for every hand in the mask. False for None, which names no hand to query. */
+		template <typename PredicateType>
+		bool IsTrueForAllHands(EDrsHandMask hands, PredicateType predicate)
+		{
+			if (hands == EDrsHandMask::None)
+			{
+				return false;
+			}
+			return (!Drs::Contains(hands, EDrsHand::Left) || predicate(EDrsHand::Left)) && (!Drs::Contains(hands, EDrsHand::Right) || predicate(EDrsHand::Right));
+		}
 	}
 
 	void FXrControllerMonitor::SetProfiles(const FString& leftProfile, const FString& rightProfile)
@@ -41,8 +52,8 @@ namespace Drs::XrPlatform
 
 	bool FXrControllerMonitor::Update(float deltaTime)
 	{
-		const TOptional<EDrsXrControllerMode> leftCandidate = GetCandidateMode(LeftState, EControllerHand::Left);
-		const TOptional<EDrsXrControllerMode> rightCandidate = GetCandidateMode(RightState, EControllerHand::Right);
+		const TOptional<EDrsXrControllerMode> leftCandidate = GetCandidateMode(LeftState, EDrsHand::Left);
+		const TOptional<EDrsXrControllerMode> rightCandidate = GetCandidateMode(RightState, EDrsHand::Right);
 
 		EDrsXrControllerMode leftMode;
 		EDrsXrControllerMode rightMode;
@@ -86,15 +97,15 @@ namespace Drs::XrPlatform
 		const bool hasLeftModeChanged = setMode(LeftState, leftMode, TEXT("Left"));
 		const bool hasRightModeChanged = setMode(RightState, rightMode, TEXT("Right"));
 
-		UpdatePresence(LeftState, LeftPresence, EControllerHand::Left, TEXT("Left"), deltaTime);
-		UpdatePresence(RightState, RightPresence, EControllerHand::Right, TEXT("Right"), deltaTime);
+		UpdatePresence(LeftState, LeftPresence, EDrsHand::Left, TEXT("Left"), deltaTime);
+		UpdatePresence(RightState, RightPresence, EDrsHand::Right, TEXT("Right"), deltaTime);
 
 		const bool hasChanged = hasLeftModeChanged || hasRightModeChanged || bPhysicalControllerProfileChanged;
 		bPhysicalControllerProfileChanged = false;
 		return hasChanged;
 	}
 
-	void FXrControllerMonitor::UpdatePresence(const FDrsXrControllerState& state, FControllerPresence& presence, EControllerHand hand, const TCHAR* handName, float deltaTime)
+	void FXrControllerMonitor::UpdatePresence(const FDrsXrControllerState& state, FControllerPresence& presence, EDrsHand hand, const TCHAR* handName, float deltaTime)
 	{
 		// Physical controllers turn active once their grip is tracked, and inactive after a while without their profile.
 		if (state.ProfileMode == EDrsXrControllerMode::PhysicalController)
@@ -129,7 +140,7 @@ namespace Drs::XrPlatform
 		}
 	}
 
-	TOptional<EDrsXrControllerMode> FXrControllerMonitor::GetCandidateMode(const FDrsXrControllerState& state, EControllerHand hand) const
+	TOptional<EDrsXrControllerMode> FXrControllerMonitor::GetCandidateMode(const FDrsXrControllerState& state, EDrsHand hand) const
 	{
 		if (state.ProfileMode != EDrsXrControllerMode::Unknown)
 		{
@@ -154,9 +165,22 @@ namespace Drs::XrPlatform
 		bPhysicalControllerProfileChanged = false;
 	}
 
-	bool FXrControllerMonitor::IsControllerPresent(EControllerHand hand) const
+	bool FXrControllerMonitor::IsControllerPresent(EDrsHandMask hands) const
 	{
-		const FControllerPresence& presence = GetPresence(hand);
-		return presence.bPhysicalControllerActive || presence.bTrackedHandSeen;
+		return IsTrueForAllHands(hands, [this](EDrsHand hand)
+		{
+			const FControllerPresence& presence = GetPresence(hand);
+			return presence.bPhysicalControllerActive || presence.bTrackedHandSeen;
+		});
+	}
+
+	bool FXrControllerMonitor::IsHandTracked(EDrsHandMask hands) const
+	{
+		return IsTrueForAllHands(hands, [this](EDrsHand hand) { return GetState(hand).Mode == EDrsXrControllerMode::TrackedHand; });
+	}
+
+	bool FXrControllerMonitor::IsPhysicalControllerActive(EDrsHandMask hands) const
+	{
+		return IsTrueForAllHands(hands, [this](EDrsHand hand) { return GetPresence(hand).bPhysicalControllerActive; });
 	}
 }

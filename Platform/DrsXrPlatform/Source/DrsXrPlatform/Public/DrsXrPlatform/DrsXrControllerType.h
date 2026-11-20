@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "InputCoreTypes.h"
+#include "DrsBase/DrsHand.h"
 
 #include "DrsXrControllerType.generated.h"
 
@@ -51,9 +51,9 @@ struct DRSXRPLATFORM_API FDrsXrControllerType
 
 	bool IsValid() const { return !DeviceName.IsNone(); }
 
-	const FDrsXrControllerState& GetHand(EControllerHand hand) const { return (hand == EControllerHand::Left) ? Left : Right; }
-	bool IsTrackedHand(EControllerHand hand) const { return GetHand(hand).Mode == EDrsXrControllerMode::TrackedHand; }
-	bool HasPhysicalControllerProfile(EControllerHand hand) const { return !GetHand(hand).PhysicalControllerProfilePath.IsEmpty(); }
+	const FDrsXrControllerState& GetHand(EDrsHand hand) const { return (hand == EDrsHand::Left) ? Left : Right; }
+	bool IsTrackedHand(EDrsHand hand) const { return GetHand(hand).Mode == EDrsXrControllerMode::TrackedHand; }
+	bool HasPhysicalControllerProfile(EDrsHand hand) const { return !GetHand(hand).PhysicalControllerProfilePath.IsEmpty(); }
 
 	bool operator==(const FDrsXrControllerType& other) const { return DeviceName == other.DeviceName && Left == other.Left && Right == other.Right; }
 	bool operator!=(const FDrsXrControllerType& other) const { return !(*this == other); }
