@@ -47,7 +47,7 @@ public:
 	static FName GetXrSystemName();
 
 	/** Whether the app runs without VR (-noHMD, the editor without VR Preview, or no HMD connected). */
-	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform", meta = (BlueprintThreadSafe))
+	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform")
 	static bool IsNonVrMode();
 
 	/** The vendor XR plugin in use, such as Meta or Pico, or None for plain OpenXR. Compare it with a vendor's ID. */

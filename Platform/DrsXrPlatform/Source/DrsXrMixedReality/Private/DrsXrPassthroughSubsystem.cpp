@@ -67,8 +67,15 @@ void UDrsXrPassthroughSubsystem::RequestPassthrough(const UObject* worldContext,
 		return;
 	}
 
-	DRS_CLOG(!Requests.Contains(requestId), LogDrsXrMixedReality, Log, "Passthrough requested: '%s'.", *requestId.ToString());
+	// A null world context makes the request persistent; one that resolves to no world is a mistake, so it is ignored.
 	const UWorld* world = GEngine ? GEngine->GetWorldFromContextObject(worldContext, EGetWorldErrorMode::ReturnNull) : nullptr;
+	if (worldContext != nullptr && world == nullptr)
+	{
+		DRS_LOG(LogDrsXrMixedReality, Warning, "Ignoring passthrough request '%s': '%s' has no world. Pass a null world context for a persistent request.", *requestId.ToString(), *GetNameSafe(worldContext));
+		return;
+	}
+
+	DRS_CLOG(!Requests.Contains(requestId), LogDrsXrMixedReality, Log, "Passthrough requested: '%s'.", *requestId.ToString());
 	Requests.Add(requestId, world);
 	UpdatePassthroughState();
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
+#include "ModuleDescriptor.h"
 
 DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
 
@@ -82,10 +83,27 @@ namespace Drs::XrArbiter
 	/** The vendor the arbiter selected, or None if it has not decided (or nothing is integrated with it). */
 	DRSXRARBITER_API FName GetArbitratedXrPluginType();
 
+	/** A module integrated with the arbiter: its name, its real loading phase and its vendor. */
+	struct FXrArbitratedModule
+	{
+		FName ModuleName;
+		ELoadingPhase::Type LoadingPhase = ELoadingPhase::None;
+		FName Vendor;
+	};
+
+	/**
+	 * The arbitrated modules in a plugin descriptor's json (see INTEGRATING A VENDOR PLUGIN). Modules without
+	 * ArbitratedLoadingPhase are exempt; invalid ones are logged as errors and skipped. pluginName is for the logs.
+	 */
+	DRSXRARBITER_API TArray<FXrArbitratedModule> ParseArbitratedModules(const FString& descriptorJson, const FString& pluginName);
+
 	/** Whether any modules of a vendor are integrated with the arbiter (rather than loading as normal). */
 	DRSXRARBITER_API bool IsXrPluginTypeArbitrated(FName vendorId);
 
-	/** The vendor forced by the editor settings, the command line (-XrPlugin=) or the project settings, if any. */
+	/**
+	 * The vendor forced by an override the arbiter consults here, if any: the editor setting in the editor, -XrPlugin= in a
+	 * desktop game, then the project settings (the only one on Android).
+	 */
 	DRSXRARBITER_API FName GetXrPluginOverride(EDrsXrPluginOverrideType& outOverrideType);
 
 	/**

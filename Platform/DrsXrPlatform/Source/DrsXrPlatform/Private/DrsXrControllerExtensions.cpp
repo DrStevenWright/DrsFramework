@@ -166,13 +166,13 @@ namespace Drs::XrPlatform
 			return;
 		}
 
-		// A later xrSuggestInteractionProfileBindings call for the same profile replaces this one, and a vendor plugin may
-		// suggest its own bindings for this profile (MetaXR does, for microgestures). So leave the profile to a running
-		// vendor plugin, or one of the two sets of bindings would be lost.
+		// A later xrSuggestInteractionProfileBindings call for the same profile replaces this one. MetaXR suggests its own
+		// bindings for this profile, for microgestures, but only when XR_META_hand_tracking_microgestures is enabled. So
+		// leave the profile to a running vendor plugin only then; otherwise nobody would suggest it (SteamVR with a Quest).
 		const FName vendorPlugin = Drs::XrArbiter::GetXrPluginType();
-		if (!vendorPlugin.IsNone())
+		if (!vendorPlugin.IsNone() && IOpenXRHMDModule::Get().IsExtensionEnabled(TEXT("XR_META_hand_tracking_microgestures")))
 		{
-			DRS_LOG(LogDrsXrPlatform, Log, "Hand interaction bindings left to the %s plugin.", *vendorPlugin.ToString());
+			DRS_LOG(LogDrsXrPlatform, Log, "Hand interaction bindings left to the %s plugin, which suggests microgestures for the profile.", *vendorPlugin.ToString());
 			return;
 		}
 

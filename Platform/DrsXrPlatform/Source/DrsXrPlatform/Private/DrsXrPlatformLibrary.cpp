@@ -175,6 +175,9 @@ void UDrsXrPlatformLibrary::SetupHmd()
 		return;
 	}
 
+	// Each PIE session starts here, so forget a request from an earlier one.
+	bTrackingOriginRequested = false;
+
 	if (FParse::Param(FCommandLine::Get(), TEXT("noHMD")))
 	{
 		DRS_LOG(LogDrsXrPlatform, Log, "HMD disabled by -noHMD.");

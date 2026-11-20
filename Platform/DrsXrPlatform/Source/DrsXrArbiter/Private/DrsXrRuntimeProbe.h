@@ -6,16 +6,16 @@
 
 #include "DrsXrArbiter/DrsXrArbiter.h"
 
-/** The runtime probe. Only the arbiter module calls it; matching its result is Drs::XrArbiter::MatchVendorFromProbe. */
+/** Called by the arbiter system to probe the OpenXR runtime before any OpenXR instance has been created. */
 namespace Drs::XrArbiter
 {
 	/**
 	 * Creates a bare OpenXR instance (no extensions except XR_KHR_android_create_instance on Android), reads the runtime
 	 * name, and the system name and vendor ID when a headset is connected, then destroys it. Runs once; later calls return
-	 * the first result. Unset when the loader is missing or the runtime refuses the instance (SteamVR with no headset);
-	 * SystemName is empty when the runtime has no system (Oculus with no headset).
-	 * Call it before the engine creates its own instance, at PostConfigInit. On Windows, it starts SteamVR when SteamVR is
-	 * the selected runtime and isn't running yet.
+	 * the first result. Result is not set if the loader is missing or the runtime refuses the instance (e.g. SteamVR with
+	 * no headset); or if SystemName is empty. Call this before the engine creates its own instance, at PostConfigInit.
+	 * On Windows, this will start SteamVR if no runtime is selected and SteamVR is already the system's active runtime
+	 * (a selected runtime is already running).
 	 */
 	const TOptional<FXrRuntimeProbe>& ProbeXrRuntime();
 }
