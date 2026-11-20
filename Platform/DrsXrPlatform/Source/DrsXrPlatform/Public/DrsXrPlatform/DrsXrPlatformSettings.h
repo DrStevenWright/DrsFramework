@@ -48,10 +48,10 @@ public:
 	}
 
 	/**
-	 * HandTrackingSupport, read from config rather than this object. Safe before UObjects can be created: OpenXR calls
-	 * the extension plugins during PreInitHMDDevice, when GetDefault would crash.
+	 * HandTrackingSupport, read from the config rather than this settings object. Safe to call in "Earliest Possible"
+	 * modules (before UObjects can be created).
 	 */
-	static EDrsXrHandTrackingSupport GetHandTrackingSupport();
+	static EDrsXrHandTrackingSupport ParseHandTrackingSupport();
 
 	/** Whether the project supports tracked hands, physical controllers, or both. */
 	UPROPERTY(Config, EditAnywhere, Category = "Hand Tracking")

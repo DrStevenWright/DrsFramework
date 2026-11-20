@@ -106,6 +106,32 @@ bool FDrsXrArbiterVendorsTest::RunTest(const FString& parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsXrArbiterProbeTest, "Drs.XrPlatform.Arbiter.Probe",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+
+bool FDrsXrArbiterProbeTest::RunTest(const FString& parameters)
+{
+	using Drs::XrArbiter::FXrRuntimeProbe;
+
+	const TArray<FDrsXrVendor> vendors = Drs::XrArbiter::ParseVendors(DefaultVendorEntries);
+	auto makeProbe = [](const TCHAR* runtimeName, const TCHAR* systemName)
+	{
+		FXrRuntimeProbe probe;
+		probe.RuntimeName = runtimeName;
+		probe.SystemName = systemName;
+		return TOptional<FXrRuntimeProbe>(probe);
+	};
+
+	// What the Quest 3 runs on 18 Nov 2026 reported.
+	const FName meta(TEXT("Meta"));
+	TestEqual(TEXT("SteamVR with a Quest"), Drs::XrArbiter::MatchVendorFromProbe(vendors, makeProbe(TEXT("SteamVR/OpenXR"), TEXT("SteamVR/OpenXR : oculus"))), meta);
+	TestEqual(TEXT("Oculus runtime"), Drs::XrArbiter::MatchVendorFromProbe(vendors, makeProbe(TEXT("Oculus"), TEXT("Meta Quest 3"))), meta);
+	TestEqual(TEXT("Oculus runtime with no headset (no system)"), Drs::XrArbiter::MatchVendorFromProbe(vendors, makeProbe(TEXT("Oculus"), TEXT(""))), FName());
+	TestEqual(TEXT("SteamVR with a lighthouse headset"), Drs::XrArbiter::MatchVendorFromProbe(vendors, makeProbe(TEXT("SteamVR/OpenXR"), TEXT("SteamVR/OpenXR : lighthouse"))), FName());
+	TestEqual(TEXT("A failed probe"), Drs::XrArbiter::MatchVendorFromProbe(vendors, TOptional<FXrRuntimeProbe>()), FName());
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsXrArbiterRuntimesTest, "Drs.XrPlatform.Arbiter.Runtimes",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
