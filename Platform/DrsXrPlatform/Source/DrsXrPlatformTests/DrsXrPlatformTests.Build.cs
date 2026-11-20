@@ -8,6 +8,6 @@ public class DrsXrPlatformTests : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "InputCore", "DrsXrArbiter", "DrsXrPlatform" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DrsXrArbiter", "DrsXrPlatform" });
 	}
 }

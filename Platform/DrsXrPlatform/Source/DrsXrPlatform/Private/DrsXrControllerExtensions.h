@@ -34,12 +34,12 @@ namespace Drs::XrPlatform
 		virtual ~FXrControllerExtensions() override;
 
 		const FDrsXrControllerType& GetControllerType();
-		bool IsControllerPresent(EControllerHand hand) const { return ControllerMonitor.IsControllerPresent(hand); }
-		bool IsPhysicalControllerActive(EControllerHand hand) const { return ControllerMonitor.IsPhysicalControllerActive(hand); }
+		bool IsControllerPresent(EDrsHandMask hands) const { return ControllerMonitor.IsControllerPresent(hands); }
+		bool IsPhysicalControllerActive(EDrsHandMask hands) const { return ControllerMonitor.IsPhysicalControllerActive(hands); }
 		bool IsHandTrackingAvailable() const;
-		bool IsHandTrackingActive(EControllerHand hand) const;
+		bool IsHandTrackingActive(EDrsHandMask hands) const { return ControllerMonitor.IsHandTracked(hands); }
 		bool HasTrackedHandAimPose() const;
-		bool GetTrackedHandAimPose(EControllerHand hand, FTransform& outWorldTransform) const;
+		bool GetTrackedHandAimPose(EDrsHand hand, FTransform& outWorldTransform) const;
 
 		// FTickableGameObject
 		virtual void Tick(float deltaTime) override;
@@ -61,8 +61,8 @@ namespace Drs::XrPlatform
 		// IXrControllerSource
 		virtual bool CanTrackHands() const override { return IsHandTrackingAvailable(); }
 		virtual bool AreMixedControllerModesEnabled() const override { return MixedControllerModesEnabled.Get(false); }
-		virtual bool IsTrackedHandJointTracked(EControllerHand hand) const override;
-		virtual bool IsPhysicalControllerGripTracked(EControllerHand hand) const override;
+		virtual bool IsTrackedHandJointTracked(EDrsHand hand) const override;
+		virtual bool IsPhysicalControllerGripTracked(EDrsHand hand) const override;
 
 	private:
 		/** Updates the controller type, and broadcasts FXrDelegates::OnControllerTypeChanged when it changes. */

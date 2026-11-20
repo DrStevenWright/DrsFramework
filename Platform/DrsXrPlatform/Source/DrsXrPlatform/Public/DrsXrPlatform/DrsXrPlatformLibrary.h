@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+#include "DrsBase/DrsHand.h"
 #include "DrsXrPlatform/DrsXrControllerType.h"
 #include "HeadMountedDisplayTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -135,40 +136,40 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
 	static FDrsXrControllerType GetControllerType();
 
-	/** Whether the hand has an active controller: a physical device or a tracked hand. */
+	/** Whether every hand in the mask has an active controller: a physical device or a tracked hand. False for None. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
-	static bool IsControllerPresent(EControllerHand hand);
+	static bool IsControllerPresent(EDrsHandMask hands);
 
 	/** The world-space grip pose of a hand. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
-	static bool GetGripPose(EControllerHand hand, FTransform& outWorldTransform);
+	static bool GetGripPose(EDrsHand hand, FTransform& outWorldTransform);
 
 	/** The world-space aim pose of a hand: the pointing ray of its controller, or of the tracked hand. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
-	static bool GetAimPose(EControllerHand hand, FTransform& outWorldTransform);
+	static bool GetAimPose(EDrsHand hand, FTransform& outWorldTransform);
 
 	/** The world-space palm pose: OpenXR grip_surface (1.1) or palm_ext (XR_EXT_palm_pose), or the grip pose without either. */
-	static bool GetPalmPose(EControllerHand hand, FTransform& outWorldTransform);
+	static bool GetPalmPose(EDrsHand hand, FTransform& outWorldTransform);
 
 	/** The engine's OpenXR motion sources for a hand's grip, aim and palm poses. */
-	static FName GetGripSource(EControllerHand hand);
-	static FName GetAimSource(EControllerHand hand);
-	static FName GetPalmSource(EControllerHand hand);
+	static FName GetGripSource(EDrsHand hand);
+	static FName GetAimSource(EDrsHand hand);
+	static FName GetPalmSource(EDrsHand hand);
 
 	/** The world-space pose of a motion source, as reported by one motion controller device (several can share a source name). */
 	static bool GetMotionControllerPose(FName deviceName, FName source, FTransform& outWorldTransform);
 
 	/** The motion source for a hand: the palm pose for physical controllers, the wrist joint for tracked hands. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
-	static FName GetMotionControllerSource(EControllerHand hand, bool isHandTracking = false);
+	static FName GetMotionControllerSource(EDrsHand hand, bool isHandTracking = false);
 
 	/** A motion controller's tracking status (for a tracked hand, whether the hand is tracked). */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
 	static ETrackingStatus GetMotionControllerTrackingStatus(const UMotionControllerComponent* controller);
 
-	/** Whether a physical motion controller is driving the hand's input. */
+	/** Whether a physical motion controller is driving the input of every hand in the mask. False for None. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Controllers")
-	static bool IsPhysicalControllerActive(EControllerHand hand);
+	static bool IsPhysicalControllerActive(EDrsHandMask hands);
 
 	//------------------------------------------------------------------
 	// Hand tracking
@@ -178,9 +179,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Hand Tracking")
 	static bool IsHandTrackingAvailable();
 
-	/** Whether the hand (or either hand, for AnyHand) is in tracked-hand mode. */
+	/** Whether every hand in the mask is in tracked-hand mode. False for None. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Hand Tracking")
-	static bool IsHandTrackingActive(EControllerHand hand = EControllerHand::AnyHand);
+	static bool IsHandTrackingActive(EDrsHandMask hands);
 
 	/** Whether the device gives a dedicated pointing ray for tracked hands. Without one, Get Aim Pose may be less stable for tracked hands. */
 	UFUNCTION(BlueprintPure, Category = "DRS|XR Platform|Hand Tracking")
@@ -188,7 +189,7 @@ public:
 
 	/** The world-space joints of a tracked hand, if available. While a hand is not tracked, its last pose. */
 	UFUNCTION(BlueprintCallable, Category = "DRS|XR Platform|Hand Tracking")
-	static bool GetHandTrackingData(EControllerHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii);
+	static bool GetHandTrackingData(EDrsHand hand, TArray<FVector>& outPositions, TArray<FQuat>& outRotations, TArray<float>& outRadii);
 
 	//------------------------------------------------------------------
 	// Rendering
