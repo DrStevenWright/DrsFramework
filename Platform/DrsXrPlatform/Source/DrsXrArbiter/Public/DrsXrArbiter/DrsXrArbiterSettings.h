@@ -30,8 +30,8 @@ public:
 	TArray<FDrsXrRuntime> Runtimes;
 
 	/**
-	 * The runtimes to consider, by name, most preferred first. A running runtime is selected over one that is only
-	 * installed; otherwise the first installed one is. With none installed, the system's active OpenXR runtime is used.
+	 * The runtimes to consider, by name, most preferred first. The first one that is installed and running is selected.
+	 * With none running, the system's active OpenXR runtime is used.
 	 */
 	UPROPERTY(Config, EditAnywhere, Category = "OpenXR Runtime")
 	TArray<FName> RuntimePriority;

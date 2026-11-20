@@ -93,7 +93,7 @@ struct DRSXRARBITER_API FDrsXrRuntime
 	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
 	TArray<FDrsXrManifestLocator> Manifest;
 
-	/** Program file names. If any of them is running, the runtime is running and is selected over installed ones. */
+	/** Program file names. If any of them is running, the runtime is running and can be selected. */
 	UPROPERTY(EditAnywhere, Category = "DRS|XR Platform")
 	TArray<FString> RunningProcesses;
 

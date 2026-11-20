@@ -15,12 +15,14 @@
     which is expected.
 
 .EXAMPLE
-    # With SteamVR open: SteamVR should win over the always-running Oculus runtime.
+    # With SteamVR open: SteamVR should win over the Oculus runtime, even when that is running too.
     powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/CheckXrRuntime.ps1 -Expect SteamVR
 
 .EXAMPLE
-    # With SteamVR closed, Oculus should win; with -noHMD, no runtime should be selected.
+    # With SteamVR closed and Meta's Link software running, Oculus should win. With neither running, or with -noHMD, no
+    # runtime should be selected.
     powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/CheckXrRuntime.ps1 -Expect Oculus
+    powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/CheckXrRuntime.ps1 -Expect None
     powershell -ExecutionPolicy Bypass -File Plugins/DrsFramework/Tools/CheckXrRuntime.ps1 -Expect None -ExtraArgs '-noHMD'
 #>
 [CmdletBinding()]

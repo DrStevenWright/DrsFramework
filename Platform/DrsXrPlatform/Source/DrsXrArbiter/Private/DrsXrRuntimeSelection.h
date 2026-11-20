@@ -23,8 +23,8 @@ namespace Drs::XrRuntime
 	/**
 	 * Selects the desktop OpenXR runtime before OpenXR creates its instance (at PostConfigInit), by setting
 	 * XR_RUNTIME_JSON for this process, and records it with Drs::XrArbiter::SetXrRuntime. The runtimes and their priority
-	 * come from UDrsXrArbiterSettings. A running runtime wins; otherwise the first installed one in order of priority.
-	 * Under -noHMD no runtime is selected. Does nothing except on Windows clients and the editor.
+	 * come from UDrsXrArbiterSettings. The first runtime in order of priority that is installed and running is selected.
+	 * With none running, or under -noHMD, none is selected. Does nothing except on Windows clients and the editor.
 	 */
 	void SelectRuntime();
 
