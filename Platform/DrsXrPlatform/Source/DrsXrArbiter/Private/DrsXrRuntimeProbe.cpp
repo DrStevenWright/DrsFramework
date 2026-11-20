@@ -13,6 +13,7 @@
 #endif
 
 #include <openxr/openxr.h>
+#include <openxr/openxr_platform.h> // The Android loader and instance structs.
 
 namespace Drs::XrArbiter
 {

@@ -213,14 +213,18 @@ namespace Drs::XrRuntime
 		return FString();
 	}
 
-	bool IsRuntimeRunning(const FDrsXrRuntime& runtime)
+	TSet<FString> GetRunningProcesses()
 	{
 #if PLATFORM_WINDOWS
-		const TSet<FString> running = GetRunningProcessNames();
-		return runtime.RunningProcesses.ContainsByPredicate([&running](const FString& processName) { return running.Contains(processName.ToLower()); });
+		return GetRunningProcessNames();
 #else
-		return false;
+		return {};
 #endif
+	}
+
+	bool IsRuntimeRunning(const FDrsXrRuntime& runtime, const TSet<FString>& runningProcesses)
+	{
+		return runtime.RunningProcesses.ContainsByPredicate([&runningProcesses](const FString& processName) { return runningProcesses.Contains(processName.ToLower()); });
 	}
 
 	void SelectRuntime()
@@ -241,6 +245,7 @@ namespace Drs::XrRuntime
 		}
 
 		const TArray<FDrsXrRuntime> runtimes = Drs::XrArbiter::GetPrioritisedRuntimes();
+		const TSet<FString> runningProcesses = GetRunningProcesses(); // One snapshot for every runtime.
 		FString selectedJson;
 		const FDrsXrRuntime* selected = Drs::XrArbiter::ChooseRuntime(runtimes,
 			[](const FDrsXrRuntime& runtime)
@@ -249,9 +254,9 @@ namespace Drs::XrRuntime
 				DRS_CLOG(!runtimeJson.IsEmpty(), LogDrsXrRuntime, Log, "Runtime '%s' installed at '%s'.", *runtime.Name.ToString(), *runtimeJson);
 				return runtimeJson;
 			},
-			[](const FDrsXrRuntime& runtime)
+			[&runningProcesses](const FDrsXrRuntime& runtime)
 			{
-				const bool isRunning = IsRuntimeRunning(runtime);
+				const bool isRunning = IsRuntimeRunning(runtime, runningProcesses);
 				DRS_CLOG(isRunning, LogDrsXrRuntime, Log, "Runtime '%s' is already running.", *runtime.Name.ToString());
 				return isRunning;
 			},

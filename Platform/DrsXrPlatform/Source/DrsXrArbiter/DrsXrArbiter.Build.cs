@@ -8,9 +8,9 @@ public class DrsXrArbiter : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DeveloperSettings" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "DeveloperSettings", "Projects" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "DrsBase", "Engine", "HeadMountedDisplay", "Json", "Projects", "XRBase" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "DrsBase", "Engine", "HeadMountedDisplay", "Json", "XRBase" });
 
 		// The OpenXR headers needed for the runtime probe.
 		AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenXR");

@@ -76,11 +76,12 @@ void ADrsPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// The tracking origin is engine-global, so only the locally viewed pawn should set it.
-	// The pawn is not possessed yet at BeginPlay, so check the net mode rather than the controller.
-	if (GetNetMode() != NM_DedicatedServer && !UDrsXrPlatformLibrary::SetFloorTrackingOrigin())
+	// Enables the HMD and stereo, sets the floor tracking origin and checks the XR selection. These are engine-global, and
+	// the pawn is not possessed yet at BeginPlay, so check the net mode rather than the controller. SetupHmd logs why
+	// it does nothing when there is no XR system.
+	if (!IsNetMode(NM_DedicatedServer))
 	{
-		DRS_LOG(LogDrsCore, Log, "No XR system active; running without HMD tracking.");
+		UDrsXrPlatformLibrary::SetupHmd();
 	}
 }
 

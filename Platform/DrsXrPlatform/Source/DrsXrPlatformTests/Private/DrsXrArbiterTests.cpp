@@ -3,7 +3,9 @@
 #include "DrsXrArbiter/DrsXrArbiter.h"
 #include "DrsXrArbiter/DrsXrArbiterTypes.h"
 #include "DrsXrArbiter/DrsXrConfigText.h"
+#include "Interfaces/IPluginManager.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/FileHelper.h"
 #include "Modules/ModuleManager.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -132,6 +134,45 @@ bool FDrsXrArbiterProbeTest::RunTest(const FString& parameters)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsXrArbiterDescriptorTest, "Drs.XrPlatform.Arbiter.Descriptor",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
+
+bool FDrsXrArbiterDescriptorTest::RunTest(const FString& parameters)
+{
+	using Drs::XrArbiter::FXrArbitratedModule;
+
+	const FString descriptor = TEXT(R"json({
+		"ArbitratedXrPlugin": "Meta",
+		"Modules": [
+			{ "Name": "Hmd", "LoadingPhase": "None", "ArbitratedLoadingPhase": "PostConfigInit" },
+			{ "Name": "Noted", "LoadingPhase": "None", "ArbitratedLoadingPhase": "Default (loads after the HMD)" },
+			{ "Name": "PicoModule", "LoadingPhase": "None", "ArbitratedLoadingPhase": "PostConfigInit", "ArbitratedXrPlugin": "Pico" },
+			{ "Name": "Exempt", "LoadingPhase": "PostConfigInit" },
+			{ "Name": "StillLoaded", "LoadingPhase": "PostConfigInit", "ArbitratedLoadingPhase": "PostConfigInit" },
+			{ "Name": "TooEarly", "LoadingPhase": "None", "ArbitratedLoadingPhase": "EarliestPossible" },
+			{ "Name": "Unknown", "LoadingPhase": "None", "ArbitratedLoadingPhase": "Sometime" }
+		]
+	})json");
+
+	AddExpectedError(TEXT("still has a LoadingPhase"), EAutomationExpectedErrorFlags::Contains, 1);
+	AddExpectedError(TEXT("which cannot be arbitrated"), EAutomationExpectedErrorFlags::Contains, 2);
+	const TArray<FXrArbitratedModule> modules = Drs::XrArbiter::ParseArbitratedModules(descriptor, TEXT("TestPlugin"));
+	if (!TestEqual(TEXT("Arbitrated module count"), modules.Num(), 3))
+	{
+		return false;
+	}
+	TestEqual(TEXT("Module name"), modules[0].ModuleName, FName(TEXT("Hmd")));
+	TestEqual(TEXT("Real loading phase"), modules[0].LoadingPhase, ELoadingPhase::PostConfigInit);
+	TestEqual(TEXT("The plugin's vendor"), modules[0].Vendor, FName(TEXT("Meta")));
+	TestEqual(TEXT("A note after the phase is ignored"), modules[1].LoadingPhase, ELoadingPhase::Default);
+	TestEqual(TEXT("A module's own vendor"), modules[2].Vendor, FName(TEXT("Pico")));
+
+	AddExpectedError(TEXT("has no vendor"), EAutomationExpectedErrorFlags::Contains, 1);
+	TestTrue(TEXT("A module with no vendor is skipped"), Drs::XrArbiter::ParseArbitratedModules(
+		TEXT(R"json({ "Modules": [ { "Name": "Orphan", "LoadingPhase": "None", "ArbitratedLoadingPhase": "PostConfigInit" } ] })json"), TEXT("TestPlugin")).IsEmpty());
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsXrArbiterRuntimesTest, "Drs.XrPlatform.Arbiter.Runtimes",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
@@ -243,22 +284,52 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDrsXrArbiterDefaultConfigTest, "Drs.XrPlatform
 
 bool FDrsXrArbiterDefaultConfigTest::RunTest(const FString& parameters)
 {
-	// The tables as GConfig gives them, from DrsXrPlatform's Config/DefaultDrsXrPlatform.ini and any project override.
-	const FDrsXrVendor* meta = Drs::XrArbiter::FindVendor(TEXT("Meta"));
+	// The plugin's own defaults, read from its Config/DefaultDrsXrPlatform.ini rather than through GConfig, so that the test
+	// still passes in a project that overrides the tables.
+	const TSharedPtr<IPlugin> plugin = IPluginManager::Get().FindPlugin(TEXT("DrsXrPlatform"));
+	TArray<FString> lines;
+	if (!TestNotNull(TEXT("The DrsXrPlatform plugin"), plugin.Get())
+		|| !TestTrue(TEXT("Read DefaultDrsXrPlatform.ini"), FFileHelper::LoadFileToStringArray(lines, *(plugin->GetBaseDir() / TEXT("Config/DefaultDrsXrPlatform.ini")))))
+	{
+		return false;
+	}
+	auto getEntries = [&lines](const TCHAR* key)
+	{
+		const FString prefix = FString::Printf(TEXT("+%s="), key);
+		TArray<FString> entries;
+		for (const FString& line : lines)
+		{
+			const FString trimmed = line.TrimStart();
+			if (trimmed.StartsWith(prefix))
+			{
+				entries.Add(trimmed.RightChop(prefix.Len()));
+			}
+		}
+		return entries;
+	};
+
+	const TArray<FDrsXrVendor> vendors = Drs::XrArbiter::ParseVendors(getEntries(TEXT("Vendors")));
+	const FDrsXrVendor* meta = vendors.FindByPredicate([](const FDrsXrVendor& vendor) { return vendor.Id == TEXT("Meta"); });
 	if (TestNotNull(TEXT("Meta is in the vendor table"), meta))
 	{
 		TestEqual(TEXT("Meta's marker module"), meta->MarkerModule, FName(TEXT("OculusXRHMD")));
 	}
-	TestNotNull(TEXT("Pico is in the vendor table"), Drs::XrArbiter::FindVendor(TEXT("Pico")));
+	TestTrue(TEXT("Pico is in the vendor table"), vendors.ContainsByPredicate([](const FDrsXrVendor& vendor) { return vendor.Id == TEXT("Pico"); }));
 
+	TArray<FName> priority;
+	for (const FString& entry : getEntries(TEXT("RuntimePriority")))
+	{
+		priority.Emplace(*entry.TrimStartAndEnd());
+	}
 	TArray<FName> runtimeNames;
-	for (const FDrsXrRuntime& runtime : Drs::XrArbiter::GetPrioritisedRuntimes())
+	for (const FDrsXrRuntime& runtime : Drs::XrArbiter::OrderRuntimes(Drs::XrArbiter::ParseRuntimes(getEntries(TEXT("Runtimes"))), priority))
 	{
 		runtimeNames.Add(runtime.Name);
 	}
 	TestEqual(TEXT("Runtime priority"), runtimeNames, TArray<FName>{ TEXT("SteamVR"), TEXT("Oculus"), TEXT("PicoStreaming"), TEXT("PicoConnect") });
 
-	// MetaXR loads as normal in the editor, so its marker module identifies it.
+	// MetaXR is arbitrated, so its marker module is loaded only when the arbiter picks Meta (or MetaXR loads as normal);
+	// then it identifies the running vendor plugin.
 	if (FModuleManager::Get().IsModuleLoaded(TEXT("OculusXRHMD")))
 	{
 		TestEqual(TEXT("The running vendor plugin"), Drs::XrArbiter::GetXrPluginType(), FName(TEXT("Meta")));

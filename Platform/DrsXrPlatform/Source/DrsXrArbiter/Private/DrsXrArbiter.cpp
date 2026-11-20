@@ -26,6 +26,12 @@
 
 DEFINE_LOG_CATEGORY(LogDrsXrArbiter);
 
+namespace Drs::XrArbiter
+{
+	// Before the shared state below, which uses it (initialisation follows the order of definition).
+	const FName AndroidRuntime(TEXT("Android"));
+}
+
 namespace
 {
 	// The settings live in the plugin's own config file (Config = DrsXrPlatform): the plugin's DefaultDrsXrPlatform.ini, then
@@ -45,7 +51,7 @@ namespace
 	TOptional<FName> CurrentPluginType;
 	TSet<FName> ArbitratedPluginTypes; // The vendors whose modules are integrated with the arbiter.
 	bool bLoadAllPluginTypes = false; // Commandlets load every vendor's modules, so that everything cooks.
-	FName SelectedRuntime = PLATFORM_ANDROID ? FName(TEXT("Android")) : NAME_None;
+	FName SelectedRuntime = PLATFORM_ANDROID ? Drs::XrArbiter::AndroidRuntime : NAME_None;
 	FName SelectedRuntimeVendor;
 
 	bool IsArbitrationDecided() { return CurrentPluginType.IsSet() || bLoadAllPluginTypes; }
@@ -237,12 +243,6 @@ namespace
 		return NAME_None;
 	}
 
-	struct FArbitratedModule
-	{
-		FName ModuleName;
-		ELoadingPhase::Type LoadingPhase;
-	};
-
 	/**
 	 * Selects the desktop OpenXR runtime at startup, then loads the modules of the selected vendor plugin type. Opted-in
 	 * modules have LoadingPhase None in their descriptor, their real phase in ArbitratedLoadingPhase, and their type in
@@ -300,78 +300,13 @@ namespace
 				return;
 			}
 
-			TSharedPtr<FJsonObject> descriptorObject;
-			if (!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(descriptorJson), descriptorObject) || !descriptorObject.IsValid())
+			const TArray<Drs::XrArbiter::FXrArbitratedModule> modules = Drs::XrArbiter::ParseArbitratedModules(descriptorJson, plugin.GetName());
+			for (const Drs::XrArbiter::FXrArbitratedModule& module : modules)
 			{
-				DRS_LOG(LogDrsXrArbiter, Error, "Failed to parse plugin descriptor '%s'.", *descriptorFileName);
-				return;
+				Configurations.FindOrAdd(module.Vendor).Add(module);
+				ArbitratedPluginTypes.Add(module.Vendor);
 			}
-
-			const TArray<TSharedPtr<FJsonValue>>* moduleValues = nullptr;
-			if (!descriptorObject->TryGetArrayField(TEXT("Modules"), moduleValues))
-			{
-				return;
-			}
-
-			// The plugin's vendor applies to its modules that don't name their own.
-			const FString& pluginName = plugin.GetName();
-			FName pluginTypeForPlugin;
-			FString pluginTypeName;
-			if (descriptorObject->TryGetStringField(ArbitratedXrPluginKey, pluginTypeName))
-			{
-				pluginTypeForPlugin = ParseVendorName(pluginTypeName, *pluginName);
-			}
-
-			int32 arbitratedModuleCount = 0;
-			for (const TSharedPtr<FJsonValue>& moduleValue : *moduleValues)
-			{
-				const TSharedPtr<FJsonObject>* moduleObject = nullptr;
-				if (!moduleValue.IsValid() || !moduleValue->TryGetObject(moduleObject))
-				{
-					continue;
-				}
-
-				FString moduleName;
-				FString originalPhase;
-				if (!(*moduleObject)->TryGetStringField(TEXT("Name"), moduleName) || !(*moduleObject)->TryGetStringField(ArbitratedLoadingPhaseKey, originalPhase))
-				{
-					continue;
-				}
-
-				FString declaredPhase;
-				(*moduleObject)->TryGetStringField(TEXT("LoadingPhase"), declaredPhase);
-				if (ELoadingPhase::FromString(*declaredPhase) != ELoadingPhase::None)
-				{
-					DRS_LOG(LogDrsXrArbiter, Error, "Arbitrated module %s::%s still has a LoadingPhase. Set it to None, or remove %s to exempt the module.", *pluginName, *moduleName, ArbitratedLoadingPhaseKey);
-					continue;
-				}
-
-				// EarliestPossible could be earlier than the arbiter itself.
-				const ELoadingPhase::Type loadingPhase = ParseOriginalLoadingPhase(originalPhase);
-				if (loadingPhase == ELoadingPhase::Max || loadingPhase == ELoadingPhase::None || loadingPhase == ELoadingPhase::EarliestPossible)
-				{
-					DRS_LOG(LogDrsXrArbiter, Error, "%s::%s has the loading phase '%s', which cannot be arbitrated.", *pluginName, *moduleName, *originalPhase);
-					continue;
-				}
-
-				FName pluginType = pluginTypeForPlugin;
-				if ((*moduleObject)->TryGetStringField(ArbitratedXrPluginKey, pluginTypeName))
-				{
-					pluginType = ParseVendorName(pluginTypeName, *pluginName);
-				}
-				if (pluginType.IsNone())
-				{
-					DRS_LOG(LogDrsXrArbiter, Error, "Arbitrated module %s::%s has no vendor. Set %s on the module or its plugin.", *pluginName, *moduleName, ArbitratedXrPluginKey);
-					continue;
-				}
-
-				DRS_LOG(LogDrsXrArbiter, Verbose, "Arbitrating %s::%s (%s, %s).", *pluginName, *moduleName, ToString(loadingPhase), *pluginType.ToString());
-				Configurations.FindOrAdd(pluginType).Add({ FName(*moduleName), loadingPhase });
-				ArbitratedPluginTypes.Add(pluginType);
-				++arbitratedModuleCount;
-			}
-
-			UE_CLOG(arbitratedModuleCount > 0, LogDrsXrArbiter, Log, TEXT("Arbitrating %d module(s) of %s %s."), arbitratedModuleCount, *pluginName, *plugin.GetDescriptor().VersionName);
+			DRS_CLOG(!modules.IsEmpty(), LogDrsXrArbiter, Log, "Arbitrating %d module(s) of %s %s.", modules.Num(), *plugin.GetName(), *plugin.GetDescriptor().VersionName);
 		}
 
 		void OnLoadingPhaseComplete(ELoadingPhase::Type loadingPhase)
@@ -422,11 +357,11 @@ namespace
 		void LoadModules(ELoadingPhase::Type loadingPhase)
 		{
 			TSet<FName> modulesToLoad;
-			for (const TPair<FName, TArray<FArbitratedModule>>& configuration : Configurations)
+			for (const TPair<FName, TArray<Drs::XrArbiter::FXrArbitratedModule>>& configuration : Configurations)
 			{
 				if (bLoadAllPluginTypes || configuration.Key == CurrentPluginType.Get(NAME_None))
 				{
-					for (const FArbitratedModule& module : configuration.Value)
+					for (const Drs::XrArbiter::FXrArbitratedModule& module : configuration.Value)
 					{
 						if (module.LoadingPhase == loadingPhase)
 						{
@@ -453,12 +388,12 @@ namespace
 					DRS_LOG(LogDrsXrArbiter, Log, "Loading %s::%s (%s).", *plugin->GetName(), *moduleDescriptor.Name.ToString(), ToString(loadingPhase));
 					EModuleLoadResult loadResult;
 					FModuleManager::Get().LoadModuleWithFailureReason(moduleDescriptor.Name, loadResult);
-					UE_CLOG(loadResult != EModuleLoadResult::Success, LogDrsXrArbiter, Error, TEXT("Failed to load %s::%s."), *plugin->GetName(), *moduleDescriptor.Name.ToString());
+					DRS_CLOG(loadResult != EModuleLoadResult::Success, LogDrsXrArbiter, Error, "Failed to load %s::%s.", *plugin->GetName(), *moduleDescriptor.Name.ToString());
 				}
 			}
 		}
 
-		TMap<FName, TArray<FArbitratedModule>> Configurations;
+		TMap<FName, TArray<Drs::XrArbiter::FXrArbitratedModule>> Configurations;
 		FDelegateHandle LoadingPhaseCompleteHandle;
 	};
 }
@@ -467,8 +402,6 @@ IMPLEMENT_MODULE(FDrsXrArbiterModule, DrsXrArbiter)
 
 namespace Drs::XrArbiter
 {
-	const FName AndroidRuntime(TEXT("Android"));
-
 	FName GetXrPluginType()
 	{
 		// Detect the running vendor plugin, whether the arbiter loaded it or the engine did.
@@ -485,6 +418,78 @@ namespace Drs::XrArbiter
 	FName GetArbitratedXrPluginType()
 	{
 		return CurrentPluginType.Get(NAME_None);
+	}
+
+	TArray<FXrArbitratedModule> ParseArbitratedModules(const FString& descriptorJson, const FString& pluginName)
+	{
+		TArray<FXrArbitratedModule> modules;
+		TSharedPtr<FJsonObject> descriptorObject;
+		if (!FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(descriptorJson), descriptorObject) || !descriptorObject.IsValid())
+		{
+			DRS_LOG(LogDrsXrArbiter, Error, "Failed to parse the plugin descriptor of %s.", *pluginName);
+			return modules;
+		}
+
+		const TArray<TSharedPtr<FJsonValue>>* moduleValues = nullptr;
+		if (!descriptorObject->TryGetArrayField(TEXT("Modules"), moduleValues))
+		{
+			return modules;
+		}
+
+		// The plugin's vendor applies to its modules that don't name their own.
+		FName pluginTypeForPlugin;
+		FString pluginTypeName;
+		if (descriptorObject->TryGetStringField(ArbitratedXrPluginKey, pluginTypeName))
+		{
+			pluginTypeForPlugin = ParseVendorName(pluginTypeName, *pluginName);
+		}
+
+		for (const TSharedPtr<FJsonValue>& moduleValue : *moduleValues)
+		{
+			const TSharedPtr<FJsonObject>* moduleObject = nullptr;
+			if (!moduleValue.IsValid() || !moduleValue->TryGetObject(moduleObject))
+			{
+				continue;
+			}
+
+			FString moduleName;
+			FString originalPhase;
+			if (!(*moduleObject)->TryGetStringField(TEXT("Name"), moduleName) || !(*moduleObject)->TryGetStringField(ArbitratedLoadingPhaseKey, originalPhase))
+			{
+				continue; // Exempt: not arbitrated.
+			}
+
+			FString declaredPhase;
+			(*moduleObject)->TryGetStringField(TEXT("LoadingPhase"), declaredPhase);
+			if (ELoadingPhase::FromString(*declaredPhase) != ELoadingPhase::None)
+			{
+				DRS_LOG(LogDrsXrArbiter, Error, "Arbitrated module %s::%s still has a LoadingPhase. Set it to None, or remove %s to exempt the module.", *pluginName, *moduleName, ArbitratedLoadingPhaseKey);
+				continue;
+			}
+
+			// EarliestPossible could be earlier than the arbiter itself.
+			const ELoadingPhase::Type loadingPhase = ParseOriginalLoadingPhase(originalPhase);
+			if (loadingPhase == ELoadingPhase::Max || loadingPhase == ELoadingPhase::None || loadingPhase == ELoadingPhase::EarliestPossible)
+			{
+				DRS_LOG(LogDrsXrArbiter, Error, "%s::%s has the loading phase '%s', which cannot be arbitrated.", *pluginName, *moduleName, *originalPhase);
+				continue;
+			}
+
+			FName pluginType = pluginTypeForPlugin;
+			if ((*moduleObject)->TryGetStringField(ArbitratedXrPluginKey, pluginTypeName))
+			{
+				pluginType = ParseVendorName(pluginTypeName, *pluginName);
+			}
+			if (pluginType.IsNone())
+			{
+				DRS_LOG(LogDrsXrArbiter, Error, "Arbitrated module %s::%s has no vendor. Set %s on the module or its plugin.", *pluginName, *moduleName, ArbitratedXrPluginKey);
+				continue;
+			}
+
+			DRS_LOG(LogDrsXrArbiter, Verbose, "Arbitrating %s::%s (%s, %s).", *pluginName, *moduleName, ToString(loadingPhase), *pluginType.ToString());
+			modules.Add({ FName(*moduleName), loadingPhase, pluginType });
+		}
+		return modules;
 	}
 
 	bool IsXrPluginTypeArbitrated(FName vendorId)

@@ -31,6 +31,9 @@ namespace Drs::XrRuntime
 	/** The runtime's manifest path from the first of its locators that finds one, or an empty string when it is not installed. */
 	FString FindRuntimeJson(const FDrsXrRuntime& runtime);
 
-	/** Whether any of the runtime's RunningProcesses is running. */
-	bool IsRuntimeRunning(const FDrsXrRuntime& runtime);
+	/** The file names of the running processes, in lower case (empty except on Windows). */
+	TSet<FString> GetRunningProcesses();
+
+	/** Whether any of the runtime's RunningProcesses is among runningProcesses (from GetRunningProcesses). */
+	bool IsRuntimeRunning(const FDrsXrRuntime& runtime, const TSet<FString>& runningProcesses);
 }

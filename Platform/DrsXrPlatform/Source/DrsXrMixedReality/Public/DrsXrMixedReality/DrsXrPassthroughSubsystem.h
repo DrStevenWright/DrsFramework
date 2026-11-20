@@ -36,7 +36,7 @@ public:
 
 	/**
 	 * Requests passthrough. The request is scoped to the world context's world and released when that world is torn down
-	 * (a null world context makes it persistent).
+	 * (a null world context makes it persistent). A world context with no world is ignored, with a warning.
 	 * @param requestId Unique ID of this request; release it with the same ID.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "DRS|XR Platform|Passthrough", meta = (WorldContext = "worldContext"))
