@@ -100,7 +100,10 @@ namespace Drs::XrArbiter
 	/** Whether any modules of a vendor are integrated with the arbiter (rather than loading as normal). */
 	DRSXRARBITER_API bool IsXrPluginTypeArbitrated(FName vendorId);
 
-	/** The vendor forced by the editor settings, the command line (-XrPlugin=) or the project settings, if any. */
+	/**
+	 * The vendor forced by an override the arbiter consults here, if any: the editor setting in the editor, -XrPlugin= in a
+	 * desktop game, then the project settings (the only one on Android).
+	 */
 	DRSXRARBITER_API FName GetXrPluginOverride(EDrsXrPluginOverrideType& outOverrideType);
 
 	/**

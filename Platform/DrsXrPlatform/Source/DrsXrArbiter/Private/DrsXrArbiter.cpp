@@ -499,22 +499,26 @@ namespace Drs::XrArbiter
 
 	FName GetXrPluginOverride(EDrsXrPluginOverrideType& outOverrideType)
 	{
+		// Only the sources the arbiter's choice uses, in its order: the editor setting in the editor, -XrPlugin= in a
+		// desktop game, then the project override. Android uses the project override alone.
 		FName pluginType;
-		if (GIsEditor && GetPluginTypeFromEditorSettings(pluginType))
+		outOverrideType = EDrsXrPluginOverrideType::None;
+#if !PLATFORM_ANDROID
+		if (GIsEditor)
 		{
-			outOverrideType = EDrsXrPluginOverrideType::EditorSettings;
+			if (GetPluginTypeFromEditorSettings(pluginType))
+			{
+				outOverrideType = EDrsXrPluginOverrideType::EditorSettings;
+			}
 		}
 		else if (GetPluginTypeFromCommandLine(pluginType))
 		{
 			outOverrideType = EDrsXrPluginOverrideType::CommandLine;
 		}
-		else if (GetPluginTypeFromProjectOverride(pluginType))
+#endif
+		if (outOverrideType == EDrsXrPluginOverrideType::None && GetPluginTypeFromProjectOverride(pluginType))
 		{
 			outOverrideType = EDrsXrPluginOverrideType::ProjectSettings;
-		}
-		else
-		{
-			outOverrideType = EDrsXrPluginOverrideType::None;
 		}
 		return pluginType;
 	}
