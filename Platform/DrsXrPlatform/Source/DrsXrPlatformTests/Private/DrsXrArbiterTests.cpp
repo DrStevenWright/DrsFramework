@@ -149,12 +149,12 @@ bool FDrsXrArbiterChooseRuntimeTest::RunTest(const FString& parameters)
 	const FName oculus(TEXT("Oculus"));
 	const FName pico(TEXT("PicoConnect"));
 
-	// Meta's Link software runs from boot, so Oculus always counts as running.
+	// Meta's Link software usually runs from boot, so Oculus usually counts as running.
 	TestEqual(TEXT("A running SteamVR wins over a running Oculus"), Choose({ steamVr, oculus }, { steamVr, oculus }), steamVr);
 	TestEqual(TEXT("Oculus wins while SteamVR is only installed"), Choose({ steamVr, oculus }, { oculus }), oculus);
 	TestEqual(TEXT("A running runtime wins over an earlier installed one"), Choose({ steamVr, pico }, { pico }), pico);
-	TestEqual(TEXT("With none running, the first installed one"), Choose({ oculus, pico }, {}), oculus);
-	TestEqual(TEXT("A running runtime that isn't installed doesn't count"), Choose({ oculus }, { steamVr }), oculus);
+	TestEqual(TEXT("With none running (no headset), none"), Choose({ steamVr, oculus, pico }, {}), FName());
+	TestEqual(TEXT("A running runtime that isn't installed doesn't count"), Choose({ oculus }, { steamVr }), FName());
 	TestEqual(TEXT("None installed"), Choose({}, { steamVr }), FName());
 	return true;
 }

@@ -150,26 +150,16 @@ namespace Drs::XrArbiter
 	const FDrsXrRuntime* ChooseRuntime(const TArray<FDrsXrRuntime>& runtimes,
 		TFunctionRef<FString(const FDrsXrRuntime&)> findManifest, TFunctionRef<bool(const FDrsXrRuntime&)> isRunning, FString& outManifest)
 	{
-		const FDrsXrRuntime* selected = nullptr;
 		outManifest.Empty();
 		for (const FDrsXrRuntime& runtime : runtimes)
 		{
 			const FString manifest = findManifest(runtime);
-			if (manifest.IsEmpty())
-			{
-				continue;
-			}
-			if (isRunning(runtime))
+			if (!manifest.IsEmpty() && isRunning(runtime))
 			{
 				outManifest = manifest;
 				return &runtime;
 			}
-			if (selected == nullptr)
-			{
-				selected = &runtime;
-				outManifest = manifest;
-			}
 		}
-		return selected;
+		return nullptr;
 	}
 }

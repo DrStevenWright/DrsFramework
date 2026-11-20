@@ -14,8 +14,9 @@ DRSXRARBITER_API DECLARE_LOG_CATEGORY_EXTERN(LogDrsXrArbiter, Log, All);
  *
  * THE OPENXR RUNTIME (Windows only)
  * At startup, before OpenXR creates its instance, it picks a runtime from the runtime table
- * (Runtimes in [/Script/DrsXrArbiter.DrsXrArbiterSettings]) and points XR_RUNTIME_JSON at it. A running runtime wins; otherwise the
- * first installed one in RuntimePriority. Under -noHMD none are selected. On Android, the device provides the runtime.
+ * (Runtimes in [/Script/DrsXrArbiter.DrsXrArbiterSettings]) and points XR_RUNTIME_JSON at it: the first one in RuntimePriority
+ * that is installed and running. With none running, or under -noHMD, none is selected, and the system's active runtime
+ * applies. On Android, the device provides the runtime.
  *
  * THE VENDOR PLUGIN
  * Vendor XR plugins (MetaXR, PicoOpenXR, ...) each hook into OpenXR at startup and can conflict when several are enabled.
@@ -108,9 +109,9 @@ namespace Drs::XrArbiter
 	DRSXRARBITER_API TArray<FDrsXrRuntime> GetPrioritisedRuntimes();
 
 	/**
-	 * The runtime to select from runtimes in priority order: the first running one that is installed, otherwise the
-	 * first installed one. findManifest returns a runtime's manifest path, or an empty string when it is not installed.
-	 * Returns null when none is installed.
+	 * The runtime to select from runtimes in priority order: the first one that is installed and running. findManifest
+	 * returns a runtime's manifest path, or an empty string when it is not installed. Returns null when none is running,
+	 * so that the system's active runtime applies.
 	 */
 	DRSXRARBITER_API const FDrsXrRuntime* ChooseRuntime(const TArray<FDrsXrRuntime>& runtimes,
 		TFunctionRef<FString(const FDrsXrRuntime&)> findManifest, TFunctionRef<bool(const FDrsXrRuntime&)> isRunning, FString& outManifest);

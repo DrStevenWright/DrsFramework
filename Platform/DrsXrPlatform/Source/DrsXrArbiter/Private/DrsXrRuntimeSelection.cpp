@@ -259,7 +259,7 @@ namespace Drs::XrRuntime
 
 		if (selected == nullptr)
 		{
-			DRS_LOG(LogDrsXrRuntime, Log, "None of the %d known OpenXR runtimes is installed; using the system's active OpenXR runtime.", runtimes.Num());
+			DRS_LOG(LogDrsXrRuntime, Log, "None of the %d known OpenXR runtimes is running; using the system's active OpenXR runtime.", runtimes.Num());
 			return;
 		}
 
