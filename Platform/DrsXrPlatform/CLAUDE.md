@@ -53,6 +53,7 @@ The arbiter's `StartupModule` selects the OpenXR runtime **before OpenXR creates
 - `FXrControllerMonitor` decides each hand's mode from its interaction profile, falling back to joint tracking. It is public and takes an `IXrControllerSource`, so the tests drive it without a headset.
 - **Hand tracking** is switched by the Hand Tracking category of `UDrsXrPlatformSettings` (Project Settings > DRS > XR Platform): controllers only, both, or hands only. It replaces MetaXR's Hand Tracking Support setting.
   - The settings class has `Config = Engine`, not the plugin's own file, because the Android UPL reads it and UPL can only read the fixed hierarchies (Engine, Game, ...).
+  - Read `HandTrackingSupport` through `UDrsXrPlatformSettings::GetHandTrackingSupport()`, which reads config. OpenXR calls the extension plugins during `PreInitHMDDevice`, before UObjects can be created, and `GetDefault` crashes there.
   - `FXrControllerExtensions` uses the hand extensions the engine doesn't, each only where the runtime enables it:
     - `XR_EXT_hand_interaction`: one suggested binding for `/interaction_profiles/ext/hand_interaction_ext`, because the runtime only reports profiles the app suggested bindings for, and `FXrControllerMonitor` needs that profile to see tracked hands.
     - `XR_FB_hand_tracking_aim`: the runtime's aim pose for tracked hands, through hand trackers of its own, since the engine's can't carry the aim state. Without it (SteamVR), `GetAimPose` falls back to the OpenXR aim pose. A data-driven aim pose config is planned.
