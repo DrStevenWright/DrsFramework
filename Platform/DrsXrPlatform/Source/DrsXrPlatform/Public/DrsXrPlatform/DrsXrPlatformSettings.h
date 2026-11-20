@@ -47,6 +47,12 @@ public:
 		CategoryName = TEXT("DRS");
 	}
 
+	/**
+	 * HandTrackingSupport, read from config rather than this object. Safe before UObjects can be created: OpenXR calls
+	 * the extension plugins during PreInitHMDDevice, when GetDefault would crash.
+	 */
+	static EDrsXrHandTrackingSupport GetHandTrackingSupport();
+
 	/** Whether the project supports tracked hands, physical controllers, or both. */
 	UPROPERTY(Config, EditAnywhere, Category = "Hand Tracking")
 	EDrsXrHandTrackingSupport HandTrackingSupport = EDrsXrHandTrackingSupport::ControllersAndHands;

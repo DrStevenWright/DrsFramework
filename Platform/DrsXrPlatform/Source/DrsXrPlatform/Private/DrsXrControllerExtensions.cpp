@@ -161,7 +161,7 @@ namespace Drs::XrPlatform
 			DRS_LOG(LogDrsXrPlatform, Log, "OpenXR hand interaction profile (XR_EXT_hand_interaction) not supported.");
 			return;
 		}
-		if (GetDefault<UDrsXrPlatformSettings>()->HandTrackingSupport == EDrsXrHandTrackingSupport::ControllersOnly)
+		if (UDrsXrPlatformSettings::GetHandTrackingSupport() == EDrsXrHandTrackingSupport::ControllersOnly)
 		{
 			return;
 		}
@@ -416,7 +416,7 @@ namespace Drs::XrPlatform
 
 	TOptional<bool> FXrControllerExtensions::DetermineHandTrackingAvailability() const
 	{
-		if (GetDefault<UDrsXrPlatformSettings>()->HandTrackingSupport == EDrsXrHandTrackingSupport::ControllersOnly)
+		if (UDrsXrPlatformSettings::GetHandTrackingSupport() == EDrsXrHandTrackingSupport::ControllersOnly)
 		{
 			DRS_LOG(LogDrsXrPlatform, Log, "Hand tracking not available: the project supports controllers only (XR Platform settings).");
 			return false;
